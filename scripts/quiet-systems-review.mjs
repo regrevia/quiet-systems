@@ -17,13 +17,14 @@ const includeMarkdown = args.includes('--include-markdown')
 const roots = args.filter((arg) => !arg.startsWith('--'))
 if (roots.length === 0) roots.push('.')
 
-const config = loadConfig()
+// Walking is synchronous. Each requested root owns its configuration and ignore base.
+let config
+let scanRoot
 const extensions = new Set(['.css', '.html', '.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.vue', '.svelte', '.astro', '.json'])
 if (includeMarkdown) extensions.add('.md')
-const ignored = new Set(['node_modules', '.git', 'dist', 'build', 'coverage', ...(config.ignoreDirs ?? [])])
+const ignored = new Set(['node_modules', '.git', 'dist', 'build', 'coverage'])
 const findings = []
 const skipped = []
-const maxFileBytes = Number(config.maxFileBytes ?? 1_048_576)
 const severityByRule = {
   'QS-PROTOTYPE-001': 'P0',
   'QS-COMPONENT-001': 'P1',
@@ -42,28 +43,14 @@ const severityByRule = {
   'QS-SLOP-002': 'P2',
   'QS-SLOP-003': 'P2'
 }
-const scanRoots = roots.map((root) => {
-  try {
-    return fs.realpathSync(path.resolve(root))
-  } catch {
-    return path.resolve(root)
-  }
-})
-
-function loadConfig() {
+function loadConfig(root) {
   const candidates = []
-  for (const root of roots) {
-    const resolved = path.resolve(root)
-    let current = resolved
-    try {
-      if (!fs.statSync(resolved).isDirectory()) current = path.dirname(resolved)
-    } catch {
-      current = path.dirname(resolved)
-    }
-    while (current !== path.dirname(current)) {
-      candidates.push(path.join(current, '.quiet-systems.json'))
-      current = path.dirname(current)
-    }
+  let current = fs.statSync(root).isDirectory() ? root : path.dirname(root)
+  while (true) {
+    candidates.push(path.join(current, '.quiet-systems.json'))
+    const parent = path.dirname(current)
+    if (parent === current) break
+    current = parent
   }
   candidates.push(path.resolve('.quiet-systems.json'))
   const file = candidates.find((candidate) => fs.existsSync(candidate))
@@ -91,12 +78,12 @@ function globToRegExp(pattern) {
 
 function isIgnored(file, rule) {
   const relativeToConfig = path.relative(config.__baseDir ?? process.cwd(), file).split(path.sep).join('/')
-  const relativeToRoot = scanRoots.map((root) => path.relative(root, file).split(path.sep).join('/'))
+  const relativeToRoot = path.relative(scanRoot, file).split(path.sep).join('/')
   const ignorePaths = config.ignore ?? []
   const ignoreRules = config.rules?.[rule]?.ignore ?? []
   return [...ignorePaths, ...ignoreRules].some((pattern) => {
     const matcher = globToRegExp(pattern)
-    return matcher.test(relativeToConfig) || relativeToRoot.some((relative) => matcher.test(relative))
+    return matcher.test(relativeToConfig) || matcher.test(relativeToRoot)
   })
 }
 
@@ -116,7 +103,7 @@ function walk(entry) {
   }
   if (stat.isSymbolicLink()) return
   if (stat.isDirectory()) {
-    if (ignored.has(path.basename(entry))) return
+    if (ignored.has(path.basename(entry)) || config.ignoreDirs?.includes(path.basename(entry))) return
     let children
     try {
       children = fs.readdirSync(entry)
@@ -127,7 +114,7 @@ function walk(entry) {
     for (const child of children) walk(path.join(entry, child))
     return
   }
-  if (stat.size > maxFileBytes) {
+  if (stat.size > (config.maxFileBytes ?? 1_048_576)) {
     skipped.push({ file: entry, reason: 'maxFileBytes' })
     return
   }
@@ -346,6 +333,8 @@ for (const root of roots) {
     recordReadError(resolved, error)
     continue
   }
+  scanRoot = realRoot
+  config = loadConfig(realRoot)
   walk(realRoot)
 }
 

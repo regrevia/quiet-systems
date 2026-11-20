@@ -134,7 +134,7 @@ For visual reviews, give the reviewer screenshots from the running product at a 
 - Give each view one primary visual focus and each task context one primary action.
 - Group related content with alignment, spacing, surface, or semantic headings. Use dividers only when they clarify a real boundary.
 - Keep list rows short enough to scan. Move explanation, technical logs, history, and evidence to a detail level.
-- At each level answer only the questions needed there. The summary identifies the object and current outcome. The detail explains decisions and actions. When a summary promises a breakdown, follow one row into detail. Reconcile its amount and count against the same period and contributing records. Carry the context needed to verify those figures. The evidence shows raw history or diagnostics.
+- At each level answer only the questions needed there. The summary identifies the object and current outcome. The detail explains decisions and actions. When a summary promises a breakdown, follow one row into detail. Reconcile its amount and count against the same period and contributing records. Carry the context needed to verify those figures. A magnitude and a signed movement can both be correct. Make the convention legible when moving between them, and verify the same underlying unit and direction in each view. The evidence shows raw history or diagnostics.
 - Keep the user’s current object, status, consequence, and next action together.
 - Do not make every field, message, or status its own card.
 - Do not use a tooltip to carry an accessible name or essential instruction.

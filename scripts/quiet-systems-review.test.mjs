@@ -313,4 +313,17 @@ fs.writeFileSync(mixedMarkup, [
 const mixedResult = spawnSync(process.execPath, [script, '--json', mixedMarkup], { encoding: 'utf8' })
 assert.deepEqual(JSON.parse(mixedResult.stdout).findings.filter(item => item.rule === 'QS-COPY-001').map(item => item.line), [1, 2])
 
+const projects = ['project-a', 'project-b'].map(name => path.join(root, name))
+for (const [index, dir] of projects.entries()) {
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true })
+  fs.writeFileSync(path.join(dir, '.quiet-systems.json'), JSON.stringify(index === 0 ? { ignore: ['src/**'] } : {}))
+  fs.writeFileSync(path.join(dir, 'src', 'Row.html'), '<p>已完成 · 刚刚</p>')
+}
+for (const ordered of [projects, projects.slice().reverse()]) {
+  const multi = spawnSync(process.execPath, [script, '--json', ...ordered], { encoding: 'utf8' })
+  assert.equal(multi.status, 1)
+  const copies = JSON.parse(multi.stdout).findings.filter(item => item.rule === 'QS-COPY-001')
+  assert.deepEqual(copies.map(item => path.basename(path.dirname(path.dirname(item.file)))), ['project-b'])
+}
+
 process.stdout.write('quiet-systems-review self-test passed\n')
