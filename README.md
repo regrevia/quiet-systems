@@ -148,3 +148,18 @@ WorkBuddy 的 MiniMax-M3.1-Flash 建议用固定数据核对详情字段。采�
 修订后同题重跑，在两个宽度下均能看到重试等待状态、新的行内失败原因，以及成功后的清除。仍有两处可复现的问题：同一行重复显示“重试中”，“查看”只弹出“正在打开 月报.pdf”，没有呈现详情。对查看操作的验收因此要求打开后能读到对象与可用字段。
 
 打开两张 390px 实拍对照：[Quiet Systems 修订后](examples/comparison/recovery-quiet.png) 和 [frontend-design](examples/comparison/recovery-frontend-design.png)。Quiet Systems 用蓝色强调唯一的恢复操作，查看按钮退到次级，首屏也省去了无来源的时间戳。两份原型的文件名、原因和操作都靠位置分开。若一屏同时出现多条失败记录，还需重新检查多个蓝色按钮是否争夺注意力。
+
+### 原文与走查方法
+
+| 一手原文 | 在 Quiet Systems 中如何检查 |
+| --- | --- |
+| “Align elements to make them easier to scan, and use indentation to convey hierarchy.” [Apple HIG：Layout](https://developer.apple.com/design/human-interface-guidelines/layout) | 用同一组藏品检查时间是否能纵向比较、从属说明是否能归回正确的对象。 |
+| “While the parts central to the user’s task should stay in focus, ones that support orientation and navigation should recede.” [Linear：A calmer interface](https://linear.app/now/behind-the-latest-design-refresh) | 到达详情后检查当前记录是否获得主要视觉权重，同时能找到回到集合的入口。 |
+| “Write button text in sentence case, describing the action it performs.” [GOV.UK Design System：Button](https://design-system.service.gov.uk/components/button/) | 中文复用动作命名原则。逐个激活“查看”“保存”等按钮，检查下一状态与动词是否相符。 |
+| “Keep words to a minimum so they are fast to read and act upon.” [Carbon：Empty states](https://www.carbondesignsystem.com/building-blocks/core/patterns/empty-states) | 空列表只解释当前原因和可用下一步，逐句删除重复说明，保留完成操作所需的信息。 |
+
+### 同题实测：需求不明确时选方向
+
+用两条社区藏品记录生成通览和逐件阅读两个方向。首次生成在 390px 和 1440px 下均可按键打开裁纸刀记录并返回，但正文都新增了刀刃磨损等细节，返回焦点也未落到原记录。强调保留一行原文后，同题重跑仍编造了刀刃状态。针对这种情况，两个可打开的参考样板现在直接读取同一份字段。可用 [通览样板](examples/direction-samples/archive/overview.html) 比较年份，用 [阅读样板](examples/direction-samples/archive/reading.html) 打开单件，再回到原入口。这两个是经人工修订的参考实现。
+
+WorkBuddy 的 Kimi-K3.1-Pro 提醒，选择方向还需考虑低频但必要的任务。两件年份是否必须同屏可比，可以实际操作后回答。

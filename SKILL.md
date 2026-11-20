@@ -75,7 +75,7 @@ Write a short design brief with the user, primary role, main task, object being 
 
 Ask the smallest set of questions that can change the design. If the user cannot answer yet, state assumptions and produce two or three materially different low-cost samples using the same content and task. Vary information hierarchy, density, navigation, or interaction model, not random colors. Use references, screenshots, open-source patterns, or small prototypes when they help the user choose. Stop for direction selection before investing in a full visual system.
 
-Use the direction sample format in `examples/direction-samples/README.md`. Each sample names its task, data assumptions, hierarchy, density, interaction model, and decision tradeoff. A sample is not a production implementation.
+Use the direction sample format in `examples/direction-samples/README.md`. Each sample names its task, data assumptions, hierarchy, density, interaction model, and decision tradeoff. If the choice turns on navigation, supply a clickable path for the same object in each sample. Open the same detail in every direction and compare all visible factual claims with the shared record. A reading-first sample may have only one sentence. Preserve that sentence, even when the screen has room for more. On return, verify focus reaches a visible control for the originating object. Put the selection question in the handoff. Ask which task is frequent and which secondary task must remain possible. Walk through both before recommending a direction.
 
 ### 2. Model the task and information
 
