@@ -76,7 +76,7 @@ node scripts/validate-fixtures.test.mjs
 
 报告校验返回 0 表示结构完整，1 表示缺少必需章节，2 表示参数或文件读取失败。
 
-`examples/production-adapter.ts` 展示如何在开发环境使用 demo fixture，同时在生产环境拒绝 demo payload。原生控件经过统一外观适配后，可以用 `data-quiet-adapted` 或 `quiet-systems: allow-native` 标记并保留人工复核证据。
+`examples/production-adapter.ts` 提供两个入口。原型通过 `adaptDemoPayload` 读取有标记的 fixture，产品通过 `adaptProductionPayload` 读取接口数据，遇到 fixture 标记即报错。浏览器和服务端使用同一判断。原生控件经过统一外观适配后，可以用 `data-quiet-adapted` 或 `quiet-systems: allow-native` 标记并保留人工复核证据。
 
 `examples/view-state-contract.ts` 展示如何用判别联合约束 loading、ready、empty、error、offline、partial、permission 和 recovered 状态，并从同一状态来源推导可见数据和恢复动作。
 offline 可以没有缓存数据，界面仍应保留“离线且暂无缓存”和“查询结果为空”的语义差异。
@@ -125,6 +125,8 @@ Quiet Systems 目前值得验证的优势是从选方向一直跟踪同一个任
 
 MiniMax 审阅提示还要验证合计。另用图书归还月报检验迁移：两馆分别为 12 和缺失时，合计显示“12(部分)”；两馆都上报时，5 和 0 合计为 5。再把两馆都置为缺失，浏览器实际显示“0(部分)”，暴露了把无观测误读为零的风险。最终规则要求在合计处分别检查全部上报、部分上报、全部缺失。后来同题重跑时，全部缺失不再显示零，但部分上报和全部缺失都显示“部分数据同步中”，没有给出部分合计 12。以上均为单次生成和浏览器交互观察。
 
+指标报表可复用 `examples/report/count-summary.mjs`，输入按预期来源排列，每个缺失项填 `null`。输出同时保留合计、上报数和预期数。把这个参考函数随同原简报提供给生成器后，重新生成的报表在 Chrome 两个宽度下分别显示了部分合计 12（1/2 个分馆）、真实的部分合计 0（1/2 个分馆）和全部缺失时的“无可用数据”。切换上月显示完整合计 5。该函数适用于可相加的非负整数计数；均值、比例与去重人数需要各自的聚合口径。
+
 ### 同题实测：手册阅读
 
 在相同模型和三段已定稿中文正文下生成手册，Chrome 以 390px 和 1440px 两种宽度检查目录、章节深链及浏览器返回。两份产物都能从目录进入章节并返回上一个片段地址。Quiet Systems 初版只保留了提供的三段正文，却将三处中文逗号替换为英文逗号；frontend-design 初版保留了三句原文，同时增加副标题、解释及建议，其中包括未提供的湿度范围。
@@ -148,6 +150,8 @@ WorkBuddy 的 MiniMax-M3.1-Flash 建议用固定数据核对详情字段。采�
 修订后同题重跑，在两个宽度下均能看到重试等待状态、新的行内失败原因，以及成功后的清除。仍有两处可复现的问题：同一行重复显示“重试中”，“查看”只弹出“正在打开 月报.pdf”，没有呈现详情。对查看操作的验收因此要求打开后能读到对象与可用字段。
 
 打开两张 390px 实拍对照：[Quiet Systems 修订后](examples/comparison/recovery-quiet.png) 和 [frontend-design](examples/comparison/recovery-frontend-design.png)。Quiet Systems 用蓝色强调唯一的恢复操作，查看按钮退到次级，首屏也省去了无来源的时间戳。两份原型的文件名、原因和操作都靠位置分开。若一屏同时出现多条失败记录，还需重新检查多个蓝色按钮是否争夺注意力。
+
+再把同一原型接到本机 HTTP 接口，第一次重试返回 503 和新的失败原因，第二次返回 200。在两个宽度下连续按两次 Enter 均只产生一个初始 POST，新的原因出现在失败行，再次重试后显示完成。这次验证使用本机测试服务。
 
 ### 原文与走查方法
 
