@@ -175,3 +175,5 @@ Apple 对自定义动效的两条原文是 “Make motion optional.” 和 “Le
 在装有 Chrome 和 `playwright-core` 的项目目录中运行 `node "$QS_DIR/scripts/verify-sample-motion.mjs"`。该脚本使用仓库自带的藏品样板，在 390、768、1440 像素宽度分别测试普通与减少动态效果两种偏好。它走查打开、立即返回、切换记录与再次关闭的过程。验收产品时，把这组操作换成该产品真实的对象和入口。
 
 WorkBuddy 的 MiniMax-M3.1-Flash 提出用宿主元素检查样式泄漏。脚本现同时检查独立元素的动画名称和时长；即使全局覆盖只把时长改成 1ms，也会触发失败。普通模式的测试会暂停正在进入的弹窗，以便确定关闭发生在动画完成前。
+
+本机草稿的[可运行样板](examples/local-draft/index.html)把保存错误留在输入区旁，写入成功后才确认。装有 Chrome 和 playwright-core 的项目可运行 `node "$QS_DIR/scripts/verify-sample-save.mjs"`，检查键盘重试和刷新后的内容。

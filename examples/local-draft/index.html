@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>访谈笔记</title>
+  <link rel="stylesheet" href="../direction-samples/archive/sample.css">
+  <style>
+    textarea { display: block; margin: .5rem 0 1rem; width: 100%; min-height: 8rem; padding: .75rem; border: 1px solid #777; border-radius: .25rem; font: inherit; color: inherit; background: white; resize: vertical; }
+    textarea:focus-visible { outline: 2px solid #2355a0; }
+    button { padding: .55rem 1rem; border-radius: .25rem; background: #234776; color: white; }
+    #error { color: #812c20; }
+    p:empty { margin: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>访谈笔记</h1>
+    <form>
+      <label for="draft">记录</label>
+      <textarea id="draft" data-quiet-adapted></textarea>
+      <button type="submit">保存到此设备</button>
+      <p id="error" role="alert"></p>
+      <p id="status" role="status"></p>
+    </form>
+  </main>
+  <script src="draft.js"></script>
+</body>
+</html>
