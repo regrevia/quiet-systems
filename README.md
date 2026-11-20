@@ -181,3 +181,19 @@ WorkBuddy 的 MiniMax-M3.1-Flash 提出用宿主元素检查样式泄漏。脚�
 ### 原生页面视觉复核
 
 三轮审阅使用 Android 应用运行截图与演示账本。Kimi 从总览前后对照中发现双位数轴标签换行；MiniMax 查看修订后的总览与平台详情，发现总览的 16 笔在详情丢失；Claude Code 逐图核对总览、平台与交易，在 6 笔餐饮交易中发现汇总和明细的正负号口径不清。由此补充三项走查：刻度碰撞时优先降低密度；同范围的金额和笔数可下钻核对；切换层级时能解释金额方向。三条都可在其他产品中按数据语义选用。
+
+### Lenso UI：菜单与页签
+
+[小红书笔记](https://xhslink.cn/o/8VgA4P6NEOP)介绍的是 [Lenso UI](https://ui.lenso.dev/)，一个 MIT 许可的 React 组件库。它把页签的行为交给 UI SDK，另外绘制选中指示器，并提供独立的面板组件。Quiet Systems 借鉴这层分工：把指示器换成普通下划线后，键盘选择、焦点提示和内容切换都应继续工作。[页签源码](https://github.com/LioRael/lenso-ui/blob/c6624745d9aab11de4ca1e3d152a046187b671d1/packages/ui/src/components/tabs/tabs.tsx)
+
+分享菜单把 Copy Link 放在首层、邮件渠道放进子菜单。值得复用的是按任务组织命令和逐级返回。该示例中可见的 Other 却使用 Share 作为可访问名称，因此审阅时还要核对屏幕标签与辅助技术名称。菜单深度、英文命名和玻璃效果都由各产品自行取舍。[菜单示例源码](https://github.com/LioRael/lenso-ui/blob/c6624745d9aab11de4ca1e3d152a046187b671d1/apps/docs/src/demos/en/menu/with-submenus.tsx)
+
+在有 Chrome 和 `playwright-core` 的产品目录中，用两个相邻页签和目标面板内独有的一句实文运行检查：
+
+```sh
+node "$QS_DIR/scripts/verify-tab-switch.mjs" "$PAGE_URL" 原文 校注 '保留原折痕，暂不压平。'
+```
+
+脚本在 390 和 1440 像素宽度检查方向键焦点、激活、面板关联和实际内容。古籍记录样板在两个宽度均通过。把校注页签指回原文面板，脚本会报错。
+
+Kimi-K3.1-Pro 查看[原文截图](examples/comparison/tabs-original.png)和[校注截图](examples/comparison/tabs-annotation.png)，读对了两句正文，也指出单独一句校注缺少归属。两张图已经显示页签名；真正缺失的是当前记录的名称。因此规范要求在上下文容易丢失时保留对象名称，可复用现有页面标题或面包屑。

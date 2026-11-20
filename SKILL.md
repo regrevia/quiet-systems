@@ -172,6 +172,12 @@ For visual reviews, give the reviewer screenshots from the running product at a 
 - A status icon supplements a status word or accessible name when the state matters.
 - Icon-only controls have an accessible name and a visible focus state.
 
+### Menus and tabs
+
+Keep frequent commands at the first menu level. Give a submenu a visible name that predicts its children and preserve that name in its accessible label. With the keyboard, open a branch and return to its parent before dismissing the root. Check focus at each return and verify that the chosen command acts on the original object.
+
+Use tabs for peer content panels. Give each tab and panel a matching accessible relationship. Exercise the inactive tab by keyboard, then verify its selected state and a unique fact inside the visible panel. Keep the focus indicator distinct from selection when activation is manual. A period filter updates the same measure and may use a single-choice control instead. When the panel contains a record-specific value, keep the record identity visible across switches if the surrounding view would otherwise lose it. Reuse an existing screen title or breadcrumb. Choose surface materials after the interaction works.
+
 ### Motion and state
 
 - Define default, hover, active, focus, disabled, loading, success, warning, error, offline, stale, cancelled, and recovery behavior where applicable.
