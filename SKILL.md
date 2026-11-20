@@ -176,7 +176,7 @@ Treat findings as review prompts. The script cannot prove visual quality, access
 
 - Define default, hover, active, focus, disabled, loading, success, warning, error, offline, stale, cancelled, and recovery behavior where applicable.
 - Do not express a state only through color, glow, pulse, or motion.
-- Respect reduced-motion preferences. A reduced-motion path must preserve status and task completion.
+- Respect reduced-motion preferences. Commit the new state and place focus as soon as the user acts. The essential action must also complete when no animation runs or an entry is interrupted. In both motion preferences, open a record, dismiss it immediately and open another. Verify the second record and the focus destination after dismissal. Scope motion overrides to the components you own.
 - Keep live updates stable. Do not reorder content unexpectedly or duplicate optimistic actions after reconnect.
 - Put retry, cancel, permission, and recovery actions next to the state that needs them.
 

@@ -163,3 +163,11 @@ WorkBuddy 的 MiniMax-M3.1-Flash 建议用固定数据核对详情字段。采�
 用两条社区藏品记录生成通览和逐件阅读两个方向。首次生成在 390px 和 1440px 下均可按键打开裁纸刀记录并返回，但正文都新增了刀刃磨损等细节，返回焦点也未落到原记录。强调保留一行原文后，同题重跑仍编造了刀刃状态。针对这种情况，两个可打开的参考样板现在直接读取同一份字段。可用 [通览样板](examples/direction-samples/archive/overview.html) 比较年份，用 [阅读样板](examples/direction-samples/archive/reading.html) 打开单件，再回到原入口。这两个是经人工修订的参考实现。
 
 WorkBuddy 的 Kimi-K3.1-Pro 提醒，选择方向还需考虑低频但必要的任务。两件年份是否必须同屏可比，可以实际操作后回答。
+
+### 动效与快速返回
+
+Apple 对自定义动效的两条原文是 “Make motion optional.” 和 “Let people cancel motion.” 通览样板打开详情时淡入，开启减少动态效果后直接呈现。详情内容与键盘焦点随操作就位。[Apple HIG：Motion](https://developer.apple.com/design/human-interface-guidelines/motion)
+
+在装有 Chrome 和 `playwright-core` 的项目目录中运行 `node "$QS_DIR/scripts/verify-sample-motion.mjs"`。该脚本使用仓库自带的藏品样板，在 390、768、1440 像素宽度分别测试普通与减少动态效果两种偏好。它走查打开、立即返回、切换记录与再次关闭的过程。验收产品时，把这组操作换成该产品真实的对象和入口。
+
+WorkBuddy 的 MiniMax-M3.1-Flash 提出用宿主元素检查样式泄漏。脚本现同时检查独立元素的动画名称和时长；即使全局覆盖只把时长改成 1ms，也会触发失败。普通模式的测试会暂停正在进入的弹窗，以便确定关闭发生在动画完成前。

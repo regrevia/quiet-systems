@@ -13,27 +13,6 @@
     background-color var(--quiet-motion-duration-fast) var(--quiet-motion-ease-standard);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --quiet-motion-duration-fast: 1ms;
-    --quiet-motion-duration-standard: 1ms;
-    --quiet-motion-duration-emphasis: 1ms;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
-  }
-
-  .quiet-transition {
-    transition-duration: 1ms;
-    scroll-behavior: auto;
-  }
-}
-
 @keyframes quiet-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -50,4 +29,21 @@
 
 .quiet-slide-up {
   animation: quiet-slide-up var(--quiet-motion-duration-emphasis) var(--quiet-motion-ease-emphasis);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --quiet-motion-duration-fast: 0ms;
+    --quiet-motion-duration-standard: 0ms;
+    --quiet-motion-duration-emphasis: 0ms;
+  }
+
+  .quiet-transition {
+    transition: none;
+  }
+
+  .quiet-fade-in,
+  .quiet-slide-up {
+    animation: none;
+  }
 }

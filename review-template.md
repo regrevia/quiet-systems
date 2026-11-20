@@ -45,7 +45,7 @@
 - Keyboard and focus result:
 - Screen reader or accessibility-tree result:
 - Reduced-motion result:
-- Motion duration and transition result:
+- Interrupted transition: first action, immediate reversal, final visible object and focus destination:
 - For a save flow, record the visible message and editable values after a forced write failure, then the confirmed effect after retry:
 - Permission, stale, error, retry, and recovery result:
 
