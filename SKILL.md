@@ -42,6 +42,8 @@ For a report, name the event being counted in the heading or column label (for e
 
 When retrying one record, keep its name visible and label the pending action in text. Hold the request open, activate retry twice and inspect a different record by keyboard. Verify one request for the failed ID and one inspection for a single activation. Reject with a different, user-safe reason and check that it persists beside the affected record. Retry successfully and check that the stale reason disappears. Open details with a sparse fixture. Trace each visible factual value to a supplied field or documented derivation. Omit optional facts that are absent, or mark a required value as unavailable. Keep internal identifiers out of the view unless the task uses them.
 
+Avoid unnecessary secondary labels and descriptions. Let the layout do the explaining.
+
 For each line of interface copy, name the decision, consequence or recovery step it supports. Try removing it in context. Retain instructions that prevent an error, including when the shortest label cannot convey the consequence.
 
 ## Scope
