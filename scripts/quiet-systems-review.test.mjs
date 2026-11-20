@@ -298,4 +298,19 @@ const incompleteReport = JSON.parse(incomplete.stdout)
 assert(incompleteReport.findings.length > 0)
 assert(incompleteReport.skipped.some(item => item.reason === 'ENOENT' && item.file.endsWith('absent.tsx')))
 
+const encodedFile = path.join(root, 'Encoded.html')
+fs.writeFileSync(encodedFile, ['<p>作者 &middot; 昨天</p>', '<span>', '&#x00B7;', '</span>', '<div title="&middot;">正常字段</div>', '<p>未转义的示例 &amp;middot;</p>'].join('\n'))
+const encoded = spawnSync(process.execPath, [script, '--json', encodedFile], { encoding: 'utf8' })
+assert.equal(encoded.status, 1)
+assert.deepEqual(JSON.parse(encoded.stdout).findings.filter(item => item.rule === 'QS-COPY-001').map(item => item.line), [1, 3])
+
+const mixedMarkup = path.join(root, 'Mixed.tsx')
+fs.writeFileSync(mixedMarkup, [
+  "<span>{a<b?a+' · '+b:''}</span>",
+  '<span>{a<b?a:b} &CenterDot; {date}</span>',
+  '<code>&middot;</code>'
+].join('\n'))
+const mixedResult = spawnSync(process.execPath, [script, '--json', mixedMarkup], { encoding: 'utf8' })
+assert.deepEqual(JSON.parse(mixedResult.stdout).findings.filter(item => item.rule === 'QS-COPY-001').map(item => item.line), [1, 2])
+
 process.stdout.write('quiet-systems-review self-test passed\n')

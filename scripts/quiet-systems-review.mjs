@@ -244,6 +244,22 @@ function inspect(file) {
     add(file, line, 'QS-SLOP-003', '发现可能脱离当前对象和动作的泛化营销文案。请改成具体对象、结果或下一步动作，或在评审中说明它的产品语义。', evidence)
   }
 
+  // Inspect character references in markup text without decoding the source file.
+  if (/\.(?:html|jsx|tsx|vue|svelte|astro)$/.test(file)) {
+    const markup = text.replace(/<!--[^]*?-->|<(script|style|pre|code)\b[^>]*>[^]*?<\/\1>/gi,
+      block => ' '.repeat(block.length))
+    for (const node of markup.matchAll(/[>}]([^<>{}]*?)(?=[<{])/g)) {
+      const value = node[1]
+      const entity = /&(?:middot|centerdot|CenterDot|bull|bullet|sdot|#(?:0*(?:183|8226|8901|8729)|[xX]0*(?:[bB]7|2022|22[cC]5|2219)));/.exec(value)
+      if (!entity) continue
+      const offset = node.index + 1 + entity.index
+      const line = text.slice(0, offset).split('\n').length
+      if (!separatorFindings.has(`${line}:${lines[line - 1]}`)) {
+        add(file, line, 'QS-COPY-001', '可见文字中的 HTML 字符引用会渲染为中点。请用独立字段和间距区分内容。', lines[line - 1])
+      }
+    }
+  }
+
   for (const match of text.matchAll(/<(span|small|p|div|label)\b[^>]*>\s*[·•⋅∙]\s*<\/\1>/gi)) {
     const line = text.slice(0, match.index).split(/\r?\n/).length
     const evidence = match[0].split(/\r?\n/)[0]
