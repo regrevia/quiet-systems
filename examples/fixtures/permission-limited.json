@@ -1,0 +1,13 @@
+{
+  "__source": "demo",
+  "state": "permission-limited",
+  "items": [
+    {
+      "id": "fixture-permission-summary-001",
+      "name": "摘要记录",
+      "status": "summary-visible",
+      "description": "详细记录需要额外权限。"
+    }
+  ],
+  "message": "你可以查看摘要，但没有权限查看详细记录。"
+}

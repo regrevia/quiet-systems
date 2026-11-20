@@ -1,0 +1,21 @@
+{
+  "maxFileBytes": 1048576,
+  "ignoreDirs": [".next", ".nuxt", "storybook-static"],
+  "ignore": [
+    "examples/**",
+    "scripts/quiet-systems-review.mjs",
+    "**/*.test.*",
+    "**/*.spec.*"
+  ],
+  "rules": {
+    "QS-SLOP-001": {
+      "ignore": ["design/tokens/**"]
+    },
+    "QS-COPY-003": {
+      "maxLength": 180
+    },
+    "QS-VISUAL-002": {
+      "ignore": ["design/tokens/**", "design/themes/**"]
+    }
+  }
+}

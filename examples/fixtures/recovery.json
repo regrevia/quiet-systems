@@ -1,0 +1,11 @@
+{
+  "__source": "demo",
+  "state": "recovered",
+  "items": [
+    {
+      "id": "fixture-recovered-001",
+      "name": "Recovered result",
+      "status": "ready"
+    }
+  ]
+}

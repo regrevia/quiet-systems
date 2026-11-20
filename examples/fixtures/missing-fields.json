@@ -1,0 +1,13 @@
+{
+  "__source": "demo",
+  "state": "ready",
+  "items": [
+    {
+      "id": "fixture-missing-001",
+      "name": "缺少可选字段",
+      "status": "waiting",
+      "description": null,
+      "updatedAt": null
+    }
+  ]
+}

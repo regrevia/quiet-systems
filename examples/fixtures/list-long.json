@@ -1,0 +1,27 @@
+{
+  "__source": "demo",
+  "state": "ready",
+  "items": [
+    {
+      "id": "fixture-long-001",
+      "name": "跨团队协作与权限恢复方案 — Internationalization and recovery review",
+      "status": "stale",
+      "updatedAt": "2026-11-20T02:45:00Z",
+      "count": 10000
+    },
+    {
+      "id": "fixture-long-002",
+      "name": "第二个项目 with mixed-language content and a long title",
+      "status": "running",
+      "updatedAt": "2026-11-19T18:20:00Z",
+      "count": 48
+    },
+    {
+      "id": "fixture-long-003",
+      "name": "缺少可选描述的项目",
+      "status": "waiting",
+      "updatedAt": null,
+      "count": 0
+    }
+  ]
+}

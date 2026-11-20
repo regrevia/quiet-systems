@@ -1,214 +1,282 @@
 ---
 name: quiet-systems
-description: Use when designing, redesigning, reviewing, or documenting Web or app interfaces that should feel calm, professional, Apple-inspired, information-efficient, and resistant to AI Slop, especially collaboration, SaaS, AI-agent, dashboard, navigation, and design-system work.
+description: Use when designing, redesigning, reviewing, or documenting a web, desktop, or mobile UI that needs clear hierarchy, restrained visual language, reliable information disclosure, coherent cross-platform behavior, or protection against AI-generated design and copy slop.
 ---
 
-# 极简设计理念
+# Quiet Systems
 
-## 核心原则
+## Purpose
 
-把界面当成用户完成任务的空间，不当成展示视觉效果的画布。高级感来自清晰的信息架构、稳定的层级、克制的材质、准确的文字和可靠的状态反馈。
+Treat a UI as a place where people identify an object, make a decision, and complete an action. The visual language may be expressive, dense, warm, playful, or technical. This skill does not prescribe one aesthetic. It provides a repeatable process for choosing and validating a visual system.
 
-Apple 的设计只能作为原则来源。不要复制 Apple 的品牌资产、SF Symbols 文件、专有组件或页面外观。Web 和跨平台产品应提炼相同的判断逻辑，再使用自己的字体、图形和 Token。
+Apple contributes principles for hierarchy, typography, materials, icons, layout, accessibility, and platform adaptation. Linear contributes practices for task flow, contextual actions, command entry, list density, grouping, ordering, and display preferences. Do not copy either product's brand assets or page appearance.
 
-## 何时使用
+Resolve bundled script, example and template paths relative to this SKILL.md. Run the tools against the product workspace. In shell examples, set QS_DIR to the directory containing this file.
 
-- 设计或重构 Web、桌面端或移动端页面。
-- 设计 SaaS、协作、AI Agent、插件、工作区或消息产品。
-- 页面出现大量卡片、徽章、渐变、玻璃、说明文字或抽象图标。
-- 需要把 Apple/macOS 风格迁移到非 Apple 平台。
-- 需要建立设计语言、组件库、图标系统或产品评审规范。
+## Choose the first design test
 
-## 设计顺序
+Pick the row that describes the visitor's next decision. For a mixed screen, use the primary task first. Review the same content at a narrow width and with keyboard input.
 
-1. 写出用户在当前页面必须完成的一个主要任务。
-2. 列出默认、空、加载、失败、权限受限、等待确认和恢复状态。
-3. 先画黑白线框，检查空间、顺序、密度和焦点。
-4. 用真实长度的数据压测，包含长标题、长消息、多人同时更新和中英文混排。
-5. 再定义颜色、材质、圆角、阴影、图标和动效 Token。
-6. 最后抽象组件。组件必须来自重复的行为和状态，不从视觉装饰出发。
-
-## Apple 式空间和材质
-
-### 三层空间
-
-| 层级 | 责任 | 视觉处理 |
+| Task | Keep in the first reading path | Test before polishing |
 | --- | --- | --- |
-| 内容层 | 阅读、编辑、浏览主要信息 | 连续平面，低边界，少阴影 |
-| 功能层 | 侧栏、工具栏、筛选、编辑器 | 稳定表面，清晰分组，控件保持可见 |
-| 瞬时层 | 菜单、提示、话题、确认和插件上下文 | 短时出现，焦点明确，可关闭和回收 |
+| Discover a product or service | A concrete offer, a representative example and the relevant next step | Remove the slogan. Can a newcomer tell what they get and inspect the example? |
+| Read or learn | Title, current section, readable text and meaningful illustrations | Follow a deep link on a narrow screen and return to the same passage. |
+| Browse or compare | Comparable attributes in a stable order, active filters and result count when known | Apply a filter that yields zero results. Clear it without losing the other filters. |
+| Enter or edit data | Field labels, consequential requirements and the next action | Submit an invalid value. Retain the draft, locate the error by keyboard and correct just that field. |
+| Monitor or recover | Affected object, consequence and available recovery | Retry one failure twice during a pending request. Successful records remain usable. |
+| Interpret a measure | The question, unit, period and comparison basis | Switch the period and distinguish a measured zero from missing data without relying on color. |
 
-玻璃和模糊只用于功能层或瞬时层。内容层保持安静。文字较多的侧栏、弹层和确认框优先使用更不透明的材质。不要让每个卡片、输入框和按钮都变成玻璃。
+At the first width where the layout breaks, collapse secondary navigation or diagnostics before hiding the active object or its next action. From the keyboard, open the deferred controls, act on the same object, then dismiss the overlay and verify focus returns to its trigger. Capture the viewport and focus sequence so another direction can be compared under the same conditions.
 
-### 布局判断
+For a product introduction, lead with the concrete input, output and a way to inspect one example. Use the supplied example records. Every capability claim needs a source in the brief or the working product. Remove secondary feature lists when the example already demonstrates the offer. If the brief calls for opening and closing an example, verify the example itself is concealed initially, readable when opened and concealed after closing. Use Tab and Enter to open the example. Inspect the worked input and output in the accessibility tree before opening, while open and after closing. Confirm focus returns to the opening control. For a modal, also dismiss with Escape. Choose an inline disclosure or a dialog according to how much context the visitor needs.
 
-- 顶部工具栏只放标题、导航和高频动作，低频命令放菜单或更多菜单。
-- 侧栏用分组和折叠管理垂直空间，默认显示用户当前需要的范围。
-- 内容区承担阅读和决策，侧栏不重复内容区的说明。
-- 浮层只在用户触发后出现，关闭后焦点回到触发点。
-- 边界优先使用留白、表面差异和对齐关系。细线只用于确实需要分隔的地方。
-- 半径保持同心关系。小控件的圆角不能随意大于外部容器的圆角。
+Before handing over a prototype, replay each requested verb from its visible entry point. For “inspect”, open the control and locate the requested object and its available details. A toast announcing that it will open does not complete the action. For text search, provide a labeled query field and identify the searchable fields from the brief. In a catalog, enter part of a known title, apply a filter, then clear only the query. Check the remaining records after each action.
 
-## 信息密度和文案
+When typesetting supplied editorial copy, preserve the text, punctuation and paragraph order unless editing is requested. Compare each rendered paragraph with its source, then inspect the remaining body text for added explanations or claims. For an exact-copy handoff, export the approved paragraphs and the visible prose blocks in reading order as UTF-8 text, with a blank line between blocks. Run `node "$QS_DIR"/scripts/compare-article-copy.mjs approved.txt rendered.txt`. Inspect captions and any extra body text when selecting those blocks. Keep navigation labels outside the article prose. Open a shared section URL in a fresh tab and reload it. After layout settles, confirm the target heading is visible below any persistent header and that browser Back restores the previous passage.
 
-### 文案约束
+Write confirmation copy from the effect that actually completed. A local-only form can say “已保存到此设备” after a successful device write. A claim about a reserved place, sent email or follow-up call needs a corresponding service result or business commitment. Exercise both outcomes at the persistence boundary. Force the save to fail once before it acknowledges the write. Verify the draft is editable, the failure is visible and no success message appears. Restore the writer and retry using the same draft. Publish success only after the write returns or resolves successfully. When the screen uses custom field errors, associate each error with its field and move focus to the first invalid field after submission.
 
-`Avoid unnecessary secondary labels and descriptions. Let the layout do the explaining.`
+Treat supplied records as the content budget for comparison. When a record contains only a title, day and format, render those fields. Add a description, price, timetable or availability claim only when supplied or explicitly requested as sample content. With zero matches, state the result once and keep the active filters available.
 
-- 一个按钮只保留动作名，例如“新建群”“重试”“发送”。
-- 标题已经说明对象时，不重复添加副标题。
-- 状态用图标、数字、位置和短词表达，只有错误、权限和危险操作需要完整解释。
-- 空状态只说明当前情况和下一步，例如“还没有群聊。新建一个群开始协作。”
-- 不使用“下一代”“智能工作台”“赋能协同”“全新升级”等空泛营销词填充留白。
-- 不用 Tooltip 替代可访问名称。纯图标按钮必须有 accessible name。
-- 文案需要中文时使用自然中文，避免把英文产品术语逐字直译成营销句。
+For a report, name the event being counted in the heading or column label (for example, “已完成维修” for completed repairs). Keep the unit next to the measure. Show a missing reason beside the affected value. Add a coverage summary only when it changes how readers interpret a total or decide what to do. When the task requires a total, exercise three inputs: all values reported (including a real zero), some missing, and all missing. Label a partial sum with its reporting scope. With no observations, show the missing state in the total cell. Compare periods only when the metric and coverage are comparable.
 
-### 三秒检查
+When retrying one record, keep its name visible and label the pending action in text. Hold the request open, activate retry twice and inspect a different record by keyboard. Verify one request for the failed ID and one inspection for a single activation. Reject with a different, user-safe reason and check that it persists beside the affected record. Retry successfully and check that the stale reason disappears. Open details with a sparse fixture. Trace each visible factual value to a supplied field or documented derivation. Omit optional facts that are absent, or mark a required value as unavailable. Keep internal identifiers out of the view unless the task uses them.
 
-给没有上下文的人看页面，要求他在三秒内回答：
+For each line of interface copy, name the decision, consequence or recovery step it supports. Try removing it in context. Retain instructions that prevent an error, including when the shortest label cannot convey the consequence.
 
-1. 这里是什么。
-2. 哪个对象需要我处理。
-3. 下一步怎么做。
+## Scope
 
-回答失败时先修布局、命名和默认状态，再考虑增加说明文字。
+Use this skill for UI and design-system work. It covers:
 
-### 量化基线
+- Information architecture and visual hierarchy
+- Progressive disclosure and information convergence
+- Typography, spacing, surfaces, icons, controls, and motion
+- Empty, loading, error, permission, offline, stale, and recovery states
+- Copy quality, localization readiness, and AI-Slop prevention
+- Design direction exploration when requirements are unclear
+- Keeping prototypes, view models, APIs, permissions, and production data coherent
+- Static code review guardrails and human visual review
 
-- 桌面主内容区至少保留 640px 可读宽度，侧栏收起后内容区应获得实际空间。
-- 侧栏默认显示 6–12 个可扫描条目，更多内容通过分组、搜索或滚动进入。
-- 列表行只保留一到两行摘要，状态和时间优先于次要元数据。
-- Tooltip 和辅助说明默认控制在一到两行，完整解释只放详情或错误恢复区域。
-- 主要操作区只保留一个 Primary action，其余操作降为 Secondary、Quiet 或菜单。
-- 页面在 1440px、1024px 和窄窗口下分别检查，不能只在单一宽度成立。
+It does not replace product requirements, security review, API contracts, accessibility testing, or platform-specific implementation guidance.
 
-### 冲突任务优先级
+## Non-negotiable boundaries
 
-当页面同时存在多个任务，按以下顺序排序：需要用户确认或恢复的阻塞状态、被明确提及的事项、最近发生且仍未读的事项、普通浏览和管理任务。若两个任务优先级相同，优先保留更接近当前用户入口的任务，并把另一任务放入可展开区域。
+- Do not lock every product into one palette, font, radius, density, or material.
+- Do not copy Apple's or Linear's visual identity, proprietary assets, or exact screens.
+- Do not make a polished static prototype the definition of completion.
+- Do not remove required permissions, warnings, recovery actions, or audit evidence in the name of simplicity.
+- Do not use decorative punctuation to join unrelated UI fields.
 
-## 图标和品牌母题
+## Workflow
 
-### 功能图标
+### 1. Resolve uncertainty before styling
 
-- 一个图标只表达一个功能或对象。
-- 导航使用熟悉隐喻，例如搜索、通知、设置、群聊、文件、权限和发送。
-- 对象图标可以提供轮廓和填充变体。动作图标默认使用轮廓。
-- 图标与邻近文字匹配字重，保持 16、20、24px 的光学尺寸，而不是简单缩放同一条路径。
-- 选中态通过填充、表面和位置表达。按下态降低对比度，避免纯黑跳变。
-- 失败、等待、完成和运行使用独立状态图标，不把多个状态塞进对象图标。
+Write a short design brief with the user, primary role, main task, object being acted on, platform, data source, permissions, success signal, and constraints. If these are materially unclear, do not guess a single finished direction.
 
-### 品牌母题
+Ask the smallest set of questions that can change the design. If the user cannot answer yet, state assumptions and produce two or three materially different low-cost samples using the same content and task. Vary information hierarchy, density, navigation, or interaction model, not random colors. Use references, screenshots, open-source patterns, or small prototypes when they help the user choose. Stop for direction selection before investing in a full visual system.
 
-品牌母题不替代功能图标。共享关系、上下文折叠、任务交接和能力星芒只能用于品牌标记、空状态、过渡动画或少量状态提示。
+Use the direction sample format in `examples/direction-samples/README.md`. Each sample names its task, data assumptions, hierarchy, density, interaction model, and decision tradeoff. A sample is not a production implementation.
 
-星芒只表示 AI 能力、生成、自动执行或完成。每个组合图标最多一个，面积约为宿主图形的 12%–22%。不使用大星星、内嵌小星或多重星芒。
+### 2. Model the task and information
 
-## AI Slop 识别和反制
+Before high fidelity, describe:
 
-### 常见信号
+- The primary task and one primary object
+- The reading order and action order
+- What is visible at list, summary, detail, and evidence levels
+- The default, empty, loading, error, permission, offline, stale, and recovery states
+- Which actions are direct, contextual, command-based, or destructive
+- What the user can undo, retry, cancel, or inspect
 
-- 所有东西都使用玻璃、渐变、发光和大圆角。
-- 每条消息、每个状态、每个列表项都包成独立卡片。
-- 用随机星星、机器人、六边形、神经网络线代表所有 AI 功能。
-- 首屏堆放活跃 Agent、吞吐量、完成率和大数字，但没有对应决策。
-- 用长副标题、功能说明和 onboarding banner 填充空白。
-- 状态只依靠颜色、脉冲动画或发光进度条表达。
-- 生成式背景、3D 球体、粒子和未来办公插画不能帮助用户完成任务。
-- 组件数量很多，但每个组件只有视觉差异，没有不同的行为契约。
+Use one source of truth for object names, status labels, dates, permissions, and actions. Do not invent presentation-only fields that the production model cannot provide.
 
-### 处理方法
+Keep an explicit mapping from API or domain model to view model. Derive labels and state copy from shared maps or typed enums. Do not let each component invent a second status vocabulary.
 
-| 发现 | 处理 |
-| --- | --- |
-| 无任务价值的装饰 | 删除 |
-| 重复说明文字 | 保留动作名或状态词 |
-| 陌生抽象图标 | 换成熟悉隐喻并保留文字标签 |
-| 重复卡片边界 | 合并为列表或连续内容 |
-| 无决策作用的数据 | 移到详情页或删除 |
-| 只靠颜色的状态 | 加图标、文字或位置变化 |
-| 过度玻璃和阴影 | 回退到平面内容层 |
-| 组件只是换颜色 | 合并组件并使用语义 Token |
+### 3. Establish a visual system
 
-## 协作与 Agent 页面
+Start with a grayscale wireframe. Validate layout, hierarchy, density, focus order, and progressive disclosure before choosing color or material.
 
-- 首屏优先回答“哪个协作空间需要我”“最近发生了什么”“我下一步能做什么”。
-- 列表行最多展示对象名、短摘要、时间和一个状态标记。
-- Agent 与人类消息用作者名、状态和可折叠执行详情轻量区分，不建立机器人头像墙。
-- Agent 长输出默认折叠，失败旁边直接提供“重试”或“查看记录”。
-- 被 @、失败和等待用户确认的对象可以提升位置。普通更新不抢焦点。
-- 默认打开最常用空间，右侧话题和详情按需展开。
-- 输入框是工作流的一部分，必须覆盖空值、输入中、发送中、失败和恢复。
+Define semantic tokens for type, spacing, surfaces, borders, controls, icons, motion, and states. The tokens may map to any coherent visual direction. Reuse existing tokens and components before adding new ones. A component earns its place through a repeated behavior and state contract, not through a visual variation.
 
-### 状态和权限
+### 3.1 Minimal complete change protocol
 
-- 状态至少定义默认、加载、运行、等待确认、完成、失败、取消、离线和恢复。
-- 实时更新必须保持稳定排序，乐观发送要有唯一标识和幂等重试，不能因为重连重复显示消息或动作。
-- Agent 调用插件、外部服务或敏感数据前，界面必须显示最小必要的对象、权限和确认动作。
-- 失败状态要区分用户可重试、需要补充权限和服务不可用三类结果。
-- 审计或执行记录按需展开，默认不把技术日志塞进消息正文。
+Apply the smallest change that completes the requested UI behavior. Before editing, list the affected entry points, callers, components, styles, fixtures, data adapters, tests, and configuration. Reuse an existing component when its behavior and state contract match. Create a new component only when the behavior contract differs or an existing component cannot express the required states without distortion.
 
-## 评审清单
+Finish every affected caller, fixture, loading and error path, keyboard path, and focused check. Do not leave a polished isolated sample while its real entry point still uses a second visual or data path. Keep comments for constraints and failure boundaries, not for obvious code.
 
-### 结构
+### 4. Build a real-data slice
 
-- [ ] 首屏只有一个主要任务。
-- [ ] 侧栏、内容区和瞬时层职责明确。
-- [ ] 默认、空、加载、失败和恢复状态完整。
-- [ ] 折叠后仍然能找到入口，展开后不会遮挡主要内容。
+Before declaring a prototype complete, connect one representative vertical slice from the real entry point through the view model to the UI. Use production-shaped fixtures with long names, missing values, large counts, stale updates, permission limits, partial failures, and mixed-language text.
 
-### 视觉
+Keep demo data, fixture data, API data, and transformed view data distinguishable. Record the mapping between API fields and visible fields. Verify loading, refresh, retry, cancellation, duplicate updates, stale results, and empty results. A screenshot of a static sample is evidence of direction, not evidence of integration.
 
-- [ ] 内容层没有无意义的卡片、玻璃和阴影。
-- [ ] 字重、间距、圆角和图标视觉重量一致。
-- [ ] 颜色使用语义 Token，状态不只依赖颜色。
-- [ ] 选中、按下、禁用和错误状态有明确差异。
+Use `Mock*`, `Demo*`, and `Fixture*` names only in prototype, test, or fixture locations. Mark demo payloads with `__source: "demo"` or an equivalent typed value. Keep the adapter boundary explicit and make production builds reject demo payloads when the framework supports runtime assertions. The example fixture set in `examples/fixtures/` is a minimum boundary-data reference.
 
-### 文案
+When a visual or data check fails, return to the earliest layer that caused it. A hierarchy failure returns to the task model. A field or state mismatch returns to the data contract. A token or component mismatch returns to the visual system. Do not patch a downstream screenshot with unrelated copy or decorative CSS.
 
-- [ ] 删除了重复标签和次要说明。
-- [ ] 动作名称短而具体。
-- [ ] 空状态只保留情况和下一步。
-- [ ] 纯图标控件具备可访问名称。
+### 5. Verify and review
 
-### AI Slop
+Run the static guardrail script when available:
 
-- [ ] 没有为了显得高级而添加玻璃、渐变或发光。
-- [ ] 没有用抽象 AI 图形替代功能语义。
-- [ ] 没有把页面做成没有决策价值的数据大屏。
-- [ ] 没有用生成式装饰填充留白。
+```bash
+node "$QS_DIR"/scripts/quiet-systems-review.mjs path/to/ui
+node "$QS_DIR"/scripts/quiet-systems-review.mjs --json path/to/ui
+node "$QS_DIR"/scripts/quiet-systems-review.mjs --include-markdown path/to/ui
+```
 
-### 可访问性
+Treat findings as review prompts. The script cannot prove visual quality, accessibility, data correctness, or platform behavior. Follow it with browser or device checks, keyboard and focus checks, reduced-motion checks, real-data checks, and a human visual review at wide, medium, and narrow widths.
 
-- [ ] 文本和图标状态满足 WCAG 对比度要求，状态不只靠颜色。
-- [ ] 交互元素使用语义 HTML，键盘顺序与视觉顺序一致。
-- [ ] 纯图标按钮、弹层关闭和状态更新具备可访问名称或播报。
-- [ ] 动态区域使用克制的 live region，减少动态效果时仍然能完成任务。
-- [ ] 桌面点击区至少 36px，触控目标至少 44px。
-- [ ] 中英文混排、放大字号、RTL 和长文本不会破坏层级或截断关键动作。
+## Universal design constraints
 
-### 材质上限
+### Hierarchy and information convergence
 
-- [ ] 同一视图最多一个主要玻璃功能层和一个短时瞬时层。
-- [ ] 内容列表、消息流和长文本区域使用平面表面。
-- [ ] 材质失效或用户减少透明度时，信息层级仍然成立。
+- Order content by task importance and reading order.
+- Give each view one primary visual focus and each task context one primary action.
+- Group related content with alignment, spacing, surface, or semantic headings. Use dividers only when they clarify a real boundary.
+- Keep list rows short enough to scan. Move explanation, technical logs, history, and evidence to a detail level.
+- At each level answer only the questions needed there. The summary identifies the object and current outcome. The detail explains decisions and actions. The evidence shows raw history or diagnostics.
+- Keep the user’s current object, status, consequence, and next action together.
+- Do not make every field, message, or status its own card.
+- Do not use a tooltip to carry an accessible name or essential instruction.
+- Expanded content must preserve the current task and return focus to its trigger when closed.
 
-## 输出格式
+### Typography and content separation
 
-设计评审应交付：
+- Use typography, position, alignment, spacing, and surface to distinguish content roles.
+- Limit typefaces and weights. Do not create hierarchy by making everything bold, faint, uppercase, or colorful.
+- Preserve relative hierarchy when text is enlarged or localized. Avoid truncating useful content when a detail view or wrapping layout can preserve it.
+- Do not join names, statuses, times, counts, sources, permissions, or other unrelated fields with a middle dot, bullet, vertical bar, slash, or repeated hyphen.
+- Render those fields as separate semantic elements. Use font, color, alignment, position, spacing, wrapping, or components to express their relationship.
+- This restriction does not ban semantic lists, mathematical notation, code, user-authored text, or product names that require such characters. The static rule may still flag source text containing a middle dot, so preserve a legitimate exception only with a documented rule ignore and review evidence.
+- Action labels use concrete verbs. Error copy states what happened, what it affects, and what the user can do next.
+- Remove redundant labels, generic marketing claims, filler subtitles, and explanations of backend implementation.
 
-1. 页面目的和主要任务。
-2. 信息架构和默认状态。
-3. 组件、图标和状态清单。
-4. 删除项及删除原因。
-5. 宽屏、窄屏、键盘、焦点和减少动态效果验证。
-6. 需要用户确认的视觉分歧，每个分歧配一张清晰示意图。
+### Materials, surfaces, and controls
 
-## 官方参考
+- Keep the main reading surface visually quiet enough for text and decisions.
+- Use translucent or blurred material only when it establishes a functional or transient layer and remains legible over changing content.
+- Do not apply glass, gradients, glow, heavy shadow, or oversized rounded containers to every element.
+- Prefer one coherent surface system over a collection of unrelated cards.
+- Do not expose an unadapted native visual appearance as the product’s design language.
+- Preserve native semantics, keyboard behavior, focus management, and assistive-technology interfaces. A unified visual system owns the rendered appearance, states, spacing, and motion.
+- A platform adapter may change touch feedback, key bindings, window behavior, or density without creating a second visual language.
+- If a native control is intentionally retained after visual adaptation, mark the integration with `data-quiet-adapted` or a nearby `quiet-systems: allow-native` comment and verify its states manually.
 
-- Apple Human Interface Guidelines: Icons
-- Apple Human Interface Guidelines: Materials
-- Apple Human Interface Guidelines: Toolbars
-- Apple Human Interface Guidelines: Sidebars
-- Apple SF Symbols
+### Icons
 
-优先阅读 Apple 官方资料，并把平台原则迁移成自己的 Token 和组件契约。素材网站和生成图只用于研究和方向探索，不能代替信息架构、状态设计和可访问性验收。
+- One icon expresses one object, action, or state.
+- Prefer familiar metaphors and consistent stroke, fill, perspective, and optical weight.
+- Use semantic optical-size tiers instead of one hard-coded pixel size. The tier depends on text, control height, density, platform, and the icon’s visual weight.
+- Allow optical offsets and per-icon bounding-box corrections for asymmetric shapes.
+- Do not use a brand motif as a substitute for a functional icon.
+- A status icon supplements a status word or accessible name when the state matters.
+- Icon-only controls have an accessible name and a visible focus state.
+
+### Motion and state
+
+- Define default, hover, active, focus, disabled, loading, success, warning, error, offline, stale, cancelled, and recovery behavior where applicable.
+- Do not express a state only through color, glow, pulse, or motion.
+- Respect reduced-motion preferences. A reduced-motion path must preserve status and task completion.
+- Keep live updates stable. Do not reorder content unexpectedly or duplicate optimistic actions after reconnect.
+- Put retry, cancel, permission, and recovery actions next to the state that needs them.
+
+## Apple and Linear application patterns
+
+### Apple-derived patterns
+
+- Content, functional, and transient layers have different responsibilities.
+- Toolbars contain titles, navigation, search, and frequent actions. Low-frequency actions use menus or an action panel.
+- Sidebars expose the current scope and can collapse without losing the route.
+- Lists and tables are preferred for scannable text and structured data. Use detail views for long content.
+- Alignment and indentation communicate relationships. Reading order remains stable when the window or text size changes.
+
+### Linear-derived patterns
+
+- Display options may control layout, grouping, ordering, and visible properties without changing the underlying object.
+- Personal view preferences and workspace defaults are separate.
+- Selected objects expose actions through keyboard, command menu, and contextual menu.
+- Hidden actions remain discoverable. Do not force users to remember a shortcut.
+- Bulk actions operate on the selected objects and appear in the selection context.
+- Ordering, grouping, filters, and visible properties are distinct concepts.
+
+## AI-Slop review
+
+Flag and remove design that exists mainly to signal “AI” or premium polish without helping a user decide or act:
+
+- Decorative glass, gradients, glow, particles, 3D spheres, or futuristic backgrounds
+- Repeated cards around every message, field, or status
+- Robot portraits, random stars, hexagons, or neural lines used as generic AI symbols
+- Large metrics without a decision, object, time range, or action
+- Long subtitles and onboarding banners that restate the interface
+- Status communicated only by color, pulse, or light
+- Components that differ only by color instead of behavior
+- Generated copy that is vague, inflated, repetitive, or detached from the current object
+
+For each finding, choose delete, merge, move to detail, replace with a familiar metaphor, or define a real behavior contract. Do not add explanatory text to rescue a confusing layout before testing a simpler hierarchy.
+
+## Prototype-to-production gate
+
+A prototype may pass visual direction review only after the following are present for the represented flow:
+
+- A named object model and field mapping
+- A view model or fixture with production-shaped data
+- Default, empty, loading, error, permission, stale, and recovery states
+- Real action labels and action outcomes
+- Long text, missing values, large counts, and mixed-language cases
+- A narrow layout and a keyboard/focus path
+- A clear boundary between demo content and live data
+- At least one end-to-end read or write path through the real entry point
+
+If any item is missing, label the artifact as a direction sample, wireframe, or unintegrated prototype. Do not describe it as production-ready.
+
+## Review deliverable
+
+A UI review should return:
+
+1. The primary task, object, and audience
+2. The information hierarchy and visible versus deferred content
+3. The chosen visual direction and the alternatives considered when the brief was unclear
+4. The component, icon, control, and state contracts
+5. The data and action mapping from production input to visible output
+6. Findings from static review, real-data checks, keyboard/focus checks, responsive checks, and reduced-motion checks
+7. Deletions, merges, or moves to detail with reasons
+8. Unverified items and the evidence still needed
+
+## Static review rules
+
+The companion `scripts/quiet-systems-review.mjs` reports common source-level issues:
+
+- `QS-COPY-001` and `QS-COPY-002` detect inline decorative separators
+- `QS-VISUAL-001` and `QS-VISUAL-002` detect bypasses around visual tokens
+- `QS-COMPONENT-001` flags visible native input, textarea, select, meter, progress, and automatic native-appearance controls without an explicit visual adaptation marker
+- `QS-ICON-001` flags suspicious fixed `width` or `height` attributes on icon-like HTML, JSX, SVG, or component source. It does not evaluate CSS classes or runtime size tokens.
+- `QS-SLOP-001` and `QS-SLOP-002` flag common decorative AI treatment
+- `QS-SLOP-003` flags common generic AI-marketing copy patterns for human review
+- `QS-A11Y-001` flags images without an alternative text attribute
+- `QS-A11Y-002` flags common native, semantic, or event-bound interactive elements hidden with `aria-hidden="true"`
+- `QS-A11Y-003` flags icon-only buttons or links without an accessible name
+- `QS-PROTOTYPE-001` flags demo-shaped data names in production source paths
+- `QS-COPY-003` flags unusually long inline UI copy
+- `QS-MOTION-001` flags CSS transitions or animations without a reduced-motion path or an explicit manual-review marker
+- `QS-MOTION-002` flags CSS transitions or animations longer than 400ms unless their duration has an explicit manual-review marker
+
+The optional `.quiet-systems.json` file configures ignored paths, rule ignores, copy-length thresholds, and the maximum file size. Findings are review prompts. Fix or justify each finding. Do not silence the script by deleting the evidence or hiding the source from the scan.
+
+Use the severity in JSON findings as a triage signal. `P0` means a prototype or demo boundary can reach production. `P1` means a visible, interaction, accessibility, or visual-system violation needs correction before handoff. `P2` means a quality or consistency improvement that can be scheduled after the task path is sound. A severity does not replace human review.
+
+Slop findings are prompts for human review. A gradient, material blur, shadow, bot name, geometric icon, or marketing phrase can be legitimate when it clarifies hierarchy, expresses a real product object, improves contrast, states a measurable benefit, or follows an explicit brand system. Product-function names such as `ChatbotPanel` are not decorative AI evidence by themselves. Keyboard shortcuts and breadcrumb paths can use separators when their semantics are explicit.
+
+The static accessibility and motion checks cover source patterns, not every browser state. Follow them with keyboard, focus, accessibility-tree, screen-reader, and reduced-motion verification.
+
+Use semantic icon tiers instead of a universal pixel size. `examples/icon-tiers.ts` is a reference contract showing how inline, control, navigation, and hero icons can adapt their optical box, stroke, and baseline offset by platform. Consumers must validate and tune these starting points against the actual font, icon library, density, touch target, and asymmetric shapes in the product.
+
+Exit code `0` means no findings, `1` means findings were reported, and `2` means the configuration or a scan target could not be read. A reported finding is a review gate, not proof that the UI is incorrect.
+
+## Reference sources
+
+- Apple Human Interface Guidelines: Design Principles, Layout, Typography, Materials, Icons, Toolbars, Sidebars, Lists and Tables, Menus
+- Linear Docs: Display Options, Select Issues, Contextual Menus
+- GitHub Primer: Content
+- GitLab Pajamas: Content
+- Mattermost Web App Style Guide
+- Ponytail: minimal complete frontend changes, reuse existing components, and finish every required caller, fixture, and check
