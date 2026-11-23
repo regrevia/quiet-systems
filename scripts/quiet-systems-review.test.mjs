@@ -200,6 +200,18 @@ const concreteCopyResult = spawnSync(process.execPath, [script, '--json', root],
 const concreteCopyReport = JSON.parse(concreteCopyResult.stdout)
 assert(!concreteCopyReport.findings.some((finding) => finding.file.endsWith('/src/ConcreteCopy.tsx') && finding.rule === 'QS-SLOP-003'))
 
+const hierarchyProbe = path.join(root, 'src', 'HierarchyProbe.tsx')
+fs.writeFileSync(hierarchyProbe, '<section><h2>最近运行</h2>\n<p className="subtitle">查看结果与处理需要关注的任务</p>\n<small>仅供参考</small></section>')
+const hierarchyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const hierarchyReport = JSON.parse(hierarchyResult.stdout)
+assert.equal(hierarchyReport.findings.filter((finding) => finding.file.endsWith('/src/HierarchyProbe.tsx') && finding.rule === 'QS-HIERARCHY-001').length, 2)
+
+const iconActionProbe = path.join(root, 'src', 'IconActionProbe.tsx')
+fs.writeFileSync(iconActionProbe, '<div>\n<button>下载</button>\n<button>查看</button>\n<button aria-label="关闭"><CloseIcon /></button>\n</div>')
+const iconActionResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const iconActionReport = JSON.parse(iconActionResult.stdout)
+assert.equal(iconActionReport.findings.filter((finding) => finding.file.endsWith('/src/IconActionProbe.tsx') && finding.rule === 'QS-ICON-002').length, 2)
+
 const shortcutProbe = path.join(root, 'src', 'Shortcut.tsx')
 fs.writeFileSync(shortcutProbe, '<KeyboardShortcut>Cmd | Ctrl + S</KeyboardShortcut>')
 const shortcutResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })

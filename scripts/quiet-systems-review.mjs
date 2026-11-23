@@ -39,6 +39,8 @@ const severityByRule = {
   'QS-VISUAL-001': 'P1',
   'QS-VISUAL-002': 'P1',
   'QS-ICON-001': 'P2',
+  'QS-ICON-002': 'P2',
+  'QS-HIERARCHY-001': 'P1',
   'QS-SLOP-001': 'P2',
   'QS-SLOP-002': 'P2',
   'QS-SLOP-003': 'P2'
@@ -183,6 +185,14 @@ function inspect(file) {
 
     if (/(width|height)\s*=\s*["'](?:12|14|16|18|20|24|32)["']/.test(source) && /icon|svg|symbol/i.test(source)) {
       add(file, line, 'QS-ICON-001', '图标尺寸疑似写死为单一像素值，请使用光学尺寸 Token，并按文字、控件和平台密度协调。', source)
+    }
+
+    if (isProductionSource(file) && /<(?:small|h[4-6])\b|\b(?:subtitle|sub-title|tagline|eyebrow|helper-text|helperText|caption|description)\b/i.test(source)) {
+      add(file, line, 'QS-HIERARCHY-001', '发现可能的副标题、小字或解释性层级。请证明它改变了方向、状态、后果或下一步决策，否则删除并用布局、换行、字重或位置建立层级。', source)
+    }
+
+    if (/<button\b/i.test(source) && /(?:查看|编辑|删除|关闭|搜索|复制|下载|撤销|还原|更多|对比|分享|刷新)/.test(source) && !/<svg\b|<[^>]*(?:Icon|icon|data-icon|aria-label|title)=/i.test(source)) {
+      add(file, line, 'QS-ICON-002', '发现可由熟悉图标表达的文字动作。请评估无边界图标控件，并保留可访问名称、焦点态和命中区。', source)
     }
 
     if (/(backdrop-filter|backdrop-blur|filter\s*:\s*blur|linear-gradient|linearGradient|radial-gradient|radialGradient|text-shadow|box-shadow\s*:[^;]*0\s+0\s+[1-9]\d*px|boxShadow\s*:\s*["'][^"']*0\s+0\s+[1-9]\d*px)/i.test(source)) {
