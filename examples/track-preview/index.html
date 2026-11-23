@@ -26,13 +26,18 @@
 <script>
   const status = document.querySelector('[role="status"]')
   const title = document.querySelector('h1').textContent
+  let pending = false
   document.querySelector('button').addEventListener('click', async () => {
+    if (pending) return
+    pending = true
     status.textContent = ''
     try {
       await navigator.clipboard.writeText(title)
       status.textContent = '已复制曲名'
     } catch {
       status.textContent = '复制失败，请选中曲名手动复制。'
+    } finally {
+      pending = false
     }
   })
 </script>
