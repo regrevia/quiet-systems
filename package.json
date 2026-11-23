@@ -12,7 +12,8 @@
     "reviewer-contract.md",
     ".quiet-systems.json",
     "examples/",
-    "scripts/"
+    "scripts/",
+    "references/"
   ],
   "bin": {
     "quiet-systems-review": "scripts/quiet-systems-review.mjs"

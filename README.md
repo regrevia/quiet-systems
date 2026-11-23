@@ -6,6 +6,8 @@
 
 借鉴 Anthropic 从题材和实际内容推导视觉方向的做法、Impeccable 对成品的设计批评，以及 Taste Skill 对参考素材和浏览器实测的重视。Quiet Systems 把它们落实到同一条任务上。以预约页为例，先让人找到可用时段，再核对预约结果。标题下面无需另写一句“轻松发现你的专属空间”。[Anthropic Frontend Design](https://github.com/anthropics/skills/tree/main/skills/frontend-design)、[Impeccable](https://github.com/pbakaus/impeccable)、[Taste Skill](https://github.com/Leonxlnx/taste-skill)
 
+日常任务从短版 [SKILL.md](SKILL.md) 进入。需要研究设计取舍时，再读 [Apple、Linear 与竞品实现对照](references/design-sources.md)。
+
 ## 怎样衡量效果
 
 选取阅读、比较、编辑或恢复等不同任务，各写下一个可核对的完成条件。每个任务固定需求、输入数据、模型版本、工具、时间预算和视口，用独立会话分别生成启用与未启用 skill 的页面。保留失败样本，逐任务配对。用匿名编号随机交换展示顺序，两名审阅者各自完成主任务并记录键盘操作步数，再独立评价视觉。
