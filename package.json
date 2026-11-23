@@ -1,0 +1,21 @@
+{
+  "name": "quiet-systems",
+  "version": "0.1.0",
+  "description": "A frontend design skill for clear hierarchy, concise UI copy and real-data prototype review.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/regrevia/quiet-systems.git"
+  },
+  "files": [
+    "SKILL.md",
+    "review-template.md",
+    "reviewer-contract.md",
+    ".quiet-systems.json",
+    "examples/",
+    "scripts/"
+  ],
+  "bin": {
+    "quiet-systems-review": "scripts/quiet-systems-review.mjs"
+  },
+  "type": "module"
+}

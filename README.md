@@ -21,6 +21,8 @@
 
 ## 安装
 
+项目内使用 npm 包可运行 `npm install --save-dev quiet-systems`。提示词位于 `node_modules/quiet-systems/SKILL.md`，从项目根目录运行 `npx quiet-systems-review --json .` 即可扫描。要让 agent 自动发现 skill，可用下方安装方式。
+
 ### Codex
 
 ```bash
