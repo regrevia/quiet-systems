@@ -42,6 +42,16 @@
 - On narrow screens, let the page background and work surface carry the frame. Do not stretch sparse content into a tall empty card only to reach the viewport edge.
 - Review empty space by purpose. Keep breathing room that supports focus, scanning, or responsive behavior. Reduce empty bands that have no relationship to the task.
 
+### Platform character and premium restraint
+
+- Treat an Apple-like direction as a set of relationships between hierarchy, material, typography, control silhouette, response, and restraint. A system font, pale canvas, thin border, or dark button by itself is not a design direction.
+- Establish one focal work surface, one supporting navigation or context plane, and transient layers only when they carry a task. Do not give every card, row, badge, outline, and separator equal visual weight.
+- Let the content field lead. Keep the reading edge stable, let the title and primary action share a clear alignment, and make secondary controls recede through position, iconography, or tone rather than smaller explanatory copy.
+- Use a control silhouette that belongs to the surrounding surface. A primary action may be filled, tonal, outlined, or icon-led, but it needs a reason in the product's direction. Do not default to a heavy black rectangle beside quiet surfaces.
+- Keep text roles few and legible. A title, body value, supporting metadata, and state should differ through scale, weight, placement, and tone. Do not make essential information faint to imitate quiet chrome.
+- Test the composition in grayscale and after removing decorative color. If hierarchy collapses, the page is relying on color instead of structure.
+- During screenshot review, name the dominant surface, alignment edge, control grammar, empty-space purpose, and any remaining browser-default treatment. “Apple-like” is not evidence by itself.
+
 ### Icons
 
 - One icon expresses one object, action, or state.
