@@ -43,4 +43,6 @@ Linear’s 2024 redesign compared old and new versions in the running app, inclu
 | [Impeccable](https://github.com/pbakaus/impeccable) | Separates critique and audit from visual polish. Reproduce an issue on the rendered interface and retain evidence of its effect on the task. |
 | [Vercel Web Interface Guidelines](https://github.com/vercel-labs/agent-skills/blob/main/skills/web-design-guidelines/SKILL.md) | A short entry point loads a bundled rules snapshot and reports findings against files and lines. This makes review reproducible without a network fetch on every use. |
 
+For a rendered comparison and the rules derived from it, use [Benchmark review](benchmark-review.md). It records the distinction between Apple’s task-first hierarchy, Linear’s reduced chrome, and the current prototype’s remaining density and scope problems.
+
 Apple’s “Establish hierarchy” applies to a busy editor as well as a sparse launch page. Use the current input method, content size and state when evaluating prominence. A platform control may already supply focus, activation and motion behavior. Preserve that behavior while adapting appearance. [Apple design principles](https://developer.apple.com/design/human-interface-guidelines/design-principles/), [Apple motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion)

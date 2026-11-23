@@ -45,6 +45,14 @@
 - On narrow screens, let the page background and work surface carry the frame. Do not stretch sparse content into a tall empty card only to reach the viewport edge.
 - Review empty space by purpose. Keep breathing room that supports focus, scanning, or responsive behavior. Reduce empty bands that have no relationship to the task.
 
+### Reading focus and relationship density
+
+- Assign one scope owner to each visible level. Product navigation, page title, section title, and object name must not repeat the same noun unless the repetition disambiguates scope.
+- Establish one reading edge for the primary task. Keep object names, state, consequence, and next action closer to one another than to unrelated regions.
+- Do not distribute columns evenly just to fill a wide viewport. Width should follow the relationship between fields. Metadata and actions may recede, while the object and decision remain easy to scan.
+- After deleting copy, recheck spacing, column widths, and title levels. Empty space left behind by removed text is a layout defect.
+- Run a quick blur or squint test at the target width. One region should remain dominant and one action should read as primary. If several headings, cards, pills, or controls compete, merge, mute, or remove the redundant level.
+
 ### Platform character and premium restraint
 
 - Treat an Apple-like direction as a set of relationships between hierarchy, material, typography, control silhouette, response, and restraint. A system font, pale canvas, thin border, or dark button by itself is not a design direction.
@@ -64,6 +72,7 @@
 - Do not use a brand motif as a substitute for a functional icon.
 - A status icon supplements a status word or accessible name when the state matters.
 - Prefer an icon action for frequent, familiar, space-sensitive commands such as view, search, copy, edit, close, and more actions. Keep the icon inside the same control grammar as text actions.
+- Treat icon density as a budget. Add an icon when it improves recognition, scanning, or target acquisition. Remove it when it only decorates a label or repeats a visible state. Linear's refresh reduced icon count and size because more symbols had begun competing with the task.
 - Keep visible text for first-use, ambiguous, consequential, destructive, or recovery actions. Do not force people to decode an unfamiliar symbol.
 - Icon-only controls have an accessible name, a visible focus state, an adequate hit area, and a tooltip or adjacent explanation when the meaning is not immediately familiar. The accessible name is not a decorative glyph.
 
