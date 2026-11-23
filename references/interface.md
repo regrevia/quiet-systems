@@ -74,6 +74,7 @@
 - Do not use a brand motif as a substitute for a functional icon.
 - A status icon supplements a status word or accessible name when the state matters.
 - Prefer an icon action for frequent, familiar, space-sensitive commands such as view, search, copy, edit, close, and more actions. Keep the icon inside the same control grammar as text actions.
+- For low-risk icon actions that act directly on nearby content, prefer a borderless hit area with hover or pressed feedback. Keep the hit area and focus ring, but do not draw a permanent button boundary unless separation is needed for scanning or platform convention.
 - Treat icon density as a budget. Add an icon when it improves recognition, scanning, or target acquisition. Remove it when it only decorates a label or repeats a visible state. Linear's refresh reduced icon count and size because more symbols had begun competing with the task.
 - Keep visible text for first-use, ambiguous, consequential, destructive, or recovery actions. Do not force people to decode an unfamiliar symbol.
 - Icon-only controls have an accessible name, a visible focus state, an adequate hit area, and a tooltip or adjacent explanation when the meaning is not immediately familiar. The accessible name is not a decorative glyph.
