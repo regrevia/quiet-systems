@@ -146,7 +146,7 @@ For visual reviews, give the reviewer screenshots from the running product at a 
 
 - Use typography, position, alignment, spacing, and surface to distinguish content roles.
 - Limit typefaces and weights. Do not create hierarchy by making everything bold, faint, uppercase, or colorful.
-- Preserve relative hierarchy when text is enlarged or localized. Avoid truncating useful content when a detail view or wrapping layout can preserve it.
+- Preserve relative hierarchy when text is enlarged or localized. Exercise the narrow detail view with a long name, an unbroken identifier and multiline text. Verify that the distinguishing suffix and final line are readable without horizontal page scrolling.
 - Do not join names, statuses, times, counts, sources, permissions, or other unrelated fields with a middle dot, bullet, vertical bar, slash, or repeated hyphen.
 - Render those fields as separate semantic elements. Use font, color, alignment, position, spacing, wrapping, or components to express their relationship.
 - This restriction does not ban semantic lists, mathematical notation, code, user-authored text, or product names that require such characters. The static rule may still flag source text containing a middle dot, so preserve a legitimate exception only with a documented rule ignore and review evidence.

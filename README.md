@@ -199,3 +199,5 @@ node "$QS_DIR/scripts/verify-tab-switch.mjs" "$PAGE_URL" 原文 校注 '保留�
 Kimi-K3.1-Pro 查看[原文截图](examples/comparison/tabs-original.png)和[校注截图](examples/comparison/tabs-annotation.png)，读对了两句正文，也指出单独一句校注缺少归属。两张图已经显示页签名；真正缺失的是当前记录的名称。因此规范要求在上下文容易丢失时保留对象名称，可复用现有页面标题或面包屑。
 
 [卷三修复记录样板](examples/record-tabs/index.html)可离线打开。用左右方向键切换原文和校注，两页共用一个记录标题。MiniMax-M3.1-Flash 在窄屏截图中读出了卷名、页签和正文，也发现单句校注下方有大块留白。样板已取消面板的固定最小高度，让内容决定卡片高度。
+
+长内容回归可运行 `node "$QS_DIR/scripts/verify-record-reflow.mjs"`，末尾可加 PNG 输出路径。脚本把连续档案编号与多行中文放入真实样板，在 320、390、1440 像素宽度检查页面溢出和面板裁切。Claude Code 看过 320 像素截图，读出了编号末四位 0198，也注意到校注页签上的蓝框。蓝框标记键盘焦点，下划线标记选中状态。它把末句的“页”看成了“见”，逐字校验仍应对照源文本。
