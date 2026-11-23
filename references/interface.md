@@ -34,6 +34,14 @@
 - A platform adapter may change touch feedback, key bindings, window behavior, or density without creating a second visual language.
 - If a native control is intentionally retained after visual adaptation, mark the integration with `data-quiet-adapted` or a nearby `quiet-systems: allow-native` comment and verify its states manually.
 
+### Surface and viewport composition
+
+- Let one surface carry the work. Do not wrap every section, row, or status in a separate bordered card.
+- Use a gray divider only for a real reading boundary, such as a header-to-content transition or a change of data group. Remove row-by-row rules when spacing, alignment, tonal shifts, or hover and selection states already separate items.
+- Treat the viewport as part of the composition. On wide screens, let the primary work surface expand to a meaningful height and keep its reading column stable. Avoid a small centered card floating in a large unused canvas unless the empty field is an intentional focus state.
+- On narrow screens, let the page background and work surface carry the frame. Do not stretch sparse content into a tall empty card only to reach the viewport edge.
+- Review empty space by purpose. Keep breathing room that supports focus, scanning, or responsive behavior. Reduce empty bands that have no relationship to the task.
+
 ### Icons
 
 - One icon expresses one object, action, or state.
