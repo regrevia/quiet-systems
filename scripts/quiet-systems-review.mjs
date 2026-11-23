@@ -41,6 +41,7 @@ const severityByRule = {
   'QS-ICON-001': 'P2',
   'QS-ICON-002': 'P2',
   'QS-HIERARCHY-001': 'P1',
+  'QS-COPY-004': 'P1',
   'QS-SLOP-001': 'P2',
   'QS-SLOP-002': 'P2',
   'QS-SLOP-003': 'P2'
@@ -148,6 +149,7 @@ function inspect(file) {
   const otherSeparatorFindings = new Set()
   const nativeControlFindings = new Set()
   const copySlop = /(?:无缝(?:衔接|协作|体验)?|赋能|重新定义|全新体验|极致(?:体验|效率)|一站式|智能化(?:地)?|轻松(?:实现|提升)|无界(?:协作|体验)|seamless|revolutionary|next[- ]generation|game[- ]changing|effortless)/i
+  const defensiveCopy = /(?:为了更好地|如有任何问题|温馨提示|请注意|仅供参考|感谢(?:您的|你?的)理解|你可以放心|放心使用|我们不会|为了方便起见|please note|for your convenience|rest assured|just so you know)/i
   const copyContext = /<(?:p|button|label|h[1-6]|span|a)\b[^>]*>|\b(?:label|title|placeholder|aria-label|children|text|description)\s*[:=]\s*["'`]/i
   lines.forEach((source, index) => {
     const line = index + 1
@@ -189,6 +191,10 @@ function inspect(file) {
 
     if (isProductionSource(file) && /<(?:small|h[4-6])\b|\b(?:subtitle|sub-title|tagline|eyebrow|helper-text|helperText|caption|description)\b/i.test(source)) {
       add(file, line, 'QS-HIERARCHY-001', '发现可能的副标题、小字或解释性层级。请证明它改变了方向、状态、后果或下一步决策，否则删除并用布局、换行、字重或位置建立层级。', source)
+    }
+
+    if (isProductionSource(file) && defensiveCopy.test(source) && copyContext.test(source) && !/^\s*(\/\/|\*|\/\*)/.test(source)) {
+      add(file, line, 'QS-COPY-004', '发现防御性或礼貌性解释文案。删除无法改变当前决策的安抚、免责声明和“方便说明”，只保留具体条件、结果、限制或恢复动作。', source)
     }
 
     if (/<button\b/i.test(source) && /(?:查看|编辑|删除|关闭|搜索|复制|下载|撤销|还原|更多|对比|分享|刷新)/.test(source) && !/<svg\b|<[^>]*(?:Icon|icon|data-icon|aria-label|title)=/i.test(source)) {

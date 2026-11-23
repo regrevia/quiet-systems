@@ -212,6 +212,12 @@ const iconActionResult = spawnSync(process.execPath, [script, '--json', root], {
 const iconActionReport = JSON.parse(iconActionResult.stdout)
 assert.equal(iconActionReport.findings.filter((finding) => finding.file.endsWith('/src/IconActionProbe.tsx') && finding.rule === 'QS-ICON-002').length, 2)
 
+const defensiveCopyProbe = path.join(root, 'src', 'DefensiveCopyProbe.tsx')
+fs.writeFileSync(defensiveCopyProbe, '<p>仅供参考</p>\n<p>为了更好地使用，请注意操作结果</p>\n<p>上传失败，请重试</p>')
+const defensiveCopyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const defensiveCopyReport = JSON.parse(defensiveCopyResult.stdout)
+assert.equal(defensiveCopyReport.findings.filter((finding) => finding.file.endsWith('/src/DefensiveCopyProbe.tsx') && finding.rule === 'QS-COPY-004').length, 2)
+
 const shortcutProbe = path.join(root, 'src', 'Shortcut.tsx')
 fs.writeFileSync(shortcutProbe, '<KeyboardShortcut>Cmd | Ctrl + S</KeyboardShortcut>')
 const shortcutResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })

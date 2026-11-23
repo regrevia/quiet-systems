@@ -21,6 +21,7 @@ The companion `scripts/quiet-systems-review.mjs` reports common source-level iss
 - `QS-ICON-001` flags suspicious fixed `width` or `height` attributes on icon-like HTML, JSX, SVG, or component source. It does not evaluate CSS classes or runtime size tokens.
 - `QS-ICON-002` flags common compact actions that remain text-only without an icon or accessible naming evidence. Review each candidate instead of converting unfamiliar, destructive, or consequential actions mechanically.
 - `QS-HIERARCHY-001` flags likely subtitles, captions, helper text, small labels, and eyebrow layers in production source. Delete them when they repeat the task. Keep them only when they change orientation, state, consequence, or the next decision.
+- `QS-COPY-004` flags defensive, polite, or convenience copy such as “请注意”, “仅供参考”, “为了更好地”, and “please note”. Delete it unless the line states a concrete condition, limitation, result, or recovery action that changes the current decision.
 - `QS-SLOP-001` and `QS-SLOP-002` flag common decorative AI treatment
 - `QS-SLOP-003` flags common generic AI-marketing copy patterns for human review
 - `QS-A11Y-001` flags images without an alternative text attribute
