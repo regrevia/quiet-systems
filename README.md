@@ -220,3 +220,7 @@ Kimi-K3.1-Pro 查看[原文截图](examples/comparison/tabs-original.png)和[校
 长内容回归可运行 `node "$QS_DIR/scripts/verify-record-reflow.mjs"`，末尾可加 PNG 输出路径。脚本把连续档案编号与多行中文放入真实样板，在 320、390、1440 像素宽度检查页面溢出和面板裁切。Claude Code 看过 320 像素截图，读出了编号末四位 0198，也注意到校注页签上的蓝框。蓝框标记键盘焦点，下划线标记选中状态。它把末句的“页”看成了“见”，逐字校验仍应对照源文本。
 
 预约页实测中，初稿与更新提示词后的第二次生成都索要了需求以外的手机号。Kimi 看过初稿，指出“灰色为已满，其余可直接预约”重复了时段状态。按实际表单逐项核对后，删除了联系人、手机号、时长及相关校验，并在标题保留“今晚”。复核版可用键盘完成二号室 20:00 的本页模拟确认，覆盖 390 和 1440 像素宽度。[复核后的窄屏页面](examples/comparison/booking-reviewed.png)
+
+两种[演出海报](examples/comparison/booking-poster.png)和[档案纸页](examples/comparison/booking-archive.png)方向沿用完全相同的预约内容。MiniMax-M3.1-Flash 查看匿名截图后匹配了两种风格，并发现海报标题在“排练室”词中换行，浅黄字与实际卡片底色对比不足。修订版保留海报排版，把完整词组放在一行并调整标题背景。
+
+一次同题试验用 Claude Code Sonnet 分别加载本机 Impeccable 与 Quiet Systems 的入口提示词，关闭工具，生成《慢火》试听页。需求只提供艺人、曲名、时长、暂未上线状态和复制动作。Impeccable 样本添加了“独立厂牌出品”，Quiet Systems 样本添加了四个搜索平台和“敬请关注”。两者都需要复核。因此检查还覆盖凭空添加的去向、发行承诺及操作前已经出现的成功提示。单个样本不构成竞品排名。
