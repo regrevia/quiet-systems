@@ -42,7 +42,9 @@
 - Allow optical offsets and per-icon bounding-box corrections for asymmetric shapes.
 - Do not use a brand motif as a substitute for a functional icon.
 - A status icon supplements a status word or accessible name when the state matters.
-- Icon-only controls have an accessible name and a visible focus state.
+- Prefer an icon action for frequent, familiar, space-sensitive commands such as view, search, copy, edit, close, and more actions. Keep the icon inside the same control grammar as text actions.
+- Keep visible text for first-use, ambiguous, consequential, destructive, or recovery actions. Do not force people to decode an unfamiliar symbol.
+- Icon-only controls have an accessible name, a visible focus state, an adequate hit area, and a tooltip or adjacent explanation when the meaning is not immediately familiar. The accessible name is not a decorative glyph.
 
 ### Menus and tabs
 
