@@ -1,9 +1,9 @@
 ---
-name: quiet-systems
+name: ui-guard
 description: Use when designing, redesigning, reviewing, or documenting a web, desktop, or mobile UI that needs clear hierarchy, restrained visual language, reliable information disclosure, coherent cross-platform behavior, or protection against AI-generated design and copy slop.
 ---
 
-# Quiet Systems
+# UI Guard
 
 Design around the actual object, the user's next decision and the product's character. Apple and Linear inform hierarchy and interaction. The user chooses the visual direction.
 

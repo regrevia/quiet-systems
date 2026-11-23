@@ -19,7 +19,7 @@ type Value = string | null
 // 2026/11/20, src/components/Button.tsx, and 3/4 are not metadata separators.
 `)
 
-const script = fileURLToPath(new URL('./quiet-systems-review.mjs', import.meta.url))
+const script = fileURLToPath(new URL('./ui-guard-review.mjs', import.meta.url))
 const result = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
 assert.equal(result.status, 1)
 const report = JSON.parse(result.stdout)

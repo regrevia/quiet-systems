@@ -56,9 +56,9 @@ When a browser and Playwright are available, run `node "$QS_DIR/scripts/measure-
 Run the static guardrail script when available:
 
 ```bash
-node "$QS_DIR"/scripts/quiet-systems-review.mjs path/to/ui
-node "$QS_DIR"/scripts/quiet-systems-review.mjs --json path/to/ui
-node "$QS_DIR"/scripts/quiet-systems-review.mjs --include-markdown path/to/ui
+node "$QS_DIR"/scripts/ui-guard-review.mjs path/to/ui
+node "$QS_DIR"/scripts/ui-guard-review.mjs --json path/to/ui
+node "$QS_DIR"/scripts/ui-guard-review.mjs --include-markdown path/to/ui
 ```
 
 For visual reviews, give the reviewer screenshots from the running product at a known viewport with representative data. Request a specific location and a visible value, then reproduce the observation. Trace the defect back to a missing design rule or a missed implementation step before changing this skill. Treat findings as review prompts. The script cannot prove visual quality, accessibility, data correctness, or platform behavior. Follow it with browser or device checks, keyboard and focus checks, reduced-motion checks, real-data checks, and a human visual review at wide, medium, and narrow widths.

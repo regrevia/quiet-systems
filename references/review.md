@@ -13,7 +13,7 @@ A UI review should return:
 
 ## Static review rules
 
-The companion `scripts/quiet-systems-review.mjs` reports common source-level issues:
+The companion `scripts/ui-guard-review.mjs` reports common source-level issues:
 
 - `QS-COPY-001` and `QS-COPY-002` detect inline decorative separators
 - `QS-VISUAL-001` and `QS-VISUAL-002` detect bypasses around visual tokens
