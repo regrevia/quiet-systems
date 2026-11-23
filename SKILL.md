@@ -13,6 +13,8 @@ Apple contributes principles for hierarchy, typography, materials, icons, layout
 
 Resolve bundled script, example and template paths relative to this SKILL.md. Run the tools against the product workspace. In shell examples, set QS_DIR to the directory containing this file.
 
+Use this as a review process. Start with the brief and the existing visual language. Flag a choice when it adds unsupported content, obscures a relationship, impedes a task, or contradicts the intended character. Identify the element and its effect before suggesting a change. Treat the patterns below as options.
+
 ## Choose the first design test
 
 Pick the row that describes the visitor's next decision. For a mixed screen, use the primary task first. Review the same content at a narrow width and with keyboard input.
@@ -96,7 +98,7 @@ Keep an explicit mapping from API or domain model to view model. Derive labels a
 
 ### 3. Establish a visual system
 
-Start with a grayscale wireframe. Validate layout, hierarchy, density, focus order, and progressive disclosure before choosing color or material.
+Avoid polishing a hierarchy that users cannot follow. Use the cheapest artifact that exposes the uncertainty. A grayscale sketch can test grouping, while a color-dependent visualization needs representative colors and data.
 
 Define semantic tokens for type, spacing, surfaces, borders, controls, icons, motion, and states. The tokens may map to any coherent visual direction. Reuse existing tokens and components before adding new ones. A component earns its place through a repeated behavior and state contract, not through a visual variation.
 
@@ -133,7 +135,7 @@ For visual reviews, give the reviewer screenshots from the running product at a 
 ### Hierarchy and information convergence
 
 - Order content by task importance and reading order.
-- Give each view one primary visual focus and each task context one primary action.
+- Avoid competing emphasis when the task has a clear next action. Comparison views may give peers equal weight.
 - Group related content with alignment, spacing, surface, or semantic headings. Use dividers only when they clarify a real boundary.
 - Keep list rows short enough to scan. Move explanation, technical logs, history, and evidence to a detail level.
 - At each level answer only the questions needed there. The summary identifies the object and current outcome. The detail explains decisions and actions. When a summary promises a breakdown, follow one row into detail. Reconcile its amount and count against the same period and contributing records. Carry the context needed to verify those figures. A magnitude and a signed movement can both be correct. Make the convention legible when moving between them, and verify the same underlying unit and direction in each view. The evidence shows raw history or diagnostics.
@@ -195,7 +197,7 @@ Use tabs for peer content panels. Give each tab and panel a matching accessible 
 - Content, functional, and transient layers have different responsibilities.
 - Toolbars contain titles, navigation, search, and frequent actions. Low-frequency actions use menus or an action panel.
 - Sidebars expose the current scope and can collapse without losing the route.
-- Lists and tables are preferred for scannable text and structured data. Use detail views for long content.
+- Avoid burying attributes people need to compare. Test whether readers can locate the same attribute across records in the chosen layout.
 - Alignment and indentation communicate relationships. Reading order remains stable when the window or text size changes.
 
 ### Linear-derived patterns
@@ -209,7 +211,7 @@ Use tabs for peer content panels. Give each tab and panel a matching accessible 
 
 ## AI-Slop review
 
-Flag and remove design that exists mainly to signal “AI” or premium polish without helping a user decide or act:
+Inspect these patterns in context. A material, illustration or motif can express the requested identity. Flag it when it substitutes for missing content, repeats across unrelated roles, competes with the task, or could be pasted into an unrelated product without changing its meaning. Cite visible evidence.
 
 - Decorative glass, gradients, glow, particles, 3D spheres, or futuristic backgrounds
 - Repeated cards around every message, field, or status
