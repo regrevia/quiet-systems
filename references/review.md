@@ -65,3 +65,11 @@ node "$QS_DIR/scripts/verify-sample-save.mjs"
 It exercises failure, keyboard retry and persistence, then deliberately injects a phone field and premature success copy. In a product test, import the helper and let assertion failures propagate to CI.
 
 After the assertions pass, compare available, selected and unavailable choices in the actual layout. In the booking sample, removing an availability label left the active choice relying heavily on its outline. Field counts alone cannot establish that a reader can distinguish these states.
+
+### Paired design trials
+
+Before generation, freeze the brief, content, model identifier, tool access, generation budget and task success condition. Run each skill in a separate fresh session. Save every first output, including failures. Compare revisions as a separate experiment. Record any material differences in available references or tools.
+
+For self-contained HTML, run `node "$QS_DIR/scripts/capture-design-pair.mjs" first.html second.html new-output-directory` from a workspace with Chrome and playwright-core. The script assigns anonymous A/B labels, blocks HTTP assets and captures both pages at 390 and 1440 CSS pixels under the same browser settings. Keep the answer key from reviewers. For full apps, use equivalent routes, fixtures and authenticated state in product tests instead.
+
+Record task success per attempt, unsupported factual claims and unsolicited destinations per screen. Record visual preference separately as A, B or tie with one visible reason. Score the copy after disclosing the same approved facts to each reviewer. Repeat with different tasks and generation runs before generalizing. Separate simultaneous independent votes from successive reviewers who saw revised work.
