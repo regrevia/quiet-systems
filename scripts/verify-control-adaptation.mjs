@@ -17,10 +17,10 @@ try {
     for (const control of await controls.all()) {
       const details = await control.evaluate(element => {
         const style = getComputedStyle(element)
-        return { appearance: style.appearance, radius: parseFloat(style.borderTopLeftRadius) || 0 }
+        return { appearance: style.appearance, radius: parseFloat(style.borderTopLeftRadius) || 0, bottomBorder: parseFloat(style.borderBottomWidth) || 0 }
       })
       assert.notEqual(details.appearance, 'auto', `${width}: browser-native appearance remains on ${selector}`)
-      assert(details.radius >= Number(minimumRadius), `${width}: ${selector} needs an intentional corner radius`)
+      assert(details.radius >= Number(minimumRadius) || details.bottomBorder >= 2, `${width}: ${selector} needs an intentional corner radius or boundary indicator`)
     }
     await page.close()
     console.log(width, 'control adaptation passed')
