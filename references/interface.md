@@ -27,6 +27,7 @@
 - This restriction does not ban semantic lists, mathematical notation, code, user-authored text, or product names that require such characters. The static rule may still flag source text containing a middle dot, so preserve a legitimate exception only with a documented rule ignore and review evidence.
 - Action labels use concrete verbs. Error copy states what happened, what it affects, and what the user can do next.
 - Remove redundant labels, generic marketing claims, filler subtitles, and explanations of backend implementation.
+- Treat a retained secondary line or decorative treatment as an exception. Record the before and after render, name the changed decision or state distinction, and keep the exception only when the task outcome changes. Aesthetic preference alone is not evidence.
 
 ### Materials, surfaces, and controls
 

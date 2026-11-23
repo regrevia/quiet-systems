@@ -182,6 +182,12 @@ const shortCopyResult = spawnSync(process.execPath, [script, '--json', root], { 
 const shortCopyReport = JSON.parse(shortCopyResult.stdout)
 assert(shortCopyReport.findings.some((finding) => finding.file.endsWith('/src/ShortCopySlop.tsx') && finding.rule === 'QS-SLOP-003'))
 
+const defensiveVariant = path.join(root, 'src', 'DefensiveVariant.tsx')
+fs.writeFileSync(defensiveVariant, '<p>建议您检查配置</p>\n<p>务必保证网络稳定</p>')
+const defensiveVariantResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const defensiveVariantReport = JSON.parse(defensiveVariantResult.stdout)
+assert.equal(defensiveVariantReport.findings.filter((finding) => finding.file.endsWith('/src/DefensiveVariant.tsx') && finding.rule === 'QS-COPY-004').length, 2)
+
 const multilineCopySlop = path.join(root, 'src', 'MultilineCopySlop.tsx')
 fs.writeFileSync(multilineCopySlop, `<p>\n  这是一段开启全新体验的说明\n</p>`)
 const multilineCopyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
@@ -205,6 +211,12 @@ fs.writeFileSync(concreteCopy, '<button>重试上传</button>')
 const concreteCopyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
 const concreteCopyReport = JSON.parse(concreteCopyResult.stdout)
 assert(!concreteCopyReport.findings.some((finding) => finding.file.endsWith('/src/ConcreteCopy.tsx') && finding.rule === 'QS-SLOP-003'))
+
+const expandedIconActions = path.join(root, 'src', 'ExpandedIconActions.tsx')
+fs.writeFileSync(expandedIconActions, '<div>\n<button>保存</button>\n<button>确认</button>\n<button>展开</button>\n</div>')
+const expandedIconResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const expandedIconReport = JSON.parse(expandedIconResult.stdout)
+assert.equal(expandedIconReport.findings.filter((finding) => finding.file.endsWith('/src/ExpandedIconActions.tsx') && finding.rule === 'QS-ICON-002').length, 3)
 
 const hierarchyProbe = path.join(root, 'src', 'HierarchyProbe.tsx')
 fs.writeFileSync(hierarchyProbe, '<section><h2>最近运行</h2>\n<p className="subtitle">查看结果与处理需要关注的任务</p>\n<small>仅供参考</small></section>')

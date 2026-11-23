@@ -180,7 +180,7 @@ function inspect(file) {
     add(file, 1, 'QS-COMPOSITION-001', '源文件组合预算疑似超限。请优先用运行时 route 指标复核，保留一个主标题、一个主工作面，默认移除装饰性胶囊和重复分割线，并在审阅记录中逐项说明合法例外。', JSON.stringify(composition))
   }
   const copySlop = /(?:无缝(?:衔接|协作|体验)?|赋能|重新定义|全新体验|极致(?:体验|效率)|一站式|智能化(?:地)?|轻松(?:实现|提升|开始)|无界(?:协作|体验)|为你打造|随时准备|seamless|revolutionary|next[- ]generation|game[- ]changing|effortless|made for you|ready when you are)/i
-  const defensiveCopy = /(?:为了更好地|如有任何问题|温馨提示|请注意|仅供参考|感谢(?:您的|你?的)理解|你可以放心|放心使用|我们不会|为了方便起见|please note|for your convenience|rest assured|just so you know)/i
+  const defensiveCopy = /(?:为了更好地|如有任何问题|温馨提示|请注意|仅供参考|感谢(?:您的|你?的)理解|你可以放心|放心使用|我们不会|为了方便起见|建议您|特别说明|需要注意|务必(?:保证|确认|检查)?|可能影响|please note|for your convenience|rest assured|just so you know)/i
   const copyContext = /<(?:p|button|label|h[1-6]|span|a)\b[^>]*>|\b(?:label|title|placeholder|aria-label|children|text|description)\s*[:=]\s*["'`]/i
   lines.forEach((source, index) => {
     const line = index + 1
@@ -228,7 +228,7 @@ function inspect(file) {
       add(file, line, 'QS-COPY-004', '发现防御性或礼貌性解释文案。删除无法改变当前决策的安抚、免责声明和“方便说明”，只保留具体条件、结果、限制或恢复动作。', source)
     }
 
-    if (/<button\b/i.test(source) && /(?:查看|编辑|删除|关闭|搜索|复制|下载|撤销|还原|更多|对比|分享|刷新)/.test(source) && !/<svg\b|<[^>]*(?:Icon|icon|data-icon|aria-label|title)=/i.test(source)) {
+    if (/<button\b/i.test(source) && /(?:查看|编辑|删除|关闭|搜索|复制|下载|撤销|还原|更多|对比|分享|刷新|保存|提交|开始|停止|返回|确认|取消|创建|导入|导出|移动|添加|移除|展开|收起|save|submit|start|stop|back|confirm|cancel|create|import|export|expand|collapse)/i.test(source) && !/<svg\b|<[^>]*(?:Icon|icon|data-icon|aria-label|title)=/i.test(source)) {
       add(file, line, 'QS-ICON-002', '发现可由熟悉图标表达的文字动作。请评估无边界图标控件，并保留可访问名称、焦点态和命中区。', source)
     }
 
