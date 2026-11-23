@@ -3,6 +3,9 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import { readFile } from 'node:fs/promises'
 
+import { verifyFormContract } from './verify-form-contract.mjs'
+
+const editing = { fields: [{ role: 'textbox', name: '记录' }], absentText: ['已保存到此设备'] }
 const require = createRequire(path.resolve('package.json'))
 const { chromium } = require('playwright-core')
 const files = new Map([
@@ -23,6 +26,8 @@ try {
     const dialogs = []
     page.on('dialog', async dialog => { dialogs.push(dialog.type()); await dialog.dismiss() })
     await page.goto('http://draft.test/')
+    const form = page.locator('form')
+    await verifyFormContract(form, editing)
     const field = page.getByRole('textbox', { name: '记录' })
     const formError = page.getByRole('alert')
     await field.fill('首轮访谈')
@@ -35,6 +40,7 @@ try {
     })
     await page.keyboard.press('Tab')
     await page.keyboard.press('Enter')
+    await verifyFormContract(form, editing)
     assert.match(await formError.innerText(), /未能保存/)
     assert.equal(await page.getByRole('status').innerText(), '')
     assert.equal(await field.inputValue(), '首轮访谈')
@@ -48,6 +54,15 @@ try {
     await page.close()
     console.log(width, 'save failure, keyboard retry and reload passed')
   }
+  const probe = await browser.newPage()
+  await probe.setContent('<form><textarea aria-label="记录"></textarea><input type="tel" aria-label="手机号"></form>')
+  const region = probe.locator('form')
+  await assert.rejects(verifyFormContract(region, editing), /Unexpected number of textbox/)
+  await region.getByRole('textbox', { name: '手机号' }).evaluate(el => el.remove())
+  await region.evaluate(el => el.insertAdjacentHTML('beforeend', '<p>已保存到此设备</p>'))
+  await assert.rejects(verifyFormContract(region, editing), /Unexpected visible copy/)
+  await assert.rejects(verifyFormContract(probe.locator('aside'), { fields: [] }), /one rendered region/)
+  await probe.close()
 } finally {
   await browser.close()
 }

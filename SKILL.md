@@ -23,4 +23,4 @@ Start with the task. Open a reference only when its question arises. Paths to sc
 | Resolve an unclear brief or connect a prototype to real data and states | [Delivery workflow](references/delivery.md) |
 | Review action labels, limits, recovery copy, hierarchy, controls or motion | [Interface constraints](references/interface.md) |
 | Evaluate an Apple or Linear reference or compare design skills | [Design sources](references/design-sources.md) |
-| Audit a release, run the bundled scanner or document findings | [Review guide](references/review.md) |
+| Run source checks, verify actual form fields and state copy, or audit a release | [Review guide](references/review.md) |

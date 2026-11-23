@@ -42,3 +42,26 @@ Use semantic icon tiers instead of a universal pixel size. `examples/icon-tiers.
 Exit code `0` means no findings, `1` means findings were reported, and `2` means the configuration or a scan target could not be read. A reported finding is a review gate, not proof that the UI is incorrect.
 
 For a structured handoff use the [review template](../review-template.md). When delegating a visual review, use the [reviewer contract](../reviewer-contract.md).
+
+### Enforce the form contract in a browser test
+
+For forms that previously grew unrequested fields or showed success too early, call `verifyFormContract(scope, contract)` from `scripts/verify-form-contract.mjs` in your existing Playwright test. Set the expected names from the approved brief or locale fixture before inspecting generated markup. Wait for the intended state, and pass a Playwright Locator for a single visible form region. For an edit step:
+
+```js
+await verifyFormContract(form, {
+  fields: [{ role: 'textbox', name: '记录' }],
+  absentText: ['已保存到此设备']
+})
+```
+
+Repeat after a forced save failure. After a successful write, use the product test to assert the actual confirmation and persisted value. The helper checks accessible field roles and names (including disabled options) and exact visible phrases. Hidden fields, password/date inputs without implicit roles, and button-driven pickers need explicit product assertions. Keep the phrase list specific to the state. A scoped inventory avoids imposing a universal copy blacklist.
+
+Run the bundled guardrail regression from a workspace with Chrome and `playwright-core`:
+
+```sh
+node "$QS_DIR/scripts/verify-sample-save.mjs"
+```
+
+It exercises failure, keyboard retry and persistence, then deliberately injects a phone field and premature success copy. In a product test, import the helper and let assertion failures propagate to CI.
+
+After the assertions pass, compare available, selected and unavailable choices in the actual layout. In the booking sample, removing an availability label left the active choice relying heavily on its outline. Field counts alone cannot establish that a reader can distinguish these states.
