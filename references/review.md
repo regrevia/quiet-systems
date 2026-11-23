@@ -75,3 +75,7 @@ For self-contained HTML, run `node "$QS_DIR/scripts/capture-design-pair.mjs" fir
 Record task success per attempt, unsupported factual claims and unsolicited destinations per screen. Record visual preference separately as A, B or tie with one visible reason. Score the copy after disclosing the same approved facts to each reviewer. Repeat with different tasks and generation runs before generalizing. Separate simultaneous independent votes from successive reviewers who saw revised work.
 
 A visual reviewer may fail to receive a local screenshot. Record that as unverified instead of inferring from the filename or prompt. Re-run with a supported image attachment or a browser viewer. A text-only result cannot establish hierarchy, contrast or line breaks.
+
+### Enforce a visible copy contract
+
+Keep `required.json` and `forbidden.json` beside the product fixture. Run `node "$QS_DIR/scripts/verify-copy-contract.mjs" page.html required.json forbidden.json`. Use it for state-specific copy such as an approved title and action, and for phrases the brief explicitly rejects, including a redundant subtitle. Keep the list small and task-specific. This check does not judge tone, hierarchy or whether a sentence is warranted. Pair it with visual review and the input boundary ledger.
