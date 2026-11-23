@@ -139,6 +139,19 @@ function countMatches(source, pattern) {
   return [...source.matchAll(pattern)].length
 }
 
+function actionMetrics(source) {
+  let textActionCount = 0
+  let iconOnlyActionCount = 0
+  for (const match of source.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/gi)) {
+    const content = match[3]
+    const visibleText = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+    const hasIcon = /<(?:svg|img|[A-Za-z][A-Za-z0-9]*(?:Icon|Symbol))\b/i.test(content)
+    if (hasIcon && !visibleText) iconOnlyActionCount += 1
+    if (!hasIcon && visibleText) textActionCount += 1
+  }
+  return { textActionCount, iconOnlyActionCount }
+}
+
 function inspect(file) {
   let text
   try {
@@ -159,13 +172,14 @@ function inspect(file) {
     headingCount: countMatches(text, /<h[1-6]\b/gi),
     surfaceCount: countMatches(text, /(?:class|className)\s*=\s*["'][^"']*\b(?:card|panel|surface|tile)\b/gi),
     pillCount: countMatches(text, /(?:class|className)\s*=\s*["'][^"']*\b(?:pill|badge|chip|tag)\b/gi),
-    dividerCount: countMatches(text, /<hr\b|(?:class|className)\s*=\s*["'][^"']*\b(?:divider|separator)\b/gi)
+    dividerCount: countMatches(text, /<hr\b|(?:class|className)\s*=\s*["'][^"']*\b(?:divider|separator)\b/gi),
+    ...actionMetrics(text)
   }
   metrics.push(composition)
-  if (isProductionSource(file) && (composition.headingCount > 1 || composition.surfaceCount > 4 || composition.pillCount > 3 || composition.dividerCount > 3)) {
-    add(file, 1, 'QS-COMPOSITION-001', '组合预算超限。请保留一个主标题、一个主工作面，默认移除装饰性胶囊和重复分割线，并在审阅记录中逐项说明合法例外。', JSON.stringify(composition))
+  if (isProductionSource(file) && (composition.headingCount > 1 || composition.surfaceCount > 4 || composition.pillCount > 3 || composition.dividerCount > 3 || composition.textActionCount > 2)) {
+    add(file, 1, 'QS-COMPOSITION-001', '源文件组合预算疑似超限。请优先用运行时 route 指标复核，保留一个主标题、一个主工作面，默认移除装饰性胶囊和重复分割线，并在审阅记录中逐项说明合法例外。', JSON.stringify(composition))
   }
-  const copySlop = /(?:无缝(?:衔接|协作|体验)?|赋能|重新定义|全新体验|极致(?:体验|效率)|一站式|智能化(?:地)?|轻松(?:实现|提升)|无界(?:协作|体验)|seamless|revolutionary|next[- ]generation|game[- ]changing|effortless)/i
+  const copySlop = /(?:无缝(?:衔接|协作|体验)?|赋能|重新定义|全新体验|极致(?:体验|效率)|一站式|智能化(?:地)?|轻松(?:实现|提升|开始)|无界(?:协作|体验)|为你打造|随时准备|seamless|revolutionary|next[- ]generation|game[- ]changing|effortless|made for you|ready when you are)/i
   const defensiveCopy = /(?:为了更好地|如有任何问题|温馨提示|请注意|仅供参考|感谢(?:您的|你?的)理解|你可以放心|放心使用|我们不会|为了方便起见|please note|for your convenience|rest assured|just so you know)/i
   const copyContext = /<(?:p|button|label|h[1-6]|span|a)\b[^>]*>|\b(?:label|title|placeholder|aria-label|children|text|description)\s*[:=]\s*["'`]/i
   lines.forEach((source, index) => {

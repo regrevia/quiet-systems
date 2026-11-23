@@ -46,6 +46,7 @@ assert.equal(englishResult.status, 0)
 const strictValid = path.join(root, 'strict-valid.md')
 fs.writeFileSync(strictValid, `# Review\n\n## P0\n无 P0。\n\n## P1\n发现按钮缺少名称。\n位置：src/Toolbar.tsx:18。\n证据：键盘和读屏检查。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n`)
 fs.appendFileSync(strictValid, '\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n指标：title=1 secondary=0 text-action=0 surface=1 pill=0 separator=0。\n')
+fs.appendFileSync(strictValid, 'empty-space pressure：删除副标题并重排空白。\ntext-button pressure：改用熟悉图标并拒绝纯文字按钮。\ndecoration pressure：拒绝渐变和玻璃。\ncopy deletion check：删除文案后重跑，结果不变。\n')
 const strictValidResult = spawnSync(process.execPath, [script, '--strict', strictValid], { encoding: 'utf8' })
 assert.equal(strictValidResult.status, 0)
 

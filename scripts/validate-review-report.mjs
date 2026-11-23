@@ -43,7 +43,11 @@ if (strict) {
     { name: 'field mapping', pattern: /(?:field mapping|字段映射)/i },
     { name: 'state matrix', pattern: /(?:state matrix|状态矩阵)/i },
     { name: 'viewport evidence', pattern: /(?:viewport|视口).*(?:390|1440)|(?:390|1440).*(?:viewport|视口)/i },
-    { name: 'composition metrics', pattern: /(?:metrics|指标).*(?:title|secondary|text.?action|surface|pill|separator)/i }
+    { name: 'composition metrics', pattern: /(?:metrics|指标).*(?:title|secondary|text.?action|surface|pill|separator)/i },
+    { name: 'empty-space pressure', pattern: /(?=[^]*(?:empty.?space|空白填充|副标题))(?=[^]*(?:delete|删除|reflow|重排|reject|拒绝))/i },
+    { name: 'text-button pressure', pattern: /(?=[^]*(?:text.?button|文字按钮))(?=[^]*(?:icon|图标|reject|拒绝))/i },
+    { name: 'decoration pressure', pattern: /(?=[^]*(?:decoration|装饰|gradient|渐变|glass|玻璃))(?=[^]*(?:reject|拒绝|remove|删除))/i },
+    { name: 'copy deletion check', pattern: /(?=[^]*(?:copy deletion|文案删除|删除复测))(?=[^]*(?:rerun|重跑|decision|结果|决策))/i }
   ]
   const evidencePattern = /(?:证据|evidence)\s*[:：]\s*(?!无|暂无|待补|需要)(?=\S)[^\n]+|(?:位置|文件|file|line)\s*[:：]?\s*[^\n]*(?:行\s*\d+|line\s*\d+|\.(?:tsx?|jsx?|vue|svelte|css|md|json)(?::\d+)?)/i
   const vaguePraisePattern = /(?:整体很好|高级感很强|看起来很棒|looks great|overall good|very polished)/i

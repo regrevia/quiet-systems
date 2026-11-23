@@ -176,6 +176,12 @@ const englishCopyResult = spawnSync(process.execPath, [script, '--json', root], 
 const englishCopyReport = JSON.parse(englishCopyResult.stdout)
 assert(englishCopyReport.findings.some((finding) => finding.file.endsWith('/src/EnglishCopySlop.tsx') && finding.rule === 'QS-SLOP-003'))
 
+const shortCopySlop = path.join(root, 'src', 'ShortCopySlop.tsx')
+fs.writeFileSync(shortCopySlop, '<p>轻松开始</p><p>为你打造</p><p>随时准备</p>')
+const shortCopyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const shortCopyReport = JSON.parse(shortCopyResult.stdout)
+assert(shortCopyReport.findings.some((finding) => finding.file.endsWith('/src/ShortCopySlop.tsx') && finding.rule === 'QS-SLOP-003'))
+
 const multilineCopySlop = path.join(root, 'src', 'MultilineCopySlop.tsx')
 fs.writeFileSync(multilineCopySlop, `<p>\n  这是一段开启全新体验的说明\n</p>`)
 const multilineCopyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
@@ -219,10 +225,10 @@ const defensiveCopyReport = JSON.parse(defensiveCopyResult.stdout)
 assert.equal(defensiveCopyReport.findings.filter((finding) => finding.file.endsWith('/src/DefensiveCopyProbe.tsx') && finding.rule === 'QS-COPY-004').length, 2)
 
 const compositionProbe = path.join(root, 'src', 'CompositionProbe.tsx')
-fs.writeFileSync(compositionProbe, `<main>\n<h1>一个标题</h1>\n<h1>另一个标题</h1>\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<span className="pill" />\n<span className="pill" />\n<span className="pill" />\n<span className="pill" />\n<hr /><hr /><hr /><hr />\n</main>`)
+fs.writeFileSync(compositionProbe, `<main>\n<h1>一个标题</h1>\n<h1>另一个标题</h1>\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<span className="pill" />\n<span className="pill" />\n<span className="pill" />\n<span className="pill" />\n<hr /><hr /><hr /><hr />\n<button>查看</button>\n<button>编辑</button>\n<button>下载</button>\n<button aria-label="关闭"><CloseIcon /></button>\n</main>`)
 const compositionResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
 const compositionReport = JSON.parse(compositionResult.stdout)
-assert(compositionReport.metrics.some((metric) => metric.file.endsWith('/src/CompositionProbe.tsx') && metric.headingCount === 2 && metric.surfaceCount === 5 && metric.pillCount === 4 && metric.dividerCount === 4))
+assert(compositionReport.metrics.some((metric) => metric.file.endsWith('/src/CompositionProbe.tsx') && metric.headingCount === 2 && metric.surfaceCount === 5 && metric.pillCount === 4 && metric.dividerCount === 4 && metric.textActionCount === 3 && metric.iconOnlyActionCount === 1))
 assert(compositionReport.findings.some((finding) => finding.file.endsWith('/src/CompositionProbe.tsx') && finding.rule === 'QS-COMPOSITION-001'))
 
 const shortcutProbe = path.join(root, 'src', 'Shortcut.tsx')

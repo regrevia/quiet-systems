@@ -49,6 +49,8 @@ When a visual or data check fails, return to the earliest layer that caused it. 
 
 Every review handoff must include the design contract, interaction and icon inventory, API-to-view field mapping, state matrix, screenshot paths for 390 and 1440 CSS pixels, and composition metrics. The metrics must include title, secondary-copy, text-action, icon-only-action, surface, pill, and divider counts. Run the pressure scenarios in `references/pressure-scenarios.md` when changing this skill or when a generated page still looks generic.
 
+When a browser and Playwright are available, run `node "$QS_DIR/scripts/measure-composition.mjs" --json http://localhost:3000/path` against the real route. Prefer its visible DOM counts and `bodyText` over source-file heuristics when the two disagree.
+
 Run the static guardrail script when available:
 
 ```bash
