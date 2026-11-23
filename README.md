@@ -226,3 +226,7 @@ Kimi-K3.1-Pro 查看[原文截图](examples/comparison/tabs-original.png)和[校
 两种[演出海报](examples/comparison/booking-poster.png)和[档案纸页](examples/comparison/booking-archive.png)方向沿用完全相同的预约内容。MiniMax-M3.1-Flash 查看匿名截图后匹配了两种风格，并发现海报标题在“排练室”词中换行，浅黄字与实际卡片底色对比不足。修订版保留海报排版，把完整词组放在一行并调整标题背景。
 
 一次同题试验用 Claude Code Sonnet 分别加载本机 Impeccable 与 Quiet Systems 的入口提示词，关闭工具，生成《慢火》试听页。需求只提供艺人、曲名、时长、暂未上线状态和复制动作。Impeccable 样本添加了“独立厂牌出品”，Quiet Systems 样本添加了四个搜索平台和“敬请关注”。两者都需要复核。因此检查还覆盖凭空添加的去向、发行承诺及操作前已经出现的成功提示。单个样本不构成竞品排名。
+
+## 受控比较记录
+
+本轮固定了同一份唱片试听 brief、同一组事实、Chrome 157、390/1440 像素视口、禁用外部网络和减少动态效果。Quiet Systems 与 Impeccable 各运行一次，随后匿名交换 A/B 标签。MiniMax 逐图读出《慢火》、03:12 与复制闭环，认为 Quiet Systems 版本更符合 brief，并指出“独立唱片试听”和“音频制作中”分别暗示了未提供的状态。Claude Code 读图失败时报告未验证，没有把文件名当证据。Kimi 的第三轮截图读取仍在等待，因此本轮不把它计入视觉一致性票数。这个样本用于验证流程与控制变量，不代表两个 skill 的总体排名。
