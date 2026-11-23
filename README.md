@@ -2,7 +2,9 @@
 
 面向前端与原型的设计流程 Skill。默认偏向简约，具体风格由产品和内容决定。参考 Apple/macOS、Linear 和 Ponytail 的空间、层级、任务流、最小完整变更和状态原则，帮助 Web、桌面端和 App 减少多余文字、复杂装饰和 AI Slop。
 
-可按任务选用规则，覆盖产品介绍、内容阅读、目录比较、数据录入、状态恢复和指标解读。
+只需安装 Quiet Systems。比如告诉 agent「用 Quiet Systems 做一个排练室预约页，用户需要找到今晚可用的房间」。给出已有数据或品牌要求即可。方向不清时先看小样，确定后沿同一任务完成页面、接入数据并在浏览器里走查。
+
+借鉴 Anthropic 从题材和实际内容推导视觉方向的做法、Impeccable 对成品的设计批评，以及 Taste Skill 对参考素材和浏览器实测的重视。Quiet Systems 把它们落实到同一条任务上。以预约页为例，先让人找到可用时段，再核对预约结果。标题下面无需另写一句“轻松发现你的专属空间”。[Anthropic Frontend Design](https://github.com/anthropics/skills/tree/main/skills/frontend-design)、[Impeccable](https://github.com/pbakaus/impeccable)、[Taste Skill](https://github.com/Leonxlnx/taste-skill)
 
 ## 怎样衡量效果
 
@@ -214,3 +216,5 @@ Kimi-K3.1-Pro 查看[原文截图](examples/comparison/tabs-original.png)和[校
 [卷三修复记录样板](examples/record-tabs/index.html)可离线打开。用左右方向键切换原文和校注，两页共用一个记录标题。MiniMax-M3.1-Flash 在窄屏截图中读出了卷名、页签和正文，也发现单句校注下方有大块留白。样板已取消面板的固定最小高度，让内容决定卡片高度。
 
 长内容回归可运行 `node "$QS_DIR/scripts/verify-record-reflow.mjs"`，末尾可加 PNG 输出路径。脚本把连续档案编号与多行中文放入真实样板，在 320、390、1440 像素宽度检查页面溢出和面板裁切。Claude Code 看过 320 像素截图，读出了编号末四位 0198，也注意到校注页签上的蓝框。蓝框标记键盘焦点，下划线标记选中状态。它把末句的“页”看成了“见”，逐字校验仍应对照源文本。
+
+预约页实测中，初稿与更新提示词后的第二次生成都索要了需求以外的手机号。Kimi 看过初稿，指出“灰色为已满，其余可直接预约”重复了时段状态。按实际表单逐项核对后，删除了联系人、手机号、时长及相关校验，并在标题保留“今晚”。复核版可用键盘完成二号室 20:00 的本页模拟确认，覆盖 390 和 1440 像素宽度。[复核后的窄屏页面](examples/comparison/booking-reviewed.png)
