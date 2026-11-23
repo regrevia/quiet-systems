@@ -23,6 +23,7 @@
 - Familiar frequent compact action may use an icon-only control.
 - Navigation may use an icon with a visible label when the scope is not obvious.
 - Destructive, consequential, first-use, ambiguous, and recovery actions keep visible text.
+- A familiar download or share icon may be icon-only when its scope is unambiguous in the surrounding toolbar or editor. Keep its accessible name, tooltip, focus state, and a sufficient hit area.
 - State indicators use readable text and may add a small semantic marker.
 - Never replace a clear action with an unfamiliar symbol to reduce text.
 
