@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>慢火 — 黑河乐队</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #221c18; color: #f7e3af; font: 1rem/1.5 system-ui, sans-serif; }
+  main { max-width: 52rem; margin: auto; padding: clamp(1.5rem, 6vw, 5rem); }
+  header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid currentColor; padding-bottom: .75rem; }
+  time { font-variant-numeric: tabular-nums; }
+  h1 { margin: .25em 0; font: 900 clamp(5rem, 25vw, 13rem)/1.15 system-ui, sans-serif; letter-spacing: -.05em; color: #ff8464; }
+  footer { border-top: 2px solid currentColor; padding-top: 1.25rem; }
+  button { font: inherit; color: inherit; border: 1px solid; background: transparent; padding: .6em 1.2em; cursor: pointer; }
+  button:focus-visible { outline: 3px solid #ff8464; outline-offset: 4px; }
+</style>
+<main>
+  <header><span>黑河乐队</span><time datetime="PT3M12S">03:12</time></header>
+  <h1>慢火</h1>
+  <footer>
+    <p>音频暂未上线</p>
+    <button type="button">复制曲名</button>
+    <p role="status"></p>
+  </footer>
+</main>
+<script>
+  const status = document.querySelector('[role="status"]')
+  const title = document.querySelector('h1').textContent
+  document.querySelector('button').addEventListener('click', async () => {
+    status.textContent = ''
+    try {
+      await navigator.clipboard.writeText(title)
+      status.textContent = '已复制曲名'
+    } catch {
+      status.textContent = '复制失败，请选中曲名手动复制。'
+    }
+  })
+</script>
+</html>
