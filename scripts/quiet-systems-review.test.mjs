@@ -218,6 +218,13 @@ const defensiveCopyResult = spawnSync(process.execPath, [script, '--json', root]
 const defensiveCopyReport = JSON.parse(defensiveCopyResult.stdout)
 assert.equal(defensiveCopyReport.findings.filter((finding) => finding.file.endsWith('/src/DefensiveCopyProbe.tsx') && finding.rule === 'QS-COPY-004').length, 2)
 
+const compositionProbe = path.join(root, 'src', 'CompositionProbe.tsx')
+fs.writeFileSync(compositionProbe, `<main>\n<h1>一个标题</h1>\n<h1>另一个标题</h1>\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<div className="card" />\n<span className="pill" />\n<span className="pill" />\n<span className="pill" />\n<span className="pill" />\n<hr /><hr /><hr /><hr />\n</main>`)
+const compositionResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const compositionReport = JSON.parse(compositionResult.stdout)
+assert(compositionReport.metrics.some((metric) => metric.file.endsWith('/src/CompositionProbe.tsx') && metric.headingCount === 2 && metric.surfaceCount === 5 && metric.pillCount === 4 && metric.dividerCount === 4))
+assert(compositionReport.findings.some((finding) => finding.file.endsWith('/src/CompositionProbe.tsx') && finding.rule === 'QS-COMPOSITION-001'))
+
 const shortcutProbe = path.join(root, 'src', 'Shortcut.tsx')
 fs.writeFileSync(shortcutProbe, '<KeyboardShortcut>Cmd | Ctrl + S</KeyboardShortcut>')
 const shortcutResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })

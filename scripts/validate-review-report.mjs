@@ -37,9 +37,17 @@ if (outOfOrder) {
 }
 
 if (strict) {
+  const requiredEvidence = [
+    { name: 'design contract', pattern: /(?:design contract|设计合同)/i },
+    { name: 'interaction inventory', pattern: /(?:interaction inventory|交互清单)/i },
+    { name: 'field mapping', pattern: /(?:field mapping|字段映射)/i },
+    { name: 'state matrix', pattern: /(?:state matrix|状态矩阵)/i },
+    { name: 'viewport evidence', pattern: /(?:viewport|视口).*(?:390|1440)|(?:390|1440).*(?:viewport|视口)/i },
+    { name: 'composition metrics', pattern: /(?:metrics|指标).*(?:title|secondary|text.?action|surface|pill|separator)/i }
+  ]
   const evidencePattern = /(?:证据|evidence)\s*[:：]\s*(?!无|暂无|待补|需要)(?=\S)[^\n]+|(?:位置|文件|file|line)\s*[:：]?\s*[^\n]*(?:行\s*\d+|line\s*\d+|\.(?:tsx?|jsx?|vue|svelte|css|md|json)(?::\d+)?)/i
   const vaguePraisePattern = /(?:整体很好|高级感很强|看起来很棒|looks great|overall good|very polished)/i
-  const strictErrors = []
+  const strictErrors = requiredEvidence.filter((item) => !item.pattern.test(report)).map((item) => `missing ${item.name}`)
   for (let index = 0; index < 3; index += 1) {
     const current = positions[index]
     const next = positions[index + 1]?.position ?? report.length

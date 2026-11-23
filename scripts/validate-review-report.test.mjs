@@ -45,8 +45,16 @@ assert.equal(englishResult.status, 0)
 
 const strictValid = path.join(root, 'strict-valid.md')
 fs.writeFileSync(strictValid, `# Review\n\n## P0\n无 P0。\n\n## P1\n发现按钮缺少名称。\n位置：src/Toolbar.tsx:18。\n证据：键盘和读屏检查。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n`)
+fs.appendFileSync(strictValid, '\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n指标：title=1 secondary=0 text-action=0 surface=1 pill=0 separator=0。\n')
 const strictValidResult = spawnSync(process.execPath, [script, '--strict', strictValid], { encoding: 'utf8' })
 assert.equal(strictValidResult.status, 0)
+
+const strictMissingContract = path.join(root, 'strict-missing-contract.md')
+fs.writeFileSync(strictMissingContract, `# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n`)
+const strictMissingContractResult = spawnSync(process.execPath, [script, '--strict', strictMissingContract], { encoding: 'utf8' })
+assert.equal(strictMissingContractResult.status, 1)
+assert.match(strictMissingContractResult.stderr, /missing design contract/)
+assert.match(strictMissingContractResult.stderr, /missing interaction inventory/)
 
 const strictMissingEvidence = path.join(root, 'strict-missing-evidence.md')
 fs.writeFileSync(strictMissingEvidence, `# Review\n\n## P0\n无 P0。\n\n## P1\n按钮需要优化。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n`)

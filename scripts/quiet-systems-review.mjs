@@ -25,6 +25,7 @@ if (includeMarkdown) extensions.add('.md')
 const ignored = new Set(['node_modules', '.git', 'dist', 'build', 'coverage'])
 const findings = []
 const skipped = []
+const metrics = []
 const severityByRule = {
   'QS-PROTOTYPE-001': 'P0',
   'QS-COMPONENT-001': 'P1',
@@ -42,6 +43,7 @@ const severityByRule = {
   'QS-ICON-002': 'P2',
   'QS-HIERARCHY-001': 'P1',
   'QS-COPY-004': 'P1',
+  'QS-COMPOSITION-001': 'P1',
   'QS-SLOP-001': 'P2',
   'QS-SLOP-002': 'P2',
   'QS-SLOP-003': 'P2'
@@ -133,6 +135,10 @@ function isProductionSource(file) {
   return /(^|[/\\])(src|app|components|pages)([/\\]|$)/.test(file)
 }
 
+function countMatches(source, pattern) {
+  return [...source.matchAll(pattern)].length
+}
+
 function inspect(file) {
   let text
   try {
@@ -148,6 +154,17 @@ function inspect(file) {
   const separatorFindings = new Set()
   const otherSeparatorFindings = new Set()
   const nativeControlFindings = new Set()
+  const composition = {
+    file,
+    headingCount: countMatches(text, /<h[1-6]\b/gi),
+    surfaceCount: countMatches(text, /(?:class|className)\s*=\s*["'][^"']*\b(?:card|panel|surface|tile)\b/gi),
+    pillCount: countMatches(text, /(?:class|className)\s*=\s*["'][^"']*\b(?:pill|badge|chip|tag)\b/gi),
+    dividerCount: countMatches(text, /<hr\b|(?:class|className)\s*=\s*["'][^"']*\b(?:divider|separator)\b/gi)
+  }
+  metrics.push(composition)
+  if (isProductionSource(file) && (composition.headingCount > 1 || composition.surfaceCount > 4 || composition.pillCount > 3 || composition.dividerCount > 3)) {
+    add(file, 1, 'QS-COMPOSITION-001', '组合预算超限。请保留一个主标题、一个主工作面，默认移除装饰性胶囊和重复分割线，并在审阅记录中逐项说明合法例外。', JSON.stringify(composition))
+  }
   const copySlop = /(?:无缝(?:衔接|协作|体验)?|赋能|重新定义|全新体验|极致(?:体验|效率)|一站式|智能化(?:地)?|轻松(?:实现|提升)|无界(?:协作|体验)|seamless|revolutionary|next[- ]generation|game[- ]changing|effortless)/i
   const defensiveCopy = /(?:为了更好地|如有任何问题|温馨提示|请注意|仅供参考|感谢(?:您的|你?的)理解|你可以放心|放心使用|我们不会|为了方便起见|please note|for your convenience|rest assured|just so you know)/i
   const copyContext = /<(?:p|button|label|h[1-6]|span|a)\b[^>]*>|\b(?:label|title|placeholder|aria-label|children|text|description)\s*[:=]\s*["'`]/i
@@ -358,6 +375,7 @@ const output = {
   version: 1,
   roots,
   findings,
+  metrics,
   summary: {
     total: findings.length,
     skipped: skipped.length,
