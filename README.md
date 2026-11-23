@@ -23,7 +23,7 @@
 
 ## 安装
 
-项目内使用 npm 包可运行 `npm install --save-dev ui-guard`。提示词位于 `node_modules/ui-guard/SKILL.md`，从项目根目录运行 `npx ui-guard-review --json .` 即可扫描。要让 agent 自动发现 skill，可用下方安装方式。
+项目内使用 npm 包可运行 `npm install --save-dev @regrevia/ui-guard`。提示词位于 `node_modules/@regrevia/ui-guard/SKILL.md`，从项目根目录运行 `npx ui-guard-review --json .` 即可扫描。要让 agent 自动发现 skill，可用下方安装方式。
 
 ### Codex
 
