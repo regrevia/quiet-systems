@@ -9,6 +9,9 @@
 - At each level answer only the questions needed there. The summary identifies the object and current outcome. The detail explains decisions and actions. When a summary promises a breakdown, follow one row into detail. Reconcile its amount and count against the same period and contributing records. Carry the context needed to verify those figures. A magnitude and a signed movement can both be correct. Make the convention legible when moving between them, and verify the same underlying unit and direction in each view. The evidence shows raw history or diagnostics.
 - Keep the user’s current object, status, consequence, and next action together.
 - Do not make every field, message, or status its own card.
+- Give each visible level one title, one primary action, and one focal content group. Do not repeat the same noun in the product title, selected tab, panel heading, and action label unless it disambiguates scope.
+- Delete a subtitle by default. Keep a secondary line only when it changes orientation, state, consequence, or the next decision. Dates, owners, counts, and statuses belong beside the object they qualify, not in a decorative explanatory sentence.
+- Use a focus test at the target width. After a quick blur or squint, one region should remain dominant and one action should read as primary. If several headings, pills, cards, or buttons compete, reduce contrast, merge levels, or remove the redundant element.
 - Do not use a tooltip to carry an accessible name or essential instruction.
 - Expanded content must preserve the current task and return focus to its trigger when closed.
 
