@@ -84,6 +84,12 @@ test('allows exploration without a selected direction', () => {
   assert.equal(result.status, 0)
 })
 
+test('does not let exploration bypass unrelated required fields', () => {
+  const result = run({ ...base, mode: 'exploration', taskId: '', visualDirection: 'undecided', contentFixture: 'exploration' })
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /taskId/)
+})
+
 test('allows extra references only with an explicit decision record', () => {
   const references = Array.from({ length: 7 }, (_, index) => ({ path: `references/${index}.md`, reason: 'named decision' }))
   const blocked = run({ ...base, loadedReferences: references })

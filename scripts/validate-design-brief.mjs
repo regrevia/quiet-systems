@@ -20,6 +20,7 @@ try {
 const missing = []
 const required = ['mode', 'taskId', 'audience', 'object', 'successCondition', 'visualDirection', 'contentFixture', 'loadedReferences', 'untrustedInputs', 'knownUnknowns']
 for (const name of required) {
+  if (brief.mode === 'exploration' && (name === 'visualDirection' || name === 'contentFixture')) continue
   const value = brief[name]
   if (Array.isArray(value) ? value.length === 0 : typeof value !== 'string' || value.trim() === '') missing.push(name)
 }
@@ -33,14 +34,12 @@ for (const name of ['untrustedInputs', 'knownUnknowns']) {
 }
 
 if (!['new', 'repair', 'exploration'].includes(brief.mode)) missing.push('mode:new|repair|exploration')
-if (brief.mode === 'exploration' && brief.visualDirection === 'undecided' && brief.contentFixture === 'exploration') {
-  missing.splice(missing.indexOf('visualDirection'), 1)
-  missing.splice(missing.indexOf('contentFixture'), 1)
-}
+if (brief.mode === 'exploration' && brief.visualDirection !== 'undecided') missing.push('visualDirection:undecided-or-selected')
+if (brief.mode === 'exploration' && brief.contentFixture !== 'exploration' && (typeof brief.contentFixture !== 'string' || !brief.contentFixture.trim())) missing.push('contentFixture:exploration-or-fixture')
 if (!Array.isArray(brief.loadedReferences)) missing.push('loadedReferences:array')
 else {
   const extraCount = Math.max(0, brief.loadedReferences.length - 6)
-  if (extraCount > 0 && (!Array.isArray(brief.additionalReferenceDecisions) || brief.additionalReferenceDecisions.length < extraCount || typeof brief.reviewRecord !== 'string' || !brief.reviewRecord.trim())) missing.push('loadedReferences:max-6')
+  if (extraCount > 0 && (!Array.isArray(brief.additionalReferenceDecisions) || brief.additionalReferenceDecisions.length < extraCount || brief.additionalReferenceDecisions.slice(0, extraCount).some((item) => typeof item !== 'string' || !item.trim()) || typeof brief.reviewRecord !== 'string' || !brief.reviewRecord.trim())) missing.push('loadedReferences:max-6')
   const seen = new Set()
   brief.loadedReferences.forEach((entry, index) => {
     if (!entry || typeof entry.path !== 'string' || !entry.path.trim()) missing.push(`loadedReferences[${index}]:path`)

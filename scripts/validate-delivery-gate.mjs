@@ -56,7 +56,13 @@ for (const [name, value] of required) {
     continue
   }
   if (name === 'directionSamples' || name === 'screenshots') continue
-  if (pathFields.has(name) && typeof value === 'string' && !fs.existsSync(path.resolve(root, value))) missing.push(`${name}:file`)
+  if (pathFields.has(name)) {
+    if (typeof value !== 'string' || !value.trim()) missing.push(`${name}:path`)
+    else {
+      const resolved = path.resolve(root, value)
+      if (!fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) missing.push(`${name}:file`)
+    }
+  }
 }
 if (requiredNames.includes('directionSamples')) {
   if (!Array.isArray(manifest.directionSamples) || manifest.directionSamples.length < 2) missing.push('directionSamples')
@@ -83,7 +89,8 @@ if (requiredNames.includes('runtimeMetrics')) {
     const metrics = JSON.parse(fs.readFileSync(path.resolve(root, manifest.runtimeMetrics), 'utf8'))
     const widths = new Set((metrics.metrics ?? []).map((metric) => metric.width))
     if (!widths.has(390) || !widths.has(1440)) missing.push('runtimeMetrics:390-and-1440')
-    if (metrics.advisory !== true || (metrics.metrics ?? []).some((metric) => typeof metric.route !== 'string' || !metric.route)) missing.push('runtimeMetrics:route-and-advisory')
+    const compositionKeys = ['headingCount', 'secondaryCopyCount', 'textActionCount', 'iconOnlyActionCount', 'surfaceCount', 'pillCount', 'dividerCount']
+    if (metrics.advisory !== true || (metrics.metrics ?? []).some((metric) => typeof metric.route !== 'string' || !metric.route || compositionKeys.some((key) => !Number.isFinite(metric[key]) || metric[key] < 0))) missing.push('runtimeMetrics:route-and-composition')
   } catch {
     missing.push('runtimeMetrics:json')
   }

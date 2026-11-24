@@ -11,7 +11,7 @@ const base = {
   goal: 'retry one failed run',
   result: 'run completes',
   recoveryPath: 'retry the same record',
-  actions: [{ label: 'Retry', role: 'recovery', controlGrammar: 'borderless icon button', accessibleName: 'Retry run' }]
+  actions: [{ label: 'Retry', role: 'recovery', labelForm: 'icon+label', controlGrammar: 'borderless icon button', accessibleName: 'Retry run' }]
 }
 
 function run(value) {
@@ -31,4 +31,10 @@ test('blocks an action without interaction semantics', () => {
   const result = run({ ...base, actions: [{ label: 'Retry', role: 'unknown' }] })
   assert.equal(result.status, 1)
   assert.match(result.stderr, /controlGrammar|role-enum/)
+})
+
+test('blocks recovery actions that are icon-only', () => {
+  const result = run({ ...base, actions: [{ label: 'Retry', role: 'recovery', labelForm: 'icon-only', recognitionBasis: 'familiar retry symbol', controlGrammar: 'borderless icon button', accessibleName: 'Retry run' }] })
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /labelForm-risk/)
 })

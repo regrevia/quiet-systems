@@ -132,7 +132,7 @@ function add(file, line, rule, message, evidence) {
 }
 
 function isProductionSource(file) {
-  return /(^|[/\\])(src|app|components|pages)([/\\]|$)/.test(file)
+  return !/(^|[/\\])(?:examples|fixtures|prototype|prototypes|test|tests|__tests__|scripts)([/\\]|$)|\.(?:test|spec)\./i.test(file)
 }
 
 function countMatches(source, pattern) {
@@ -279,6 +279,21 @@ function inspect(file) {
     const key = `${line}:${evidence}`
     if (copyFindings.has(key)) continue
     add(file, line, 'QS-COPY-003', '可见 UI 文案过长，可能把解释性文本塞进了当前层级。请考虑摘要、详情或错误恢复区域。', evidence)
+  }
+
+  for (const match of text.matchAll(/<(p|button|label|h[1-6]|span|a)\b[^>]*>([\s\S]*?)<\/\1>/gi)) {
+    const visibleCopy = match[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+    const line = text.slice(0, match.index).split(/\r?\n/).length
+    const evidence = match[0].split(/\r?\n/)[0]
+    const blockRules = [
+      [defensiveCopy, 'QS-COPY-004', '发现防御性或礼貌性解释文案。删除无法改变当前决策的安抚、免责声明和“方便说明”，只保留具体条件、结果、限制或恢复动作。'],
+      [disclaimerCopy, 'QS-COPY-005', '发现免责声明式文案。只保留会改变当前操作的具体限制，并放在对应决策旁，删除泛化防御和责任转移。'],
+      [promiseCopy, 'QS-COPY-006', '发现无法由当前界面证明的未来承诺或安抚语。改成已完成的结果、具体日期或当前可执行动作。']
+    ]
+    for (const [pattern, rule, message] of blockRules) {
+      if (!isProductionSource(file) || !pattern.test(visibleCopy) || (rule === 'QS-COPY-004' && concreteSafetyCondition.test(visibleCopy))) continue
+      if (!findings.some((finding) => finding.file === file && finding.line === line && finding.rule === rule)) add(file, line, rule, message, evidence)
+    }
   }
 
   for (const match of text.matchAll(/<(p|button|label|h[1-6]|span|a)\b[^>]*>([\s\S]*?)<\/\1>/gi)) {
