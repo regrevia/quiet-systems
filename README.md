@@ -28,7 +28,7 @@
 ### Codex
 
 ```bash
-git clone https://github.com/regrevia/ui-guard.git ~/.agents/skills/ui-guard
+git clone https://github.com/regrevia/ui-guard.git ~/.codex/skills/ui-guard
 ```
 
 ### Claude Code
@@ -40,8 +40,10 @@ git clone https://github.com/regrevia/ui-guard.git ~/.claude/skills/ui-guard
 安装后，在设计、重构、评审 Web 或 App 页面时使用 `ui-guard`。从产品仓库运行已安装的检查器，例如：
 
 ```bash
-QS_DIR="$HOME/.agents/skills/ui-guard"
+QS_DIR="$HOME/.codex/skills/ui-guard"
 node "$QS_DIR/scripts/ui-guard-review.mjs" --json .
+node "$QS_DIR/scripts/validate-design-brief.mjs" design-brief.json
+node "$QS_DIR/scripts/validate-interaction-inventory.mjs" interaction-inventory.json
 ```
 
 Claude Code 安装使用 `$HOME/.claude/skills/ui-guard`。以下维护命令从 skill 仓库根目录执行。完整自测可使用 Node.js 24 运行 `node --test scripts/*.test.mjs`。
