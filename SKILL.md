@@ -28,6 +28,7 @@ Start with the task. Open a reference only when its question arises. Paths to sc
 | Resolve an unclear brief, separate trusted inputs or connect a prototype to real data and states | [Delivery workflow](references/delivery.md) and [Input boundary](references/input-boundary.md) |
 | Plan actions, labels, icon candidates, and control states before styling | [Interaction and icon inventory](references/interaction-inventory.md) |
 | Review action labels, limits, recovery copy, hierarchy, controls or motion | [Interface constraints](references/interface.md) |
+| Remove defensive, disclaimer-style or filler UI copy | [Copy constraints](references/copy-constraints.md) |
 | Check a chosen control language in a browser | [Control adaptation script](references/review.md) |
 | Evaluate an Apple or Linear reference or compare design skills | [Design sources](references/design-sources.md) |
 | Compare a rendered result against Apple, Linear, and other mature interfaces | [Benchmark review](references/benchmark-review.md) |

@@ -1,5 +1,11 @@
 ## Apple and Linear application patterns
 
+### Apple writing findings
+
+Apple’s current HIG writing guidance makes four constraints concrete. Use plain language, choose the fewest words that convey the concept, use active labels for actions, and adapt tone to the current situation. Error copy should avoid blame and state what can fix the problem. Empty states should expose a useful next step. Apple’s WWDC25 writing session adds four editing tests: remove fillers, remove repetition, put the benefit before the required action when a why is needed, and maintain a word list with approved terms and terms to avoid. These principles are implemented as deletion tests and `QS-COPY-004` / `QS-COPY-005` prompts in [Copy constraints](copy-constraints.md).
+
+Sources: [HIG Writing](https://developer.apple.com/design/human-interface-guidelines/writing), [HIG Design Principles](https://developer.apple.com/design/human-interface-guidelines/design-principles/), [WWDC25 Make a big impact with small writing changes](https://developer.apple.com/videos/play/wwdc2025/404/).
+
 ### Apple-derived patterns
 
 - Content, functional, and transient layers have different responsibilities.
