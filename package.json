@@ -18,7 +18,8 @@
   "bin": {
     "ui-guard-review": "scripts/ui-guard-review.mjs",
     "quiet-systems-review": "scripts/quiet-systems-review.mjs",
-    "ui-guard-brief": "scripts/validate-design-brief.mjs"
+    "ui-guard-brief": "scripts/validate-design-brief.mjs",
+    "ui-guard-inventory": "scripts/validate-interaction-inventory.mjs"
   },
   "type": "module"
 }

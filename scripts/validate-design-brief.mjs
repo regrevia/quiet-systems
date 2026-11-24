@@ -59,6 +59,14 @@ if (brief.mode === 'repair') {
     const evidencePath = entry?.path ?? ''
     const external = /^(?:https?:|plugin:)/i.test(evidencePath) || path.isAbsolute(evidencePath)
     if (evidencePath && !external && !fs.existsSync(path.resolve(path.dirname(file), evidencePath))) missing.push(`existingEvidence[${index}]:file`)
+    const extension = path.extname(evidencePath).toLowerCase()
+    const expectedExtensions = {
+      'design-contract': ['.md', '.json'],
+      screenshot: ['.png', '.jpg', '.jpeg'],
+      'runtime-metrics': ['.json'],
+      fixture: ['.json']
+    }[entry?.type]
+    if (expectedExtensions && extension && !expectedExtensions.includes(extension)) missing.push(`existingEvidence[${index}]:type-mismatch`)
   })
 }
 

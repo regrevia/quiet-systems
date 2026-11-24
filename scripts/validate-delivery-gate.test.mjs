@@ -8,7 +8,17 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-systems-gate-'))
-for (const file of ['contract.md', 'direction-a.html', 'direction-b.html', 'inventory.md', 'mapping.md', 'states.md', 'screen-390.png', 'screen-1440.png', 'entry.md', 'fixture.json', 'rollback.md']) fs.writeFileSync(path.join(root, file), 'evidence')
+function png(width, height = 1) {
+  const data = Buffer.alloc(24)
+  data.writeUInt32BE(0x89504e47, 0)
+  data.write('PNG', 1, 'ascii')
+  data.writeUInt32BE(width, 16)
+  data.writeUInt32BE(height, 20)
+  return data
+}
+for (const file of ['contract.md', 'direction-a.html', 'direction-b.html', 'inventory.md', 'mapping.md', 'states.md', 'entry.md', 'fixture.json', 'rollback.md']) fs.writeFileSync(path.join(root, file), 'evidence')
+fs.writeFileSync(path.join(root, 'screen-390.png'), png(390))
+fs.writeFileSync(path.join(root, 'screen-1440.png'), png(1440))
 fs.writeFileSync(path.join(root, 'metrics.json'), JSON.stringify({ advisory: true, metrics: [{ width: 390, route: '/editor' }, { width: 1440, route: '/editor' }] }))
 const manifest = path.join(root, 'delivery.json')
 fs.writeFileSync(manifest, JSON.stringify({

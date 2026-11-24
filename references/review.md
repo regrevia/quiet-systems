@@ -13,6 +13,8 @@ A UI review should return:
 
 Before implementation, validate the input contract with `node "$QS_DIR/scripts/validate-design-brief.mjs" design-brief.json`. The brief prevents context dumping by requiring a reason for each loaded reference, names generated or supplied material that remains untrusted, blocks focused repairs without reusable evidence, and permits exploratory work before a direction is selected.
 
+For handoff, validate the interaction contract with `node "$QS_DIR/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The delivery gate also checks that the narrow and wide screenshot files contain readable PNG or JPEG dimensions matching 390 and 1440 CSS pixels.
+
 ## Static review rules
 
 The companion `scripts/ui-guard-review.mjs` reports common source-level issues:
@@ -26,6 +28,7 @@ The companion `scripts/ui-guard-review.mjs` reports common source-level issues:
 - `QS-COPY-004` flags defensive, polite, or convenience copy such as “请注意”, “仅供参考”, “为了更好地”, and “please note”. Delete it unless the line states a concrete condition, limitation, result, or recovery action that changes the current decision.
 - `QS-COPY-005` flags disclaimer-style copy such as “内容由 AI 生成，请核实重要信息”, “仅为演示”, “效果因人而异”, “请自行判断”, “不构成建议”, and “可能存在误差”. Keep only a specific limitation at the decision point when it changes the current action. See [Copy constraints](copy-constraints.md).
 - `QS-COPY-006` flags vague future promises and reassurance such as “敬请期待”, “即将上线”, “持续优化中”, and “为你带来”. Keep only a dated, sourced commitment or a completed result. Action labels such as “Try it now” and “Welcome” are reviewed by task semantics instead.
+- `scripts/validate-interaction-inventory.mjs` blocks an interaction handoff when the object, result, recovery path, action role, control grammar, or accessible name is missing.
 - `QS-COMPOSITION-001` reports per-file counts for headings, surfaces, pills, dividers, text actions, and icon-only actions. It flags more than one heading, more than four card-like surfaces, more than three pills, more than three dividers, or more than two text actions in a production source file. Treat the result as a budget review, then record the reason for every retained exception.
 - `scripts/measure-composition.mjs` measures the rendered route at 390 and 1440 CSS pixels. Its output is advisory and selector-based. Use it with a running app to replace source heuristics with visible DOM counts and body text, then record its JSON output and any selector exceptions in the review evidence.
 - `QS-SLOP-001` and `QS-SLOP-002` flag common decorative AI treatment

@@ -66,6 +66,12 @@ test('blocks repair evidence without a reusable reason', () => {
   assert.match(result.stderr, /existingEvidence\[0\]:reason/)
 })
 
+test('blocks repair evidence with a mismatched declared type', () => {
+  const result = run({ ...base, mode: 'repair', existingEvidence: [{ path: 'evidence/contract.png', type: 'design-contract', reason: 'reuse the current control grammar' }] })
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /type-mismatch/)
+})
+
 test('limits accidental context loading', () => {
   const references = Array.from({ length: 7 }, (_, index) => ({ path: `references/${index}.md`, reason: 'named decision' }))
   const result = run({ ...base, loadedReferences: references })

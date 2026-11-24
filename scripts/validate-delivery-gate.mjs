@@ -34,6 +34,22 @@ const requiredNames = phaseIndex >= 0 ? requiredByPhase[phaseIndex] : []
 if (!Array.isArray(manifest.completedPhases) || manifest.completedPhases.length !== phaseIndex + 1 || manifest.completedPhases.some((phase, index) => phase !== phases[index])) missing.push('completedPhases:contiguous')
 const required = requiredNames.map((name) => [name, manifest[name]])
 const pathFields = new Set(['designContract', 'interactionInventory', 'fieldMapping', 'stateMatrix', 'contentFixture', 'realEntryPath', 'runtimeMetrics', 'rollbackEvidence', 'directionSelectionEvidence'])
+function imageDimensions(file) {
+  const data = fs.readFileSync(file)
+  if (data.length >= 24 && data.readUInt32BE(0) === 0x89504e47 && data.toString('ascii', 1, 4) === 'PNG') return { width: data.readUInt32BE(16), height: data.readUInt32BE(20) }
+  if (data.length >= 4 && data[0] === 0xff && data[1] === 0xd8) {
+    let offset = 2
+    while (offset + 9 < data.length) {
+      if (data[offset] !== 0xff) { offset += 1; continue }
+      const marker = data[offset + 1]
+      const length = data.readUInt16BE(offset + 2)
+      if (marker >= 0xc0 && marker <= 0xc3) return { height: data.readUInt16BE(offset + 5), width: data.readUInt16BE(offset + 7) }
+      if (length < 2) break
+      offset += 2 + length
+    }
+  }
+  return null
+}
 for (const [name, value] of required) {
   if (!value) {
     missing.push(name)
@@ -51,7 +67,14 @@ else {
   for (const [name, expectedWidth] of [['narrow', 390], ['wide', 1440]]) {
     const file = manifest.screenshots?.[name]
     if (!file) continue
-    if (!/\.(?:png|jpe?g)$/i.test(file) || !fs.existsSync(path.resolve(root, file)) || fs.statSync(path.resolve(root, file)).size === 0) missing.push(`screenshots:${name}:${expectedWidth}`)
+    const screenshotPath = path.resolve(root, file)
+    if (!/\.(?:png|jpe?g)$/i.test(file) || !fs.existsSync(screenshotPath) || fs.statSync(screenshotPath).size === 0) missing.push(`screenshots:${name}:${expectedWidth}`)
+    else {
+      try {
+        const dimensions = imageDimensions(screenshotPath)
+        if (!dimensions || dimensions.width !== expectedWidth || dimensions.height < 1) missing.push(`screenshots:${name}:dimensions`)
+      } catch { missing.push(`screenshots:${name}:dimensions`) }
+    }
   }
 }
 if (requiredNames.includes('screenshotViewports') && (!manifest.screenshotViewports || manifest.screenshotViewports.narrow !== 390 || manifest.screenshotViewports.wide !== 1440)) missing.push('screenshotViewports:390-and-1440')

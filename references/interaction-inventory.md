@@ -38,3 +38,5 @@ Test the primary path and one failure or recovery path with representative data 
 ### 6. Audit before delivery
 
 Count visible text actions, icon-only actions, state markers, pills, and independent borders. For every text action, record why an icon would be ambiguous or insufficient. For every icon-only action, record its accessible name and recognition basis. Remove any control that only repeats a heading, state, or nearby action.
+
+Save the inventory as JSON when it is used as a handoff artifact and run `node "$QS_DIR/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The validator checks the object, result, recovery path, action role, control grammar, and accessible name without prescribing a visual theme.
