@@ -212,6 +212,13 @@ const defensiveVariantResult = spawnSync(process.execPath, [script, '--json', ro
 const defensiveVariantReport = JSON.parse(defensiveVariantResult.stdout)
 assert.equal(defensiveVariantReport.findings.filter((finding) => finding.file.endsWith('/src/DefensiveVariant.tsx') && finding.rule === 'QS-COPY-004').length, 2)
 
+const safetyCopy = path.join(root, 'src', 'SafetyCopy.tsx')
+fs.writeFileSync(safetyCopy, '<p>务必在关闭电源后操作</p>\n<p>请注意使用规范</p>')
+const safetyCopyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const safetyCopyReport = JSON.parse(safetyCopyResult.stdout)
+assert(!safetyCopyReport.findings.some((finding) => finding.file.endsWith('/src/SafetyCopy.tsx') && finding.rule === 'QS-COPY-004' && finding.line === 1))
+assert(safetyCopyReport.findings.some((finding) => finding.file.endsWith('/src/SafetyCopy.tsx') && finding.rule === 'QS-COPY-004' && finding.line === 2))
+
 const multilineCopySlop = path.join(root, 'src', 'MultilineCopySlop.tsx')
 fs.writeFileSync(multilineCopySlop, `<p>\n  这是一段开启全新体验的说明\n</p>`)
 const multilineCopyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
