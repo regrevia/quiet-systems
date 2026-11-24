@@ -232,7 +232,7 @@ function inspect(file) {
     }
 
     const hasVisibleTag = /<(?:p|button|label|h[1-6]|span|a)\b[^>]*>/i.test(source)
-    const hasMetadataOnlyContext = /(?:aria-label|aria-describedby|description)\s*[:=]/i.test(source) && !hasVisibleTag
+    const hasMetadataOnlyContext = /description\s*[:=]/i.test(source) && !hasVisibleTag
     if (isProductionSource(file) && disclaimerCopy.test(source) && copyContext.test(source) && !hasMetadataOnlyContext && !/^\s*(\/\/|\*|\/\*)/.test(source)) {
       add(file, line, 'QS-COPY-005', '发现免责声明式文案。只保留会改变当前操作的具体限制，并放在对应决策旁，删除泛化防御和责任转移。', source)
     }

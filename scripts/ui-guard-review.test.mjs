@@ -182,6 +182,12 @@ const metadataDisclaimerResult = spawnSync(process.execPath, [script, '--json', 
 const metadataDisclaimerReport = JSON.parse(metadataDisclaimerResult.stdout)
 assert(!metadataDisclaimerReport.findings.some((finding) => finding.file.endsWith('/src/Metadata.tsx') && finding.rule === 'QS-COPY-005'))
 
+const ariaDisclaimerProbe = path.join(root, 'src', 'AriaDisclaimer.tsx')
+fs.writeFileSync(ariaDisclaimerProbe, '<button aria-label="内容由 AI 生成，请核实重要信息"><InfoIcon /></button>')
+const ariaDisclaimerResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const ariaDisclaimerReport = JSON.parse(ariaDisclaimerResult.stdout)
+assert(ariaDisclaimerReport.findings.some((finding) => finding.file.endsWith('/src/AriaDisclaimer.tsx') && finding.rule === 'QS-COPY-005'))
+
 const promiseProbe = path.join(root, 'src', 'PromiseCopy.tsx')
 fs.writeFileSync(promiseProbe, '<p>敬请期待，持续优化中</p>')
 const promiseResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })

@@ -52,6 +52,15 @@ if (strict) {
   const evidencePattern = /(?:证据|evidence)\s*[:：]\s*(?!无|暂无|待补|需要)(?=\S)[^\n]+|(?:位置|文件|file|line)\s*[:：]?\s*[^\n]*(?:行\s*\d+|line\s*\d+|\.(?:tsx?|jsx?|vue|svelte|css|md|json)(?::\d+)?)/i
   const vaguePraisePattern = /(?:整体很好|高级感很强|看起来很棒|looks great|overall good|very polished)/i
   const strictErrors = requiredEvidence.filter((item) => !item.pattern.test(report)).map((item) => `missing ${item.name}`)
+  const pressureEvidencePattern = /(?:证据|evidence|位置|文件|file|line)\s*[:：]?\s*[^\n]*(?:行\s*\d+|line\s*\d+|\.(?:tsx?|jsx?|vue|svelte|css|md|json)(?::\d+)?)/i
+  const pressureLabels = ['empty-space pressure', 'text-button pressure', 'decoration pressure', 'copy deletion check']
+  for (const label of pressureLabels) {
+    const position = report.search(new RegExp(label, 'i'))
+    if (position >= 0) {
+      const block = report.slice(position, report.search(/\n\s*(?:empty-space pressure|text-button pressure|decoration pressure|copy deletion check)\s*[:：]/i, position + label.length) > position ? report.search(/\n\s*(?:empty-space pressure|text-button pressure|decoration pressure|copy deletion check)\s*[:：]/i, position + label.length) : report.length)
+      if (!pressureEvidencePattern.test(block)) strictErrors.push(`${label} needs file, line, or evidence`)
+    }
+  }
   for (let index = 0; index < 3; index += 1) {
     const current = positions[index]
     const next = positions[index + 1]?.position ?? report.length
