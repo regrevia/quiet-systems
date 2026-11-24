@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs'
+import path from 'node:path'
 
 const file = process.argv.slice(2).find((argument) => !argument.startsWith('--'))
 if (!file) {
@@ -24,9 +25,14 @@ for (const name of required) {
 }
 
 if (!['new', 'repair', 'exploration'].includes(brief.mode)) missing.push('mode:new|repair|exploration')
+if (brief.mode === 'exploration' && brief.visualDirection === 'undecided' && brief.contentFixture === 'exploration') {
+  missing.splice(missing.indexOf('visualDirection'), 1)
+  missing.splice(missing.indexOf('contentFixture'), 1)
+}
 if (!Array.isArray(brief.loadedReferences)) missing.push('loadedReferences:array')
 else {
-  if (brief.loadedReferences.length > 6) missing.push('loadedReferences:max-6')
+  const extraCount = Math.max(0, brief.loadedReferences.length - 6)
+  if (extraCount > 0 && (!Array.isArray(brief.additionalReferenceDecisions) || brief.additionalReferenceDecisions.length < extraCount || typeof brief.reviewRecord !== 'string' || !brief.reviewRecord.trim())) missing.push('loadedReferences:max-6')
   const seen = new Set()
   brief.loadedReferences.forEach((entry, index) => {
     if (!entry || typeof entry.path !== 'string' || !entry.path.trim()) missing.push(`loadedReferences[${index}]:path`)
@@ -36,7 +42,17 @@ else {
   })
 }
 
-if (brief.mode === 'repair' && (!Array.isArray(brief.existingEvidence) || brief.existingEvidence.length === 0)) missing.push('existingEvidence')
+if (brief.mode === 'repair') {
+  if (!Array.isArray(brief.existingEvidence) || brief.existingEvidence.length === 0) missing.push('existingEvidence')
+  else brief.existingEvidence.forEach((entry, index) => {
+    if (!entry || typeof entry.path !== 'string' || !entry.path.trim()) missing.push(`existingEvidence[${index}]:path`)
+    if (!entry || typeof entry.type !== 'string' || !entry.type.trim()) missing.push(`existingEvidence[${index}]:type`)
+    if (!entry || typeof entry.reason !== 'string' || !entry.reason.trim()) missing.push(`existingEvidence[${index}]:reason`)
+    const evidencePath = entry?.path ?? ''
+    const external = /^(?:https?:|plugin:)/i.test(evidencePath) || path.isAbsolute(evidencePath)
+    if (evidencePath && !external && !fs.existsSync(path.resolve(path.dirname(file), evidencePath))) missing.push(`existingEvidence[${index}]:file`)
+  })
+}
 
 if (missing.length > 0) {
   process.stderr.write(`ui-guard design brief: blocked\n${missing.map((item) => `- ${item}`).join('\n')}\n`)

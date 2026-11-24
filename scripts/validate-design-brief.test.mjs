@@ -10,6 +10,13 @@ const script = path.resolve('scripts/validate-design-brief.mjs')
 function run(value) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-brief-'))
   const file = path.join(root, 'design-brief.json')
+  for (const entry of value.existingEvidence ?? []) {
+    if (typeof entry.path === 'string' && !/^(?:https?:|plugin:|\/)/i.test(entry.path)) {
+      const evidencePath = path.join(root, entry.path)
+      fs.mkdirSync(path.dirname(evidencePath), { recursive: true })
+      fs.writeFileSync(evidencePath, 'evidence')
+    }
+  }
   fs.writeFileSync(file, JSON.stringify(value))
   return spawnSync(process.execPath, [script, file], { encoding: 'utf8' })
 }
@@ -49,9 +56,14 @@ test('blocks context entries without a named reason', () => {
 })
 
 test('requires reused evidence for focused repairs', () => {
-  const result = run({ ...base, mode: 'repair', existingEvidence: [] })
+  const result = run({ ...base, mode: 'repair', existingEvidence: [{ path: 'evidence/contract.md', type: 'design-contract', reason: 'reuse the current control grammar' }] })
+  assert.equal(result.status, 0)
+})
+
+test('blocks repair evidence without a reusable reason', () => {
+  const result = run({ ...base, mode: 'repair', existingEvidence: [{ path: 'evidence/contract.md', type: 'design-contract' }] })
   assert.equal(result.status, 1)
-  assert.match(result.stderr, /existingEvidence/)
+  assert.match(result.stderr, /existingEvidence\[0\]:reason/)
 })
 
 test('limits accidental context loading', () => {
@@ -59,4 +71,17 @@ test('limits accidental context loading', () => {
   const result = run({ ...base, loadedReferences: references })
   assert.equal(result.status, 1)
   assert.match(result.stderr, /loadedReferences:max-6/)
+})
+
+test('allows exploration without a selected direction', () => {
+  const result = run({ ...base, mode: 'exploration', visualDirection: 'undecided', contentFixture: 'exploration' })
+  assert.equal(result.status, 0)
+})
+
+test('allows extra references only with an explicit decision record', () => {
+  const references = Array.from({ length: 7 }, (_, index) => ({ path: `references/${index}.md`, reason: 'named decision' }))
+  const blocked = run({ ...base, loadedReferences: references })
+  assert.equal(blocked.status, 1)
+  const allowed = run({ ...base, loadedReferences: references, additionalReferenceDecisions: ['compare platform control semantics'], reviewRecord: 'review.md' })
+  assert.equal(allowed.status, 0)
 })
