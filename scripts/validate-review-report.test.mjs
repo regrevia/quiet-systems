@@ -82,4 +82,9 @@ const strictPraiseResult = spawnSync(process.execPath, [script, '--strict', stri
 assert.equal(strictPraiseResult.status, 1)
 assert.match(strictPraiseResult.stderr, /remove vague praise/)
 
+const strictSeparatedPressure = path.join(root, 'strict-separated-pressure.md')
+fs.writeFileSync(strictSeparatedPressure, `# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n指标：title=1 secondary=0 text-action=0 surface=1 pill=0 separator=0。\nempty-space pressure：删除副标题并重排空白。证据：src/Editor.tsx:18。\n其他审阅说明。\ntext-button pressure：改用熟悉图标。证据：src/Toolbar.tsx:24。\ndecoration pressure：删除玻璃。证据：src/Surface.css:9。\ncopy deletion check：重跑结果不变。证据：src/Copy.tsx:31。\n`)
+const strictSeparatedPressureResult = spawnSync(process.execPath, [script, '--strict', strictSeparatedPressure], { encoding: 'utf8' })
+assert.equal(strictSeparatedPressureResult.status, 0)
+
 process.stdout.write('validate-review-report self-test passed\n')

@@ -57,7 +57,10 @@ if (strict) {
   for (const label of pressureLabels) {
     const position = report.search(new RegExp(label, 'i'))
     if (position >= 0) {
-      const block = report.slice(position, report.search(/\n\s*(?:empty-space pressure|text-button pressure|decoration pressure|copy deletion check)\s*[:：]/i, position + label.length) > position ? report.search(/\n\s*(?:empty-space pressure|text-button pressure|decoration pressure|copy deletion check)\s*[:：]/i, position + label.length) : report.length)
+      const remaining = report.slice(position + label.length)
+      const nextMatch = remaining.match(/\n\s*(?:empty-space pressure|text-button pressure|decoration pressure|copy deletion check)\s*[:：]/i)
+      const nextPosition = nextMatch ? position + label.length + nextMatch.index : report.length
+      const block = report.slice(position, nextPosition)
       if (!pressureEvidencePattern.test(block)) strictErrors.push(`${label} needs file, line, or evidence`)
     }
   }
