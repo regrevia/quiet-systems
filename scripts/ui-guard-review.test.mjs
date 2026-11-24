@@ -182,6 +182,18 @@ const metadataDisclaimerResult = spawnSync(process.execPath, [script, '--json', 
 const metadataDisclaimerReport = JSON.parse(metadataDisclaimerResult.stdout)
 assert(!metadataDisclaimerReport.findings.some((finding) => finding.file.endsWith('/src/Metadata.tsx') && finding.rule === 'QS-COPY-005'))
 
+const promiseProbe = path.join(root, 'src', 'PromiseCopy.tsx')
+fs.writeFileSync(promiseProbe, '<p>敬请期待，持续优化中</p>')
+const promiseResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const promiseReport = JSON.parse(promiseResult.stdout)
+assert(promiseReport.findings.some((finding) => finding.file.endsWith('/src/PromiseCopy.tsx') && finding.rule === 'QS-COPY-006'))
+
+const actionCta = path.join(root, 'src', 'ActionCta.tsx')
+fs.writeFileSync(actionCta, '<button>Try it now</button>\n<p>Welcome</p>')
+const actionCtaResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })
+const actionCtaReport = JSON.parse(actionCtaResult.stdout)
+assert(!actionCtaReport.findings.some((finding) => finding.file.endsWith('/src/ActionCta.tsx') && finding.rule === 'QS-COPY-006'))
+
 const englishCopySlop = path.join(root, 'src', 'EnglishCopySlop.tsx')
 fs.writeFileSync(englishCopySlop, '<p>Revolutionary workflow for every team</p>')
 const englishCopyResult = spawnSync(process.execPath, [script, '--json', root], { encoding: 'utf8' })

@@ -6,6 +6,16 @@ Apple’s current HIG writing guidance makes four constraints concrete. Use plai
 
 Sources: [HIG Writing](https://developer.apple.com/design/human-interface-guidelines/writing), [HIG Design Principles](https://developer.apple.com/design/human-interface-guidelines/design-principles/), [WWDC25 Make a big impact with small writing changes](https://developer.apple.com/videos/play/wwdc2025/404/).
 
+### Open-source skill patterns worth reusing
+
+The links below were checked on 2026-11-24. Before a release, pin any source used as a normative rule to the recorded commit so a moving `main` branch cannot silently change the comparison.
+
+Ponytail keeps its core skill short and operational. It names the smallest complete change, requires checking callers and tests before writing, prefers deletion over new abstraction, and ends with what was skipped and the remaining risk. UI Guard reuses that shape by keeping the entry file procedural, moving evidence-heavy material to references, and treating every retained copy or visual exception as an explicit decision.
+
+Anti-slop skills converge on a filter plus a task-specific checklist rather than one giant style prompt. The useful patterns are a hard delivery gate, purpose tests for visual choices, a separate copy skill, explicit forbidden defaults with a reason and replacement, and a verify-before-deliver step. UI Guard applies the same structure while leaving the chosen visual direction open. It does not copy a universal palette, radius or typography.
+
+Sources checked 2026-11-24: [Ponytail @ ebd8654](https://github.com/DietrichGebert/ponytail/blob/ebd8654c2c627f721eb8f9c0d1bd4090a29f9e10/skills/ponytail/SKILL.md), [anti-ai-slop @ 5768372](https://github.com/muris11/anti-ai-slop/blob/5768372bf3272c7d59c354cec3a16f5c39d036bc/skills/antislop/SKILL.md), [anti-ai-slop-ui @ c0d1ecc](https://github.com/rwcod/anti-ai-slop-ui/blob/c0d1ecbc3833baa1fc8cae228925315ca1210ef1/SKILL.md), [Impeccable frontend-design @ f27ddf0](https://github.com/Tanya-Tian/impeccable/blob/f27ddf087644cef4b9617d13658bc3995715e05a/source/skills/frontend-design/SKILL.md).
+
 ### Apple-derived patterns
 
 - Content, functional, and transient layers have different responsibilities.
