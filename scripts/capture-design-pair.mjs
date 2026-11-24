@@ -11,7 +11,16 @@ const files = [first, second]
 if (randomInt(2)) files.reverse()
 await mkdir(output)
 const { chromium } = createRequire(path.resolve('package.json'))('playwright-core')
-const browser = await chromium.launch({ channel: 'chrome', args: ['--disable-gpu'] })
+const launchOptions = { args: ['--disable-gpu'] }
+if (process.env.UI_GUARD_CHROME_PATH) launchOptions.executablePath = process.env.UI_GUARD_CHROME_PATH
+else launchOptions.channel = 'chrome'
+let browser
+try {
+  browser = await chromium.launch(launchOptions)
+} catch {
+  delete launchOptions.channel
+  browser = await chromium.launch(launchOptions)
+}
 const samples = []
 try {
   for (const [index, file] of files.entries()) {

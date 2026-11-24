@@ -18,7 +18,7 @@
 - 模型固定为 WorkBuddy `Hy4 flash`
 - 两个条件均要求单文件 HTML
 - 两个条件均要求 390px 和 1440px
-- 截图使用 Chromium headless、禁用 GPU、JPEG 采集后转 PNG
+- 截图使用 Chromium headless、禁用 GPU、直接输出 JPEG
 - 静态检查使用仓库内 `node scripts/ui-guard-review.mjs --json`
 
 ## 条件 A：baseline
