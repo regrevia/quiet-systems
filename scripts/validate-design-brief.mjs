@@ -24,6 +24,14 @@ for (const name of required) {
   if (Array.isArray(value) ? value.length === 0 : typeof value !== 'string' || value.trim() === '') missing.push(name)
 }
 
+for (const name of ['untrustedInputs', 'knownUnknowns']) {
+  if (!Array.isArray(brief[name])) continue
+  brief[name].forEach((entry, index) => {
+    if (!entry || typeof entry.source !== 'string' || !entry.source.trim()) missing.push(`${name}[${index}]:source`)
+    if (!entry || typeof entry.reason !== 'string' || !entry.reason.trim()) missing.push(`${name}[${index}]:reason`)
+  })
+}
+
 if (!['new', 'repair', 'exploration'].includes(brief.mode)) missing.push('mode:new|repair|exploration')
 if (brief.mode === 'exploration' && brief.visualDirection === 'undecided' && brief.contentFixture === 'exploration') {
   missing.splice(missing.indexOf('visualDirection'), 1)

@@ -33,8 +33,8 @@ const base = {
     { path: 'references/interface.md', reason: 'control grammar and hierarchy' },
     { path: 'references/copy-constraints.md', reason: 'visible copy deletion test' }
   ],
-  untrustedInputs: ['generated screenshot'],
-  knownUnknowns: ['production error payload']
+  untrustedInputs: [{ source: 'generated screenshot', reason: 'visual output is not runtime evidence' }],
+  knownUnknowns: [{ source: 'production error payload', reason: 'backend fixture is not connected' }]
 }
 
 test('accepts a complete brief', () => {
@@ -84,4 +84,10 @@ test('allows extra references only with an explicit decision record', () => {
   assert.equal(blocked.status, 1)
   const allowed = run({ ...base, loadedReferences: references, additionalReferenceDecisions: ['compare platform control semantics'], reviewRecord: 'review.md' })
   assert.equal(allowed.status, 0)
+})
+
+test('requires source and reason for uncertain inputs', () => {
+  const result = run({ ...base, untrustedInputs: ['generated screenshot'] })
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /untrustedInputs\[0\]:source/)
 })
