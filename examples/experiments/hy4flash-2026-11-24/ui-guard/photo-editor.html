@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>照片编辑</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#F9F6F6;color:#16181D;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Inter,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit}
+.app{height:100dvh;display:flex;flex-direction:column;background:#FFFFFF;overflow:hidden}
+.topbar{height:60px;flex:0 0 60px;display:flex;align-items:center;padding:0 12px;position:relative}
+.title{position:absolute;left:50%;transform:translateX(-50%);font-size:17px;font-weight:600;letter-spacing:.2px;pointer-events:none}
+.top-actions{margin-left:auto;display:flex;gap:6px}
+.icon-btn{appearance:none;border:0;background:transparent;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#16181D;cursor:pointer}
+.icon-btn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.icon-btn:disabled{opacity:.3;cursor:default}
+.icon-btn.bump{animation:bump .22s ease}
+@keyframes bump{50%{transform:scale(.9)}}
+:focus-visible{outline:2px solid #A74444;outline-offset:2px}
+.workspace{flex:1;min-height:0;display:flex;flex-direction:column}
+.stage{flex:1;min-height:0;display:flex;padding:12px;background:#F1ECEC}
+.frame{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px;background:#FFFFFF;border-radius:22px;box-shadow:0 10px 30px rgba(60,30,30,.10);overflow:hidden}
+.frame img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:14px}
+.rail{flex:0 0 auto;background:#FFFFFF;border-radius:24px 24px 0 0;box-shadow:0 -8px 28px rgba(60,30,30,.08);padding:14px 12px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+.chips{display:flex;gap:8px;align-items:center}
+.chip{appearance:none;border:0;border-radius:12px;padding:9px 14px;font-size:16px;font-weight:600;line-height:1;background:#F3EEEE;color:#16181D;cursor:pointer}
+.chip.active{background:#16181D;color:#FFFFFF}
+.chip.state{background:#FBEEEE;color:#A74444}
+.tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.tool{appearance:none;border:0;background:transparent;border-radius:16px;padding:10px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#6E6A6A;font-size:16px;font-weight:500;cursor:pointer;min-width:0}
+.tool svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tool.active{background:#FBEEEE;color:#A74444}
+.primary{appearance:none;border:0;border-radius:16px;min-height:48px;background:#CC3333;color:#FFFFFF;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;width:100%}
+.primary svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.primary:active{background:#A74444}
+@media(min-width:900px){
+ body{padding:24px;display:grid;place-items:center}
+ .app{width:min(1120px,100%);height:min(820px,calc(100dvh - 48px));border-radius:28px;box-shadow:0 24px 70px rgba(60,30,30,.14);border:1px solid #F0E5E5}
+ .topbar{height:64px;flex-basis:64px;padding:0 20px}
+ .workspace{flex-direction:row;gap:20px;padding:0 20px 20px}
+ .stage{padding:0}
+ .frame{padding:18px;border-radius:24px}
+ .rail{width:300px;flex:0 0 300px;border-radius:24px;box-shadow:none;background:#FBF8F8;padding:20px;justify-content:space-between}
+ .tools{grid-template-columns:1fr;gap:8px}
+ .tool{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;border-radius:14px}
+ .tool.active{background:#FFFFFF;box-shadow:0 4px 14px rgba(80,40,40,.08)}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <button class="icon-btn" id="backBtn" aria-label="返回">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/><path d="M8 12h12"/></svg>
+    </button>
+    <div class="title">编辑</div>
+    <div class="top-actions">
+      <button class="icon-btn" id="undoBtn" aria-label="撤销" disabled>
+        <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="stage">
+      <div class="frame"><img id="photo" alt="照片"></div>
+    </section>
+
+    <aside class="rail">
+      <div class="chips">
+        <span class="chip active" id="modeChip">一键</span>
+        <button class="chip state" id="stateChip" aria-pressed="false">标准</button>
+      </div>
+
+      <div class="tools" id="tools">
+        <button class="tool active" data-mode="one" aria-pressed="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z"/></svg>
+          <span>一键</span>
+        </button>
+        <button class="tool" data-mode="style" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 1.6-3.2 2 2 0 0 1 1.6-3.2H18a3 3 0 0 0 3-3A9 9 0 0 0 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/><circle cx="17.5" cy="11" r="1"/></svg>
+          <span>风格</span>
+        </button>
+        <button class="tool" data-mode="refine" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2.4"/><circle cx="15" cy="17" r="2.4"/></svg>
+          <span>精修</span>
+        </button>
+        <button class="tool" data-mode="erase" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M4 16l8-8 7 7-5 5H8z"/><path d="M9 20h11"/></svg>
+          <span>消除</span>
+        </button>
+        <button class="tool" data-mode="reshape" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M7 3v14h14"/><path d="M3 7h14v14"/></svg>
+          <span>重塑</span>
+        </button>
+      </div>
+
+      <button class="primary" id="downloadBtn">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+        <span>下载</span>
+      </button>
+    </aside>
+  </main>
+</div>
+
+<script>
+const PHOTO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A9D6F5"/><stop offset=".55" stop-color="#DCEEFB"/><stop offset="1" stop-color="#F6D9B0"/></linearGradient>
+<linearGradient id="lake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#79B4D8"/><stop offset="1" stop-color="#3E7BA8"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#FFF6C8" stop-opacity=".95"/><stop offset="1" stop-color="#FFF6C8" stop-opacity="0"/></radialGradient>
+<linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5B8468"/><stop offset="1" stop-color="#2F5A45"/></linearGradient>
+</defs>
+<rect width="900" height="1200" fill="url(#sky)"/>
+<circle cx="690" cy="190" r="150" fill="url(#glow)"/>
+<circle cx="690" cy="190" r="58" fill="#FFF3C0"/>
+<g fill="#FFFFFF" opacity=".72">
+<ellipse cx="190" cy="240" rx="120" ry="34"/><ellipse cx="280" cy="220" rx="80" ry="26"/>
+<ellipse cx="610" cy="390" rx="100" ry="26"/><ellipse cx="690" cy="375" rx="70" ry="20"/>
+</g>
+<path d="M0 700 L170 520 L300 650 L430 480 L590 670 L720 540 L900 700 L900 800 L0 800 Z" fill="#8FA9BF"/>
+<path d="M0 760 L140 620 L280 740 L420 590 L560 750 L700 630 L900 780 L900 860 L0 860 Z" fill="#6C8AA6"/>
+<rect y="840" width="900" height="360" fill="url(#lake)"/>
+<g fill="#FFFFFF" opacity=".28">
+<ellipse cx="450" cy="900" rx="220" ry="8"/><ellipse cx="620" cy="980" rx="160" ry="6"/><ellipse cx="280" cy="1060" rx="180" ry="7"/>
+</g>
+<path d="M0 1090 Q180 1040 340 1085 T900 1060 L900 1200 L0 1200 Z" fill="url(#hill)"/>
+<g fill="#2A4E3D"><path d="M120 1090l24-70l24 70z"/><path d="M190 1085l20-58l20 58z"/><path d="M760 1075l24-66l24 66z"/></g>
+<g transform="translate(430 930)" fill="#5A3B2E">
+<path d="M-58 0L58 0L38 20L-38 20Z"/><path d="M-4-68L4-68L6 0L-6 0Z"/><path d="M6-62L46-10L34-10Z" fill="#FFFFFF" opacity=".9"/>
+</g>
+</svg>`;
+
+const MODES = {
+  one:'一键', style:'风格', refine:'精修', erase:'消除', reshape:'重塑'
+};
+const STATES = ['标准','鲜明','柔和'];
+const FILTERS = {
+  'one-标准':'none',
+  'one-鲜明':'saturate(1.25) contrast(1.08)',
+  'one-柔和':'saturate(.9) brightness(1.06) contrast(.95)',
+  'style':'saturate(1.35) hue-rotate(-8deg) contrast(1.05)',
+  'refine':'contrast(1.18) brightness(1.03) saturate(1.05)',
+  'erase':'grayscale(.15) brightness(1.08) contrast(.98)',
+  'reshape':'contrast(1.05) saturate(1.02)'
+};
+
+const photo = document.getElementById('photo');
+const modeChip = document.getElementById('modeChip');
+const stateChip = document.getElementById('stateChip');
+const undoBtn = document.getElementById('undoBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const backBtn = document.getElementById('backBtn');
+const tools = Array.from(document.querySelectorAll('.tool'));
+
+photo.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(PHOTO_SVG);
+
+let current = { mode:'one', state:'标准' };
+let history = [{ ...current }];
+
+function filterFor(mode, state){
+  return mode === 'one' ? FILTERS['one-' + state] : FILTERS[mode];
+}
+function render(){
+  photo.style.filter = filterFor(current.mode, current.state);
+  modeChip.textContent = MODES[current.mode];
+  stateChip.hidden = current.mode !== 'one';
+  stateChip.textContent = current.state;
+  stateChip.setAttribute('aria-pressed', String(current.mode === 'one' && current.state !== '标准'));
+  tools.forEach(btn => {
+    const on = btn.dataset.mode === current.mode;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', String(on));
+  });
+  undoBtn.disabled = history.length < 2;
+}
+function commit(next){
+  if(next.mode === current.mode && next.state === current.state) return;
+  current = next;
+  history.push({ ...current });
+  render();
+}
+
+tools.forEach(btn => btn.addEventListener('click', () => {
+  commit({ mode:btn.dataset.mode, state:current.state });
+}));
+
+stateChip.addEventListener('click', () => {
+  const i = STATES.indexOf(current.state);
+  commit({ mode:'one', state:STATES[(i + 1) % STATES.length] });
+});
+
+undoBtn.addEventListener('click', () => {
+  if(history.length < 2) return;
+  history.pop();
+  current = { ...history[history.length - 1] };
+  render();
+});
+
+backBtn.addEventListener('click', () => {
+  if(window.history.length > 1) window.history.back();
+  else {
+    backBtn.classList.remove('bump');
+    void backBtn.offsetWidth;
+    backBtn.classList.add('bump');
+  }
+});
+
+downloadBtn.addEventListener('click', () => {
+  const run = () => {
+    const w = photo.naturalWidth || 900;
+    const h = photo.naturalHeight || 1200;
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    const filter = filterFor(current.mode, current.state);
+    try {
+      if('filter' in ctx) ctx.filter = filter;
+      ctx.drawImage(photo, 0, 0, w, h);
+      const a = document.createElement('a');
+      a.download = 'edited-photo.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    } catch(e) {
+      const safe = String(filter).replace(/"/g,'');
+      const edited = PHOTO_SVG.replace('<svg ', '<svg style="filter:' + safe + '" ');
+      const url = URL.createObjectURL(new Blob([edited], { type:'image/svg+xml' }));
+      const a = document.createElement('a');
+      a.download = 'edited-photo.svg';
+      a.href = url;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  };
+  if(photo.complete && photo.naturalWidth) run();
+  else photo.addEventListener('load', run, { once:true });
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>本地照片编辑器</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f2f4f7;
+      --surface: #ffffff;
+      --stage: #f7f8fa;
+      --text: #171a1f;
+      --muted: #7b818d;
+      --line: #e8eaf0;
+      --accent: #2f6bff;
+      --accent-soft: #eaf0ff;
+      --shadow: 0 24px 70px rgba(28, 35, 48, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      width: min(100vw, 520px);
+      height: min(100dvh, 900px);
+      min-height: 560px;
+      display: grid;
+      grid-template-rows: 64px minmax(0, 1fr) auto;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .icon-btn,
+    .action-btn {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+    }
+
+    .icon-btn:hover {
+      background: #f3f5f8;
+    }
+
+    .icon-btn svg,
+    .action-btn svg,
+    .tool svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn {
+      min-height: 38px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: #3c424d;
+      background: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .action-btn:hover:not(:disabled) {
+      background: #f7f8fb;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.42;
+      cursor: default;
+    }
+
+    .action-btn.primary {
+      color: #ffffff;
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .action-btn.primary:hover {
+      background: #245ee6;
+    }
+
+    .stage {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      background: var(--stage);
+    }
+
+    .stage-head {
+      padding: 12px 16px 0;
+    }
+
+    .status-pill {
+      width: max-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid rgba(47, 107, 255, 0.16);
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #2c5fd6;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .status-sep {
+      width: 1px;
+      height: 11px;
+      background: rgba(47, 107, 255, 0.28);
+    }
+
+    .stage-body {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      padding: 8px 14px 16px;
+    }
+
+    .photo-card {
+      width: 100%;
+      max-width: calc((100dvh - 250px) * 4 / 3);
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #dfe5ea;
+      box-shadow: 0 12px 28px rgba(34, 42, 55, 0.12);
+    }
+
+    .photo-card svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .toolbar {
+      padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .mode-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6px 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .mode-line strong {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .tool-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .tool {
+      position: relative;
+      min-width: 0;
+      min-height: 70px;
+      padding: 9px 2px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 0;
+      border-radius: 14px;
+      background: transparent;
+      color: #6f7683;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .tool:hover {
+      background: #f6f7fa;
+    }
+
+    .tool.active {
+      color: var(--accent);
+      background

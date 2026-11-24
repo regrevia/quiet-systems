@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "roots": [
+    "examples/experiments/hy4flash-2026-11-24/ui-guard/photo-editor.html"
+  ],
+  "findings": [],
+  "metrics": [
+    {
+      "file": "/Volumes/US202/moved/Desktop-work/Symate/ui-guard/examples/experiments/hy4flash-2026-11-24/ui-guard/photo-editor.html",
+      "headingCount": 0,
+      "surfaceCount": 0,
+      "pillCount": 2,
+      "dividerCount": 0,
+      "textActionCount": 1,
+      "iconOnlyActionCount": 2
+    }
+  ],
+  "summary": {
+    "total": 0,
+    "skipped": 0,
+    "bySeverity": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0
+    },
+    "byRule": {}
+  },
+  "skipped": []
+}
