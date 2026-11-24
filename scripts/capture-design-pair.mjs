@@ -11,7 +11,7 @@ const files = [first, second]
 if (randomInt(2)) files.reverse()
 await mkdir(output)
 const { chromium } = createRequire(path.resolve('package.json'))('playwright-core')
-const browser = await chromium.launch({ channel: 'chrome' })
+const browser = await chromium.launch({ channel: 'chrome', args: ['--disable-gpu'] })
 const samples = []
 try {
   for (const [index, file] of files.entries()) {
