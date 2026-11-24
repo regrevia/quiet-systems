@@ -11,6 +11,8 @@ A UI review should return:
 7. Deletions, merges, or moves to detail with reasons
 8. Unverified items and the evidence still needed
 
+Before implementation, validate the input contract with `node "$QS_DIR/scripts/validate-design-brief.mjs" design-brief.json`. The brief prevents context dumping by requiring a reason for each loaded reference, names generated or supplied material that remains untrusted, and blocks focused repairs that do not identify the existing evidence they reuse.
+
 ## Static review rules
 
 The companion `scripts/ui-guard-review.mjs` reports common source-level issues:
