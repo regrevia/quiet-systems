@@ -12,3 +12,33 @@ button:focus-visible, h2:focus-visible { outline: 2px solid #2355a0; outline-off
 #detail button { color: #214b83; text-decoration: underline; }
 dialog { color: inherit; border: 1px solid #c9c8c4; border-radius: .5rem; padding: 1.5rem; }
 dialog::backdrop { background: rgb(20 24 27 / 30%); }
+
+/* Adapted native controls: keep the platform field, replace only its appearance. */
+label { display: block; font-weight: 600; }
+input, textarea, select {
+  display: block;
+  width: 100%;
+  margin: .5rem 0 1rem;
+  padding: .6rem .75rem;
+  font: inherit;
+  color: inherit;
+  background: #fff;
+  border: 1px solid #8a8a86;
+  border-radius: .25rem;
+}
+textarea { min-height: 8rem; resize: vertical; }
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid #2355a0; outline-offset: 1px; }
+button[type="submit"] {
+  padding: .6rem 1.1rem;
+  border: 1px solid #234776;
+  border-radius: .25rem;
+  color: #234776;
+  font-weight: 600;
+}
+button[type="submit"]:hover { background: #e8eef6; }
+form [role="alert"] { color: #812c20; }
+p:empty { margin: 0; }
+
+@media (max-width: 30rem) {
+  button[type="submit"] { width: 100%; }
+}

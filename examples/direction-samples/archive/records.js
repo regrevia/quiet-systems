@@ -5,6 +5,9 @@ const collection = [
 
 const records = document.querySelector('#records')
 const detail = document.querySelector('#detail')
+const title = detail.querySelector('h2')
+const year = detail.querySelector('time')
+const note = detail.querySelector('p')
 const isDialog = detail.tagName === 'DIALOG'
 let origin
 
@@ -13,20 +16,20 @@ for (const record of collection) {
   button.type = 'button'
   button.textContent = record.name
   if (isDialog) {
-    const year = document.createElement('span')
-    year.textContent = record.year
-    button.append(year)
+    const yearLabel = document.createElement('span')
+    yearLabel.textContent = record.year
+    button.append(yearLabel)
   }
   button.addEventListener('click', () => {
     origin = button
-    detail.querySelector('h2').textContent = record.name
-    detail.querySelector('time').textContent = record.year
-    detail.querySelector('p').textContent = record.note
+    title.textContent = record.name
+    year.textContent = record.year
+    note.textContent = record.note
     if (isDialog) detail.showModal()
     else {
       records.hidden = true
       detail.hidden = false
-      detail.querySelector('h2').focus()
+      title.focus()
     }
   })
   records.append(button)

@@ -6,7 +6,7 @@
   "findings": [],
   "metrics": [
     {
-      "file": "/Volumes/US202/moved/Desktop-work/Symate/ui-guard/examples/experiments/hy4flash-2026-11-24/ui-guard/photo-editor.html",
+      "file": "examples/experiments/hy4flash-2026-11-24/ui-guard/photo-editor.html",
       "headingCount": 0,
       "surfaceCount": 0,
       "pillCount": 2,
