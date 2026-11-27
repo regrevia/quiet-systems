@@ -120,6 +120,7 @@ const schemaBlock = source.slice(
 const schemaKeys = [...schemaBlock.matchAll(/^\s{2}([A-Za-z_]+):/gm)].map((match) => match[1])
 assert(schemaKeys.length > 0, 'configSchema not found')
 const keyLists = [
+  { file: path.join('README.md'), pattern: /顶层只允许([^；]+)；/ },
   { file: path.join('docs', 'evaluation.md'), pattern: /顶层只允许([^；]+)；/ },
   { file: path.join('references', 'copy-constraints.md'), pattern: /顶层只允许([^；]+)；/ },
   { file: path.join('references', 'review.md'), pattern: /Six top-level keys exist:([^.]+)\./ }

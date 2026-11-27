@@ -27,6 +27,10 @@
 - `--write-baseline FILE` 记录当前发现并退出 `0`；`--baseline FILE` 只报新增。key 是规则、路径、消息，不含行号，所以改动无关行不会让旧发现复活，同一文件里重复的同一发现仍会各报一次。
 - 配置文件取 `.ui-guard.json` 与 `.quiet-systems.json` 中先找到的一个，顶层只允许 `include`、`ignore`、`ignoreDirs`、`maxFileBytes`、`treatAsProduction`、`rules`；出现其他键或未知规则 id 时打印 `invalid config` 并退出 `2`。`ignore` 的模式对配置目录和扫描根目录各求值一次，任一侧命中即生效。
 
+- 输出格式在 `references/report-validation.md` 里另有一份说明，它的末行形状被测试绑定到一次真实运行；只改一处会红。
+- 每个脚本都有同名的测试文件，或者被 `scripts/test-coverage.test.mjs` 的豁免表登记了「需要真实页面」这条理由；新增一个没测试的脚本会让套件变红，豁免表里挂着一个已经有测试的脚本也会。
+- 方向样板与定稿比对的命令写在 `examples/direction-samples/README.md` 和本文里，测试直接解析那句命令行并跑一遍，文档里的命令跑不通就红。
+
 告警数是线索密度，不是质量分数。它随扫描范围、文件类型和项目既有基线变化，跨项目比较告警数没有意义。同一项目前后两次的差值是可用信号，前提是配置、规则版本和扫描范围都没变。
 
 ## 竞品与验证方向
