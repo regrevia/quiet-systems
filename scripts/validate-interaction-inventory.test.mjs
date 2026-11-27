@@ -50,6 +50,42 @@ test('blocks recovery actions that are icon-only', () => {
   assert.match(result.stderr, /labelForm-risk/)
 })
 
+test('accepts a read-only state marker', () => {
+  const result = run({
+    ...base,
+    actions: [{ label: '已满', role: 'state', labelForm: 'text', controlGrammar: 'read-only status text', accessibleName: '已满' }]
+  })
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /valid \(1 actions\)/)
+})
+
+test('blocks destructive actions that are icon-only', () => {
+  const result = run({
+    ...base,
+    actions: [{ label: 'Delete', role: 'destructive', labelForm: 'icon-only', recognitionBasis: 'trash can', controlGrammar: 'borderless icon button', accessibleName: 'Delete run' }]
+  })
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /labelForm-risk/)
+})
+
+test('accepts a destructive action that keeps its text', () => {
+  const result = run({
+    ...base,
+    actions: [{ label: 'Delete run', role: 'destructive', labelForm: 'text', controlGrammar: 'borderless text button', accessibleName: 'Delete run' }]
+  })
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /valid \(1 actions\)/)
+})
+
+test('blocks an icon-only action that never says how it is recognised', () => {
+  const result = run({
+    ...base,
+    actions: [{ label: 'Next', role: 'frequent-compact', labelForm: 'icon-only', controlGrammar: 'borderless icon button', accessibleName: 'Next room' }]
+  })
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /recognitionBasis/)
+})
+
 test('the inventory example in the docs passes the validator', () => {
   const result = spawnSync(process.execPath, [script, path.resolve('examples/interaction-inventory.json')], { encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr)

@@ -58,9 +58,9 @@ P0、P1、P2 三段各自从章节名到下一章之间，要么以 `无 P0`、`
 
 发现按 severity → 文件 → 行 → 规则排序，同一棵树两次运行逐字节一致。每条发现两行：`file:line SEVERITY RULE message`，第二行缩进两格给 evidence，evidence 是被点名的那段源码，不是复述。
 
-修复建议属于规则而不是某次出现，所以按规则在末尾汇总一次（`RULE → remediation`，多处命中时写成 `RULE (N finding(s)) → remediation`），按 severity 再按规则 id 排序。29 条发现各配一句同样的建议会把文件清单挤出第一屏，而那才是能动手的部分。`--json` 里每条发现仍各自带 `remediation`，逐条处理的下游不用回查。
+修复建议属于规则而不是某次出现，所以按规则在末尾汇总一次（`RULE → remediation`，多处命中时写成 `RULE (N finding(s)) → remediation`），按 severity 再按规则 id 排序。几十条发现各配一句同样的建议会把文件清单挤出第一屏，而那才是能动手的部分。`--json` 里每条发现仍各自带 `remediation`，逐条处理的下游不用回查。
 
-末行是 `ui-guard review: N finding(s) (1 P0, 20 P1, 10 P2) in M file(s)`。`M` 是实际读了多少文件：根路径写错、扩展名清单不匹配、整棵树被忽略，三种情况都读到 0 个文件，那时再补一行 `reviewed no files` 点名这三个原因。只有 0 个文件的“干净”和真正干净不是同一个答案，`--json` 的 `reviewed` 给同一个数。
+末行是 `ui-guard review: N finding(s) (a P0, b P1, c P2) in M file(s)`。`M` 是实际读了多少文件：根路径写错、扩展名清单不匹配、整棵树被忽略，三种情况都读到 0 个文件，那时再补一行 `reviewed no files` 点名这三个原因。只有 0 个文件的“干净”和真正干净不是同一个答案，`--json` 的 `reviewed` 给同一个数。
 
 结尾可能追加三种行，彼此独立：`N finding(s) matched the baseline`（被 `--baseline` 冻结的存量）、每个 `skipped` 文件一行（`maxFileBytes`、`symlink`、读取失败）、以及 `scan incomplete`。前两者是声明的边界，不改变退出码；读取失败是覆盖缺口，退 `2`。
 

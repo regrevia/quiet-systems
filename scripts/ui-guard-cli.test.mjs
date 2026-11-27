@@ -298,6 +298,15 @@ assert.equal(quoted[0], sampleSummary, 'README quotes a summary line the bad sam
 // The quoted finding must be a line the tool actually prints, position included.
 // A sample whose path or line number is invented teaches the reader to distrust
 // every number in the output.
+// The report-validation doc describes the same output shape a second time. If it
+// drifts, a reviewer follows a format the run never prints.
+const reportDoc = fs.readFileSync(path.join('references', 'report-validation.md'), 'utf8')
+const docSummary = reportDoc.match(/ui-guard review: N finding\(s\) \(([^)]+)\) in M file\(s\)/)
+assert.ok(docSummary, 'references/report-validation.md no longer shows the summary line')
+const docShape = docSummary[1].replace(/\b[abc]\b/g, '#')
+const liveShape = sampleSummary.match(/\((\d+ P0, [^)]+)\)/)[1].replace(/\d+(?= P\d)/g, '#')
+assert.equal(docShape, liveShape, 'the summary line shape in references/report-validation.md disagrees with a real run')
+
 const quotedFinding = readme.match(/^(examples\/\S+\.(?:tsx|ts|jsx|js|css|vue|svelte|astro|html)):(\d+) (P[012]) (QS-[A-Z0-9-]+) (.+)$/m)
 assert.ok(quotedFinding, 'README no longer quotes a sample finding line')
 const [, quotedPath, quotedLine, , quotedRule] = quotedFinding
