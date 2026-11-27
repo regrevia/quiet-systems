@@ -8,15 +8,15 @@
 
 ### 2. Classify each action
 
-为每个动作选择一个角色。
+为每个动作选择一个角色。这七个名字就是 JSON 里 `role` 字段的取值，校验脚本按这张表判定，写别的会被拒。
 
-- Primary action
-- Frequent compact action
-- Navigation or scope change
-- State indicator
-- Destructive or consequential action
-- Recovery or undo
-- Low-frequency action
+- `primary` — Primary action
+- `frequent-compact` — Frequent compact action
+- `navigation` — Navigation or scope change
+- `state` — State indicator
+- `destructive` — Destructive or consequential action
+- `recovery` — Recovery or undo
+- `low-frequency` — Low-frequency action
 
 ### 3. Choose the label form
 
@@ -37,8 +37,10 @@ Test the primary path and one failure or recovery path with representative data 
 
 ### 6. Audit before delivery
 
-Count visible text actions, icon-only actions, state markers, pills, and independent borders. For every text action, record why an icon would be ambiguous or insufficient. For every icon-only action, record its accessible name and recognition basis. Remove any control that only repeats a heading, state, or nearby action.
+Count visible text actions, icon-only actions, state markers, pills, and independent borders. §2 的角色决定 §3 的标签形态，也决定这条计数读什么：`state` 不该出现在可点控件里，`destructive` 与 `recovery` 不该只由图标承担，`frequent-compact` 才允许省掉文字。计数和角色对不上，说明清单写完就没再回头看界面。 For every text action, record why an icon would be ambiguous or insufficient. For every icon-only action, record its accessible name and recognition basis. Remove any control that only repeats a heading, state, or nearby action.
 
 Two of those audits are machine-checkable, so the reviewer does not have to remember them: `QS-INTERACTION-001` flags a destructive action carried only by an icon, and `QS-INTERACTION-002` flags a control whose label restates its heading or its own state. Both read the control's own text, so the finding points at a line that can be changed. The rest — whether the icon is recognisable, whether the state marker reads as a state — still needs a person.
+
+一份填满七个角色的清单在 [`examples/interaction-inventory.json`](../examples/interaction-inventory.json)，可直接跑校验脚本对照字段写法。
 
 Save the inventory as JSON when it is used as a handoff artifact and run `node "$SKILL_HOME/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The validator checks the object, result, recovery path, action role, control grammar, and accessible name without prescribing a visual theme.

@@ -21,6 +21,17 @@ function run(value) {
   return spawnSync(process.execPath, [script, file], { encoding: 'utf8' })
 }
 
+test('the documented roles are exactly the ones the validator accepts', () => {
+  const source = fs.readFileSync(script, 'utf8')
+  const enumLine = source.match(/const roles = new Set\(\[([^\]]+)\]\)/)
+  assert.ok(enumLine, 'validator no longer declares its role enum in one line')
+  const accepted = [...enumLine[1].matchAll(/'([^']+)'/g)].map((match) => match[1]).sort()
+  const doc = fs.readFileSync(path.resolve('references/interaction-inventory.md'), 'utf8')
+  const section = doc.slice(doc.indexOf('### 2. Classify each action'), doc.indexOf('### 3.'))
+  const documented = [...section.matchAll(/^- `([a-z-]+)`/gm)].map((match) => match[1]).sort()
+  assert.deepEqual(documented, accepted, 'the role names in the inventory doc disagree with the validator')
+})
+
 test('accepts a complete interaction inventory', () => {
   const result = run(base)
   assert.equal(result.status, 0)
@@ -37,4 +48,10 @@ test('blocks recovery actions that are icon-only', () => {
   const result = run({ ...base, actions: [{ label: 'Retry', role: 'recovery', labelForm: 'icon-only', recognitionBasis: 'familiar retry symbol', controlGrammar: 'borderless icon button', accessibleName: 'Retry run' }] })
   assert.equal(result.status, 1)
   assert.match(result.stderr, /labelForm-risk/)
+})
+
+test('the inventory example in the docs passes the validator', () => {
+  const result = spawnSync(process.execPath, [script, path.resolve('examples/interaction-inventory.json')], { encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /valid \(7 actions\)/)
 })

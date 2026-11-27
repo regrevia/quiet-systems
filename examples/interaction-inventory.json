@@ -1,0 +1,58 @@
+{
+  "object": "待预约房间",
+  "goal": "把今晚要用的房间订下来",
+  "result": "预约出现在同一页的已确认列表里",
+  "recoveryPath": "预约失败时保留填写的时段，重试同一个房间",
+  "actions": [
+    {
+      "label": "确认预约",
+      "role": "primary",
+      "labelForm": "text",
+      "controlGrammar": "实心按钮，36px 高，独占表单末行",
+      "accessibleName": "确认预约"
+    },
+    {
+      "label": "上一间 / 下一间",
+      "role": "frequent-compact",
+      "labelForm": "icon-only",
+      "recognitionBasis": "左右箭头在日期与房间切换条里位置固定，两侧有当前房间名",
+      "controlGrammar": "无边框图标按钮，32px 命中区，focus 环 2px",
+      "accessibleName": "上一间房间 / 下一间房间"
+    },
+    {
+      "label": "查看房间详情",
+      "role": "navigation",
+      "labelForm": "icon+label",
+      "controlGrammar": "文字按钮，尾部箭头图标不单独承担含义",
+      "accessibleName": "查看房间详情"
+    },
+    {
+      "label": "已满",
+      "role": "state",
+      "labelForm": "text",
+      "controlGrammar": "只读文本加前置圆点，不可聚焦、不可点",
+      "accessibleName": "该时段已满"
+    },
+    {
+      "label": "取消这间房的预约",
+      "role": "destructive",
+      "labelForm": "text",
+      "controlGrammar": "次级文字按钮，危险色只用于确认对话框里的最终按钮",
+      "accessibleName": "取消这间房的预约"
+    },
+    {
+      "label": "重试",
+      "role": "recovery",
+      "labelForm": "icon+label",
+      "controlGrammar": "错误行内的文字按钮，重试期间说明正在重试",
+      "accessibleName": "重试这次预约"
+    },
+    {
+      "label": "导出预约记录",
+      "role": "low-frequency",
+      "labelForm": "text",
+      "controlGrammar": "列表页右上角菜单项，不占用首屏按钮位置",
+      "accessibleName": "导出预约记录"
+    }
+  ]
+}
