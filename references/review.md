@@ -37,6 +37,8 @@ The companion `scripts/ui-guard-review.mjs` reports common source-level issues:
 - `QS-COMPOSITION-001` reports per-file counts for headings, surfaces, pills, dividers, text actions, and icon-only actions. It flags more than one heading, more than four card-like surfaces, more than three pills, more than three dividers, or more than two text actions in a production source file. Treat the result as a budget review, then record the reason for every retained exception.
 - `scripts/measure-composition.mjs` measures the rendered route at 390 and 1440 CSS pixels. Its output is advisory and selector-based. Use it with a running app to replace source heuristics with visible DOM counts and body text, then record its JSON output and any selector exceptions in the review evidence.
 - `QS-SLOP-001` and `QS-SLOP-002` flag common decorative AI treatment
+- `QS-INTERACTION-001` flags a destructive or irreversible action whose control carries only an icon. The accessible name is not enough: a sighted reader has to recognise the glyph before they know what it destroys, and a trash can in a list of rooms says nothing about which room. Keep the icon and add the action and its object (“删除房间”).
+- `QS-INTERACTION-002` flags a control whose whole label either repeats the heading above it or restates its own state (“已连接”). A button that echoes its state looks pressable while doing nothing, and one that echoes the heading makes the reader re-read the same word. State belongs in read-only text; the control keeps an action verb and its object.
 - `QS-SLOP-003` flags common generic AI-marketing copy patterns for human review
 - `QS-A11Y-001` flags images without an alternative text attribute
 - `QS-A11Y-002` flags common native, semantic, or event-bound interactive elements hidden with `aria-hidden="true"`
@@ -78,6 +80,8 @@ Severity is registered per rule in `scripts/ui-guard-review.mjs` and mirrors thi
 | `QS-SLOP-001` | P2 |
 | `QS-SLOP-002` | P2 |
 | `QS-SLOP-003` | P2 |
+| `QS-INTERACTION-001` | P1 |
+| `QS-INTERACTION-002` | P2 |
 
 The copy budget for `QS-COPY-003` is weighted, not a character count: CJK characters weigh 1, Latin letters, digits and spaces weigh 0.5, and the default `maxLength` of 180 means "about 180 CJK characters". Override it with `rules["QS-COPY-003"].maxLength`.
 

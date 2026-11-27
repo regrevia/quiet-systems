@@ -54,7 +54,9 @@ const fixtures = {
   'QS-SLOP-002': { file: 'Sparkles.tsx', code: '<SparklesIcon />\n' },
   'QS-SLOP-003': { file: 'Marketing.tsx', code: '<span>无缝协作</span>\n' },
   'QS-VISUAL-001': { file: 'Inline.tsx', code: "<div style={{ color: 'red' }}></div>\n" },
-  'QS-VISUAL-002': { file: 'Color.tsx', code: '<span className="a">#ff00aa</span>\n' }
+  'QS-VISUAL-002': { file: 'Color.tsx', code: '<span className="a">#ff00aa</span>\n' },
+  'QS-INTERACTION-001': { file: 'Trash.tsx', code: '<h2>房间</h2>\n<button aria-label="删除房间"><TrashIcon /></button>\n' },
+  'QS-INTERACTION-002': { file: 'Echo.tsx', code: '<h2>房间</h2>\n<button>房间</button>\n<button>已连接</button>\n' }
 }
 
 // The single registry is the source of truth for which rules exist.
@@ -82,6 +84,21 @@ for (const doc of ['README.md', path.join('docs', 'evaluation.md')]) {
     assert.equal(Number(match[1]), registeredRules.length, `${doc} claims ${match[1]} rules but the registry has ${registeredRules.length}`)
   }
 }
+
+// The allowed config keys are quoted in the docs, and a hand-maintained list
+// silently loses a key the moment one is added — which is how `treatAsProduction`
+// went missing. Read the list from configSchema instead of trusting the prose.
+const schemaBlock = source.slice(
+  source.indexOf('const configSchema = {'),
+  source.indexOf('\n}', source.indexOf('const configSchema = {'))
+)
+const schemaKeys = [...schemaBlock.matchAll(/^\s{2}([A-Za-z_]+):/gm)].map((match) => match[1])
+assert(schemaKeys.length > 0, 'configSchema not found')
+const configProse = fs.readFileSync(path.join(repoRoot, 'docs', 'evaluation.md'), 'utf8')
+const proseKeys = configProse.match(/顶层只允许([^；]+)；/)
+assert(proseKeys, 'docs/evaluation.md no longer lists the allowed config keys')
+const claimed = [...proseKeys[1].matchAll(/`([A-Za-z_]+)`/g)].map((match) => match[1]).sort()
+assert.deepEqual(claimed, [...schemaKeys].sort(), 'docs/evaluation.md config key list disagrees with configSchema')
 
 // The severity table in references/review.md is normative, so a registered
 // severity that disagrees with the table is a documentation defect.

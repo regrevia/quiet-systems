@@ -39,4 +39,6 @@ Test the primary path and one failure or recovery path with representative data 
 
 Count visible text actions, icon-only actions, state markers, pills, and independent borders. For every text action, record why an icon would be ambiguous or insufficient. For every icon-only action, record its accessible name and recognition basis. Remove any control that only repeats a heading, state, or nearby action.
 
+Two of those audits are machine-checkable, so the reviewer does not have to remember them: `QS-INTERACTION-001` flags a destructive action carried only by an icon, and `QS-INTERACTION-002` flags a control whose label restates its heading or its own state. Both read the control's own text, so the finding points at a line that can be changed. The rest — whether the icon is recognisable, whether the state marker reads as a state — still needs a person.
+
 Save the inventory as JSON when it is used as a handoff artifact and run `node "$SKILL_HOME/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The validator checks the object, result, recovery path, action role, control grammar, and accessible name without prescribing a visual theme.

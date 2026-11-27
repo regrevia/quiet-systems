@@ -275,6 +275,16 @@ assert.match(nativeHits[0], /Bare\.tsx/)
 fs.rmSync(alias, { recursive: true, force: true })
 
 // The JSON report is a stable, machine-readable contract.
+// The interaction rules must not fire on labelled controls: a named destructive
+// action and a control that names its object are exactly what the repair asks for.
+const namedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-named-'))
+fs.mkdirSync(path.join(namedRoot, 'src'), { recursive: true })
+fs.writeFileSync(path.join(namedRoot, 'src', 'Named.tsx'), '<h2>房间</h2>\n<button><TrashIcon /> 删除房间</button>\n<button>打开房间</button>\n')
+const namedRun = spawnSync(process.execPath, [script, namedRoot], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.notEqual(namedRun.status, 2, namedRun.stderr)
+assert.doesNotMatch(namedRun.stdout, /QS-INTERACTION-00[12]/)
+fs.rmSync(namedRoot, { recursive: true, force: true })
+
 // "Clean" over zero files is not the same answer as a clean tree. The count is
 // reported in both formats, and an empty scan says why it is empty.
 const emptyRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-empty-'))

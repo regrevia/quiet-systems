@@ -103,7 +103,9 @@ const severityByRule = {
   'QS-COPY-007': 'P1',
   'QS-COPY-008': 'P2',
   'QS-COPY-009': 'P2',
-  'QS-COPY-010': 'P1'
+  'QS-COPY-010': 'P1',
+  'QS-INTERACTION-001': 'P1',
+  'QS-INTERACTION-002': 'P2'
 }
 // Every rule must state the repair, not only the objection. The text is what an
 // agent reads when it triages a finding, and it is the contract that
@@ -135,7 +137,9 @@ const remediationByRule = {
   'QS-HIERARCHY-001': '删除解释性小字，用布局、换行、字重或位置建立层级。',
   'QS-SLOP-001': '去掉装饰性玻璃、渐变、模糊或发光，或在评审里证明它服务于层级。',
   'QS-SLOP-002': '替换为实际对象或动作语义的图形。',
-  'QS-SLOP-003': '改成具体对象、结果或下一步动作。'
+  'QS-SLOP-003': '改成具体对象、结果或下一步动作。',
+  'QS-INTERACTION-001': '补上可见的动作名与作用对象；图标可以保留，但不能是唯一的识别方式。',
+  'QS-INTERACTION-002': '改成动作名或作用对象；状态用只读文本呈现，不要做成按钮。'
 }
 
 const configSchema = {
@@ -428,6 +432,32 @@ function inspect(file) {
   const copyContext = /<(?:p|button|label|h[1-6]|span|a)\b[^>]*>|\b(?:label|title|placeholder|aria-label|children|text|description|body|heading|subtitle|cta)\s*[:=]\s*["'`]/i
   const metaphorCopy = /(?:蒸馏|赋能|编排|人管|接管(?:指针|键盘|语义)|沉淀|打通|闭环|抓手|北极星|护城河|底座|飞轮|心智|范式|中枢|锚点|杠杆|生命线|母体|元(?:能力|问题)|复利|降维|升维|全域|全链路|心智模型|语义图谱|supercharge|orchestrat\w*|distill\w*|empower\w*|synerg\w*|north star|flywheel|leverage|paradigm)/i
   const concreteActionNearby = /(?:点击|打开|关闭|保存|删除|选择|输入|提交|重试|返回|导入|导出|查看|下载|复制|发送|同步|撤销|confirm|cancel|open|close|save|delete|select|enter|submit|retry|back|import|export|view|download|copy|send|undo)/i
+  // QS-INTERACTION-001/002: read the action vocabulary, not the visual style. A
+  // destructive action identified only by a glyph makes the reader guess what it
+  // destroys; a control whose whole label restates its state tells them what they
+  // already see. Both come from the control's own text, so the finding lands on a
+  // line an author can change.
+  const headingTexts = new Set(
+    [...text.matchAll(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/gi)]
+      .map((match) => match[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+  )
+  const destructiveIntent = /(?:delete|remove|destroy|discard|reset|revoke|deactivate|删除|移除|销毁|清空|重置|注销|解绑|撤销授权)/i
+  const stateEcho = /^(?:已|未|正在)?(?:开启|关闭|启用|禁用|加载中|进行中|处理中|就绪|完成|成功|失败|已保存|已同步|已连接|已断开)(?:状态|中)?$/
+  const lineOf = (index) => text.slice(0, index).split('\n').length
+  if (isProductionSource(file)) {
+    for (const match of text.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/gi)) {
+      const whole = match[0]
+      const label = match[3].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      const controlText = `${match[2]} ${match[3]}`
+      if (destructiveIntent.test(controlText) && !label) {
+        add(file, lineOf(match.index), 'QS-INTERACTION-001', '破坏性或不可逆动作只有图标，没有可见文字标签。请补上动作名与作用对象；图标可保留，但不能是唯一的识别方式。', whole)
+      }
+      if (label && (stateEcho.test(label) || headingTexts.has(label))) {
+        add(file, lineOf(match.index), 'QS-INTERACTION-002', '控件的文字只是在重复标题或自身状态。请改成动作名或作用对象；状态用只读文本呈现。', whole)
+      }
+    }
+  }
   const abbreviationToken = /\b([A-Z]{2,6})\b/g
   // QS-COPY-010: compressed capability compounds. A noun-verb pair like 「智能调度」or
   // 「一键洞察」names a capability while dropping the object the user would act on. The
