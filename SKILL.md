@@ -22,6 +22,8 @@ Use the smallest executable check for the current phase. Before implementation r
 7. Treat Apple-like quality as a relationship between hierarchy, material, typography, control silhouette, response and restraint. Do not infer it from a system font, pale background, thin border or black button alone. Use one focal work surface, one supporting navigation or context plane and transient layers only when they carry a task. Avoid equal treatment for every card, row, badge, outline and separator. Establish one reading edge and keep related fields closer to each other than to unrelated regions. Do not distribute columns evenly just to fill a wide viewport. Read [Interface constraints](references/interface.md) for the platform-character and visual-finish checks.
 8. Freeze a composition budget before styling: one dominant work surface, one primary action, no more than two secondary actions, no more than three surface or elevation levels, zero decorative pills, and zero unexplained dividers. Record a reason for every exception. Exercise a real task with representative data, including a relevant failure or boundary state. Inspect the rendered page at 390 and 1440 CSS pixels in color, grayscale, and a quick blur or squint view. Record the dominant surface, reading edge, control grammar, empty-space purpose, scope owner, title count, secondary-copy count, text-action count, icon-only action count, surface count, pill count and divider count. If several headings, cards, pills or controls compete, merge, mute or remove the redundant level. After deleting copy, recheck spacing and column widths so empty space does not remain as evidence of the deleted text.
 
+9. Run the spoken test on every string before it ships. Say the line aloud to a colleague who has not seen the screen: if it needs a second sentence to explain what happens, or it names a capability instead of the thing being changed, rewrite it as verb plus concrete object (“把今天的排期抄进周报”, not “一键洞察排期”). A metaphor standing in for an action is not a shorter way to say it; it is a missing noun. Ban 蒸馏, 赋能, 编排, 接管, 沉淀, 打通, 闭环, 抓手, 北极星, 护城河, 底座, 飞轮, 心智, 范式, 中枢, 锚点, 杠杆, 降维, 全链路, north star, flywheel, leverage, orchestrate, supercharge, and the compounds they form with 一键, 智能, 深度, 全域. An internal abbreviation gets its full phrase on first use, or it does not appear — a reader who has to decode DSH, QBR or MCP is being asked to do the writer's work. Run `node scripts/ui-guard-review.mjs` and treat `QS-COPY-007` and `QS-COPY-010` as the machine half of this check; the spoken test is the half the scanner cannot do.
+
 ## Hard stops
 
 - No confirmed audience, task, object or visual direction means no new high-fidelity screen. Ask or show two small samples with the same data. A focused repair may reuse an existing design contract, real entrypoint and visual system, and must record which evidence it reused.
@@ -38,7 +40,7 @@ Load this file, then the smallest set of references and scripts required by the 
 
 ## Read on demand
 
-Start with the task. Open a reference only when its question arises. Paths to scripts and examples are relative to the installed skill root (`QS_DIR`).
+Start with the task. Open a reference only when its question arises. Paths to scripts and examples are relative to the installed skill root; the examples below write it as `$SKILL_HOME`.
 
 | When you need to… | Read |
 | --- | --- |
@@ -47,8 +49,11 @@ Start with the task. Open a reference only when its question arises. Paths to sc
 | Plan actions, labels, icon candidates, and control states before styling | [Interaction and icon inventory](references/interaction-inventory.md) |
 | Review action labels, limits, recovery copy, hierarchy, controls or motion | [Interface constraints](references/interface.md) |
 | Remove defensive, disclaimer-style or filler UI copy | [Copy constraints](references/copy-constraints.md) |
+| Rewrite compressed or metaphorical copy that hides its object | [Copy constraints](references/copy-constraints.md) |
 | Check a chosen control language in a browser | [Control adaptation script](references/review.md) |
 | Evaluate an Apple or Linear reference or compare design skills | [Design sources](references/design-sources.md) |
 | Compare a rendered result against Apple, Linear, and other mature interfaces | [Benchmark review](references/benchmark-review.md) |
 | Run source checks, verify actual form fields and state copy, or audit a release | [Review guide](references/review.md) |
+| Check fixture field contracts or make a state fixture pass `validate-fixtures` | [Fixture contract](references/fixture-contract.md) |
+| Validate an outside reviewer's report shape before accepting it | [Report validation](references/report-validation.md) |
 | Test the skill against common AI-slop pressures | [Pressure scenarios](references/pressure-scenarios.md) |

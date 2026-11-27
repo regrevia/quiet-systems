@@ -11,9 +11,9 @@ A UI review should return:
 7. Deletions, merges, or moves to detail with reasons
 8. Unverified items and the evidence still needed
 
-Before implementation, validate the input contract with `node "$QS_DIR/scripts/validate-design-brief.mjs" design-brief.json`. The brief prevents context dumping by requiring a reason for each loaded reference, names generated or supplied material that remains untrusted, blocks focused repairs without reusable evidence, and permits exploratory work before a direction is selected.
+Before implementation, validate the input contract with `node "$SKILL_HOME/scripts/validate-design-brief.mjs" design-brief.json`. The brief prevents context dumping by requiring a reason for each loaded reference, names generated or supplied material that remains untrusted, blocks focused repairs without reusable evidence, and permits exploratory work before a direction is selected.
 
-For handoff, validate the interaction contract with `node "$QS_DIR/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The delivery gate also checks that the narrow and wide screenshot files contain readable PNG or JPEG dimensions matching 390 and 1440 CSS pixels.
+For handoff, validate the interaction contract with `node "$SKILL_HOME/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The delivery gate also checks that the narrow and wide screenshot files contain readable PNG or JPEG dimensions matching 390 and 1440 CSS pixels.
 
 ## Static review rules
 
@@ -29,6 +29,10 @@ The companion `scripts/ui-guard-review.mjs` reports common source-level issues:
 - `QS-COPY-004` skips a small set of concrete safety conditions such as “务必在关闭电源后操作”. Review the condition and its scope manually. A static pass does not prove that the safety instruction is complete.
 - `QS-COPY-005` flags disclaimer-style copy such as “内容由 AI 生成，请核实重要信息”, “仅为演示”, “效果因人而异”, “请自行判断”, “不构成建议”, and “可能存在误差”. Keep only a specific limitation at the decision point when it changes the current action. See [Copy constraints](copy-constraints.md).
 - `QS-COPY-006` flags vague future promises and reassurance such as “敬请期待”, “即将上线”, “持续优化中”, and “为你带来”. Keep only a dated, sourced commitment or a completed result. Action labels such as “Try it now” and “Welcome” are reviewed by task semantics instead.
+- `QS-COPY-007` flags metaphor and jargon standing in for an action: “闭环”, “赋能”, “底座”, “抓手”, “沉淀”, “打通”, “降维”, “north star”, “flywheel”, “leverage”, “orchestrate”. Rewrite as verb plus concrete object, and state in the review what the sentence would make someone do. A line that names a real action nearby is left alone.
+- `QS-COPY-008` flags an unexplained abbreviation on first use. Write the full phrase, or put the expansion in parentheses right after the token. Common interface abbreviations (API, URL, ID, JSON, HTML, CSS, HTTP, PDF, CSV, SVG, OS, SQL, DNS, SDK, CLI, TLS, SSH, IP, MFA, OTP, AI, ML, GPS, FAQ, UUID, RSS, IDE, REST, YAML, UTF, CPU, RAM, GPU, USB) are exempt because they are read as words, not decoded.
+- `QS-COPY-009` flags aphoristic or translated syntax: “不止于…”, “为…而生”, “不是…而是…”, “才是…的答案”, “born for”, “isn't just”, “more than just”. Restore a sentence you could say to a colleague: who does what, and what changes. See [Copy constraints](copy-constraints.md).
+- `QS-COPY-010` flags a capability compressed into a noun phrase with its object dropped: “一键洞察”, “智能治理”, “深度对齐”, “全链路编排”, “无感协同”. The reader cannot tell what is being counted, sent, merged or scheduled. Write out who turns what into what (“把今天的排期抄进周报”), and keep the shortened form only where the object is already on screen. A line that names a concrete action nearby is left alone. See [Copy constraints](copy-constraints.md).
 - `scripts/validate-interaction-inventory.mjs` blocks an interaction handoff when the object, result, recovery path, action role, control grammar, or accessible name is missing.
 - `QS-COMPOSITION-001` reports per-file counts for headings, surfaces, pills, dividers, text actions, and icon-only actions. It flags more than one heading, more than four card-like surfaces, more than three pills, more than three dividers, or more than two text actions in a production source file. Treat the result as a budget review, then record the reason for every retained exception.
 - `scripts/measure-composition.mjs` measures the rendered route at 390 and 1440 CSS pixels. Its output is advisory and selector-based. Use it with a running app to replace source heuristics with visible DOM counts and body text, then record its JSON output and any selector exceptions in the review evidence.
@@ -42,7 +46,54 @@ The companion `scripts/ui-guard-review.mjs` reports common source-level issues:
 - `QS-MOTION-001` flags CSS transitions or animations without a reduced-motion path or an explicit manual-review marker
 - `QS-MOTION-002` flags CSS transitions or animations longer than 400ms unless their duration has an explicit manual-review marker
 
-The optional `.quiet-systems.json` file configures ignored paths, rule ignores, copy-length thresholds, and the maximum file size. Findings are review prompts. Fix or justify each finding. Do not silence the script by deleting the evidence or hiding the source from the scan.
+### Severity
+
+Severity is registered per rule in `scripts/ui-guard-review.mjs` and mirrors this table. `scripts/review-rules.test.mjs` fails when the two disagree, so a severity change is a code change plus a documentation change in the same commit.
+
+| Rule | Severity |
+| --- | --- |
+| `QS-PROTOTYPE-001` | P0 |
+| `QS-A11Y-001` | P1 |
+| `QS-A11Y-002` | P1 |
+| `QS-A11Y-003` | P1 |
+| `QS-COMPONENT-001` | P1 |
+| `QS-COMPOSITION-001` | P1 |
+| `QS-COPY-001` | P1 |
+| `QS-COPY-002` | P1 |
+| `QS-COPY-004` | P1 |
+| `QS-COPY-005` | P1 |
+| `QS-COPY-006` | P1 |
+| `QS-COPY-007` | P1 |
+| `QS-HIERARCHY-001` | P1 |
+| `QS-MOTION-001` | P1 |
+| `QS-VISUAL-001` | P1 |
+| `QS-VISUAL-002` | P1 |
+| `QS-COPY-003` | P2 |
+| `QS-COPY-008` | P2 |
+| `QS-COPY-009` | P2 |
+| `QS-COPY-010` | P1 |
+| `QS-ICON-001` | P2 |
+| `QS-ICON-002` | P2 |
+| `QS-MOTION-002` | P2 |
+| `QS-SLOP-001` | P2 |
+| `QS-SLOP-002` | P2 |
+| `QS-SLOP-003` | P2 |
+
+The copy budget for `QS-COPY-003` is weighted, not a character count: CJK characters weigh 1, Latin letters, digits and spaces weigh 0.5, and the default `maxLength` of 180 means "about 180 CJK characters". Override it with `rules["QS-COPY-003"].maxLength`.
+
+Configuration is optional and read from the first of `.ui-guard.json` and `.quiet-systems.json` found in the scanned root. Six top-level keys exist: `include`, `ignore`, `ignoreDirs`, `maxFileBytes`, `treatAsProduction` and `rules`. `treatAsProduction` takes glob patterns resolved against the config directory; a file that matches is scanned as production source even when it sits under `examples`, `fixtures`, `prototype`, `test`, `tests`, `__tests__`, `scripts` or ends in `.test.`/`.spec.` — that is how a deliberately bad sample gets reviewed. Use it in the sample's own config, never in the repository root, or every downstream project inherits the widened gate. Any other key, or a `rules` key that is not a registered rule id, is a configuration error: the script prints `invalid config`, names the offending key and exits `2` rather than falling back to a default. Patterns in `ignore` and in `rules.<id>.ignore` are resolved against both the configuration directory and the scan root, so a pattern matches when either base resolves it. `rules.<id>.maxLength` overrides the default copy budget for `QS-COPY-003`: a number sets one budget, `{ mobile, desktop }` sets both and the narrower one binds, because a line that fits a 1440px column can still overflow a 390px screen. The finding message names both numbers whenever they differ. `cjkWeight` and `latinWeight` change the per-glyph cost. Ready-made starting points live in `examples/configs/` for Tailwind projects and for CSS-variable projects.
+
+Findings are review prompts. Fix or justify each finding. Do not silence the script by deleting the evidence or hiding the source from the scan.
+
+Severity and remediation belong to the rule, not to the call site. `scripts/ui-guard-review.mjs` keeps one registry for each and `scripts/review-rules.test.mjs` fails when a rule id has no severity, no remediation, no entry in this file, or no fixture that makes it fire. A rule that stops firing is a test failure, not a quiet improvement.
+
+The report is stable and machine-readable. `--json` emits `version: 2` with `findings` (each carrying `rule`, `severity`, `file`, `line`, `message`, `evidence`, `remediation`), `summary` (`total`, `skipped`, `baselined`, `bySeverity`, `byRule`), `metrics` and `skipped`. Text output prints one `file:line SEVERITY RULE message` line per finding, then the evidence line and a `→ remediation` line. Findings sort by severity, then file, line and rule, so two runs over the same tree print identical reports. Exit codes mean one thing each: `0` clean, `1` findings, `2` incomplete scan (unreadable root, read error, invalid config, invalid baseline or an unrecognised option), with `2` outranking `1`.
+
+Suppression comments are line-scoped and must sit on the line that emits the finding; a marker on its own line says nothing about the next one. Write `ui-guard: ignore` to suppress every rule on that line, or `ui-guard: ignore QS-COPY-001,QS-COPY-002` for a subset (`*` is equivalent to no list). `quiet-systems:` is accepted as a legacy prefix.
+
+An unrecognised option is a usage error rather than a silent pass: a typo like `--basline` would otherwise drop the flag and report on the whole tree as if the run had been scoped. The script names the option, prints the usage line and exits `2`. `--help` prints the same line and exits `0`, so CI can self-check its own arguments.
+
+`--write-baseline FILE` records the current findings and exits `0`. `--baseline FILE` drops the recorded findings and reports only what is new. The baseline key is rule, path and message, never the line number, so editing an unrelated line does not resurrect a finding and a second identical finding in the same file still appears. Use it to adopt the review on a legacy tree; a baseline entry is still a finding someone accepted. A missing or malformed baseline exits `2`.
 
 Use the severity in JSON findings as a triage signal. `P0` means a prototype or demo boundary can reach production. `P1` means a visible, interaction, accessibility, or visual-system violation needs correction before handoff. `P2` means a quality or consistency improvement that can be scheduled after the task path is sound. A severity does not replace human review.
 
@@ -72,7 +123,7 @@ Repeat after a forced save failure. After a successful write, use the product te
 Run the bundled guardrail regression from a workspace with Chrome and `playwright-core`:
 
 ```sh
-node "$QS_DIR/scripts/verify-sample-save.mjs"
+node "$SKILL_HOME/scripts/verify-sample-save.mjs"
 ```
 
 It exercises failure, keyboard retry and persistence, then deliberately injects a phone field and premature success copy. In a product test, import the helper and let assertion failures propagate to CI.
@@ -83,7 +134,7 @@ After the assertions pass, compare available, selected and unavailable choices i
 
 Before generation, freeze the brief, content, model identifier, tool access, generation budget and task success condition. Run each skill in a separate fresh session. Save every first output, including failures. Compare revisions as a separate experiment. Record any material differences in available references or tools.
 
-For self-contained HTML, run `node "$QS_DIR/scripts/capture-design-pair.mjs" first.html second.html new-output-directory` from a workspace with Chrome and playwright-core. The script assigns anonymous A/B labels, blocks HTTP assets and captures both pages at 390 and 1440 CSS pixels under the same browser settings. Keep the answer key from reviewers. For full apps, use equivalent routes, fixtures and authenticated state in product tests instead.
+For self-contained HTML, run `node "$SKILL_HOME/scripts/capture-design-pair.mjs" first.html second.html new-output-directory` from a workspace with Chrome and playwright-core. The script assigns anonymous A/B labels, blocks HTTP assets and captures both pages at 390 and 1440 CSS pixels under the same browser settings. Keep the answer key from reviewers. For full apps, use equivalent routes, fixtures and authenticated state in product tests instead.
 
 Record task success per attempt, unsupported factual claims and unsolicited destinations per screen. Record visual preference separately as A, B or tie with one visible reason. Score the copy after disclosing the same approved facts to each reviewer. Repeat with different tasks and generation runs before generalizing. Separate simultaneous independent votes from successive reviewers who saw revised work.
 
@@ -91,4 +142,4 @@ A visual reviewer may fail to receive a local screenshot. Record that as unverif
 
 ### Enforce a visible copy contract
 
-Keep `required.json` and `forbidden.json` beside the product fixture. Run `node "$QS_DIR/scripts/verify-copy-contract.mjs" page.html required.json forbidden.json`. Use it for state-specific copy such as an approved title and action, and for phrases the brief explicitly rejects, including a redundant subtitle. Keep the list small and task-specific. This check does not judge tone, hierarchy or whether a sentence is warranted. Pair it with visual review and the input boundary ledger.
+Keep `required.json` and `forbidden.json` beside the product fixture. Run `node "$SKILL_HOME/scripts/verify-copy-contract.mjs" page.html required.json forbidden.json`. Use it for state-specific copy such as an approved title and action, and for phrases the brief explicitly rejects, including a redundant subtitle. Keep the list small and task-specific. This check does not judge tone, hierarchy or whether a sentence is warranted. Pair it with visual review and the input boundary ledger.

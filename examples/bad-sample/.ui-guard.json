@@ -1,0 +1,6 @@
+{
+  "maxFileBytes": 262144,
+  "treatAsProduction": ["**/*.tsx", "**/*.css"],
+  "ignoreDirs": [],
+  "ignore": []
+}

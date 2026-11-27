@@ -49,18 +49,20 @@ When a visual or data check fails, return to the earliest layer that caused it. 
 
 Every review handoff must include the design contract, interaction and icon inventory, API-to-view field mapping, state matrix, screenshot paths for 390 and 1440 CSS pixels, and composition metrics. The metrics must include title, secondary-copy, text-action, icon-only-action, surface, pill, and divider counts. Run the pressure scenarios in `references/pressure-scenarios.md` when changing this skill or when a generated page still looks generic.
 
-Use `node "$QS_DIR/scripts/capture-preview.mjs" page.html output-directory` for previews shown in desktop clients. It uses the same 390/1440 CSS viewports, disables headless GPU tiling, captures complete JPEGs, and fails when an image is incomplete, clipped, or the page overflows horizontally. Do not treat a partially visible screenshot as a valid visual result.
+Use `node "$SKILL_HOME/scripts/capture-preview.mjs" page.html output-directory` for previews shown in desktop clients. It uses the same 390/1440 CSS viewports, disables headless GPU tiling, captures complete JPEGs, and fails when an image is incomplete, clipped, or the page overflows horizontally. Do not treat a partially visible screenshot as a valid visual result.
 
-Use the phase gate in order: `brief-frozen` → `direction-selected` → `interaction-locked` → `data-slice-connected` → `visual-verified` → `handoff-ready`. Create a `delivery.json` manifest for the represented flow and run `node "$QS_DIR/scripts/validate-delivery-gate.mjs" delivery.json`. A later phase is blocked when the manifest is missing a prior artifact, two comparable direction samples, the selected-direction evidence, the real entry path, the state matrix, or 390/1440 screenshots. Small exploratory or single-screen work may stop at `brief-frozen` or `visual-verified`. The full gate is required when the artifact is labeled `handoff-ready`, integrated into a real entry point, or handed to another agent for implementation. The gate checks evidence completeness and metadata. It does not prove that an image has the claimed pixels, that an entry path runs, or that a visual decision is correct. Follow it with browser verification.
+Use the phase gate in order: `brief-frozen` → `direction-selected` → `interaction-locked` → `data-slice-connected` → `visual-verified` → `handoff-ready`. Create a `delivery.json` manifest for the represented flow and run `node "$SKILL_HOME/scripts/validate-delivery-gate.mjs" delivery.json`. A later phase is blocked when the manifest is missing a prior artifact, two comparable direction samples, the selected-direction evidence, the real entry path, the state matrix, or 390/1440 screenshots. Small exploratory or single-screen work may stop at `brief-frozen` or `visual-verified`. The full gate is required when the artifact is labeled `handoff-ready`, integrated into a real entry point, or handed to another agent for implementation. The gate checks evidence completeness and metadata. It does not prove that an image has the claimed pixels, that an entry path runs, or that a visual decision is correct. Follow it with browser verification.
 
-When a browser and Playwright are available, run `node "$QS_DIR/scripts/measure-composition.mjs" --json http://localhost:3000/path` against the real route. Prefer its visible DOM counts and `bodyText` over source-file heuristics when the two disagree.
+When a browser and Playwright are available, run `node "$SKILL_HOME/scripts/measure-composition.mjs" --json http://localhost:3000/path` against the real route. Prefer its visible DOM counts and `bodyText` over source-file heuristics when the two disagree.
 
 Run the static guardrail script when available:
 
 ```bash
-node "$QS_DIR"/scripts/ui-guard-review.mjs path/to/ui
-node "$QS_DIR"/scripts/ui-guard-review.mjs --json path/to/ui
-node "$QS_DIR"/scripts/ui-guard-review.mjs --include-markdown path/to/ui
+node "$SKILL_HOME"/scripts/ui-guard-review.mjs path/to/ui
+node "$SKILL_HOME"/scripts/ui-guard-review.mjs --json path/to/ui
+node "$SKILL_HOME"/scripts/ui-guard-review.mjs --include-markdown path/to/ui
+node "$SKILL_HOME"/scripts/ui-guard-review.mjs --write-baseline ui-guard-baseline.json path/to/ui
+node "$SKILL_HOME"/scripts/ui-guard-review.mjs --baseline ui-guard-baseline.json path/to/ui
 ```
 
 For visual reviews, give the reviewer screenshots from the running product at a known viewport with representative data. Request a specific location and a visible value, then reproduce the observation. Trace the defect back to a missing design rule or a missed implementation step before changing this skill. Treat findings as review prompts. The script cannot prove visual quality, accessibility, data correctness, or platform behavior. Follow it with browser or device checks, keyboard and focus checks, reduced-motion checks, real-data checks, and a human visual review at wide, medium, and narrow widths.

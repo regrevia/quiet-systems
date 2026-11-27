@@ -35,6 +35,45 @@
 
 把未来承诺单独当作候选缺陷。`敬请期待`、`即将上线`、`持续优化中`、`为你带来`、`coming soon` 和 `stay tuned` 只有在产品有可核对的日期、版本或已完成结果时才可出现。没有证据时改成当前可执行动作或删除。行动按钮如 `Try it now` 和 `Welcome` 由动作语义决定，不按未来承诺处理。
 
+## 长度预算
+
+`QS-COPY-003` 按加权长度判断，不按字符数：中日韩字符（含全角标点）权重 `cjkWeight`，默认 1；拉丁字母、数字和符号权重 `latinWeight`，默认 0.5；空白字符不计。`maxLength` 默认 180，含义是“相当于 180 个中日韩字符”。所以一行 200 个英文字母不会触发，100 个中文字符会触发。
+
+预算可以分视口。`rules["QS-COPY-003"].maxLength` 给一个数字是统一预算；给 `{ "mobile": 110, "desktop": 180 }` 时实际取两者中更窄的那个，因为窄屏才是真正的约束，宽屏宽出来的余量不能用来掩护半屏说明文字。缺省值是 `mobile` 110、`desktop` 180。分视口时发现消息里会同时写出两个数值，读报告的人不必回配置里查。
+
+阈值和权重改在 `.ui-guard.json` 或 `.quiet-systems.json` 的 `rules["QS-COPY-003"]` 下。权重必须是正数，写错值脚本会以退出码 2 报 `invalid config`，不会静默退回默认值——一条被悄悄放宽的文案规则比没有这条规则更糟。改权重是给特定语言环境校准，不是用来把超长文案挤进阈值。
+
+触发时先问这句话是否属于当前层级，而不是先删字。能拆成摘要加详情的拆开，属于解释性内容移到详情、帮助或错误恢复区域。压缩到阈值以内但仍在解释实现的文案，仍是缺陷。
+
+## 缩写和套话
+
+`QS-COPY-008` 只在可见文案里首次出现、且没有紧跟括号解释的缩写上报。豁免表是读者当词读的那批：API、URL、ID、JSON、HTML、CSS、HTTP、SQL、OS、SDK、CLI、IP、AI、GPU 等。项目自己的缩写写进项目词表，或第一次出现时给全称。
+
+`QS-COPY-007` 针对用隐喻替代动作：`闭环`、`赋能`、`底座`、`抓手`、`沉淀`、`打通`、`降维`、`flywheel`、`north star`、`leverage`、`orchestrate`。改写成动词加具体对象，并在审阅记录里写出这句话会让人做什么。附近已有具体动作的行不报。
+
+`QS-COPY-009` 针对格言式和翻译腔：`不止于`、`为…而生`、`不是…而是…`、`才是…的答案`、`born for`、`isn't just`、`more than just`。还原成能对同事直接说出的句子：谁、做什么、结果是什么。
+
+`QS-COPY-010` 针对被压缩成能力名的短语：能力词被 `一键`、`智能`、`深度`、`全量`、`统一`、`批量`、`无感`、`极简`、`轻量` 前置，或 `洞察`、`治理`、`对齐`、`编排`、`调度`、`赋能`、`沉淀` 后接 `一切`、`全域`、`全量`、`全链路`、`全场景`、`全景`。宾语消失后，读者无法指认它在数什么、发什么、并什么、排什么。改写成谁把什么变成什么（`把今天的排期抄进周报`）；宾语已经在上屏时保留简称，附近已有具体动作的行不报。
+
 ## 机器和人工双检
 
 机器检查只负责发现候选，不负责决定法律、安全或合规文案是否必须保留。每条候选必须在审阅报告中写明对象、实际条件和恢复动作。没有这三项的免责声明继续删除。
+
+## 抑制与报告
+
+抑制标记必须写在上报的那一行，独立成行的标记对下一行无效：
+
+```jsx
+<button style={{ color: '#fff' }}>Run · 3 files</button> // ui-guard: ignore QS-VISUAL-001
+<span>草稿 · 已发布</span> // ui-guard: ignore QS-COPY-001,QS-COPY-002
+```
+
+只写 `ui-guard: ignore` 抑制该行全部规则，写 `*` 与不写规则等价。`quiet-systems:` 前缀是兼容别名。抑制只改变是否上报，不改变判定；抑制一条必须能在审阅记录里说出理由。
+
+`scripts/ui-guard-review.mjs --json` 输出 `version: 2`：`findings` 每条含 `rule`、`severity`、`file`、`line`、`message`、`remediation`、`evidence`；`summary` 含 `total`、`skipped`、`bySeverity`（P0/P1/P2 计数）、`byRule`。文本输出每行是 `file:line SEVERITY RULE message`，随后缩进 evidence 与 `→ remediation`。
+
+基线：`--write-baseline FILE` 把当前发现写成 `{ version: 1, entries: [...] }` 快照后以 `0` 退出，是快照动作不是闸门；`--baseline FILE` 按 `rule|路径|message` 多重集精确抵消已有条目，未抵消的照常上报，`summary.baselined` 给出被抵消的条数。基线文件缺失或损坏按扫描未完成处理，退出码 `2`。键里不含行号，改动无关行不会让旧发现复活；同文件新增一条相同 message 算新发现。
+
+退出码只有三个含义：`0` 无发现，`1` 有发现，`2` 扫描未完成（读取失败、根目录不存在、配置无效）。`2` 优先于 `1`，`1` 优先于 `0`。`maxFileBytes` 跳过是声明的边界，会上报但不影响退出码。
+
+配置文件名二选一，先找到先用：`.ui-guard.json`、`.quiet-systems.json`。顶层只允许 `include`、`ignore`、`ignoreDirs`、`maxFileBytes`、`treatAsProduction`、`rules`；`rules` 的键必须是已登记的规则 id，否则配置无效、退出码 `2`。`treatAsProduction` 接受 glob 数组（相对配置目录求值），命中的文件即使位于 `examples`、`fixtures`、`test`、`scripts` 下也按生产源扫描——专门用来审反面样例。`ignore` 与 `rules.<id>.ignore` 的每个模式会分别对配置目录和扫描根目录求值，两侧任一命中即生效。

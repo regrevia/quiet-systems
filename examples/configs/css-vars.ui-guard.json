@@ -1,0 +1,10 @@
+{
+  "include": ["**/*.css", "**/*.vue", "**/*.svelte"],
+  "ignore": ["**/vendor/**", "**/*.min.css"],
+  "ignoreDirs": ["node_modules", "public", "coverage"],
+  "maxFileBytes": 524288,
+  "rules": {
+    "QS-VISUAL-001": { "ignore": ["**/tokens/**"] },
+    "QS-COPY-003": { "maxLength": { "mobile": 100, "desktop": 200 } }
+  }
+}

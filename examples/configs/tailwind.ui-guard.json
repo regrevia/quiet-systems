@@ -1,0 +1,13 @@
+{
+  "include": ["src/**/*.tsx", "src/**/*.jsx", "app/**/*.tsx"],
+  "ignore": ["**/*.stories.tsx", "**/*.generated.*"],
+  "ignoreDirs": ["node_modules", ".next", "dist"],
+  "maxFileBytes": 262144,
+  "treatAsProduction": [],
+  "rules": {
+    "QS-COPY-003": {
+      "maxLength": { "mobile": 110, "desktop": 180 },
+      "ignore": ["src/**/legal/**"]
+    }
+  }
+}

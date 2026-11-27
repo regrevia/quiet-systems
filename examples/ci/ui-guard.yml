@@ -1,0 +1,21 @@
+name: ui-guard
+on: [pull_request]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --save-dev @regrevia/ui-guard
+      - name: Static review
+        run: npx ui-guard-review --json . > ui-guard-report.json || exit 1
+      - name: Fixture contract
+        run: node node_modules/@regrevia/ui-guard/scripts/validate-fixtures.mjs examples/fixtures
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-guard-report
+          path: ui-guard-report.json
