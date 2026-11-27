@@ -59,4 +59,63 @@ const invalid = spawnSync(process.execPath, [script, missing], { encoding: 'utf8
 assert.equal(invalid.status, 1)
 assert.match(invalid.stderr, /directionSamples|interactionInventory|stateMatrix/)
 
+// The gate's job is to refuse a handoff whose runtime metrics cannot be read as
+// measurements. A row with a missing counter, a string where a count belongs, a
+// negative count, or a route that is not a name is not a measurement — but the
+// branch that rejects them and the branch that accepts them look identical from
+// the outside unless each shape is fed through, so each shape gets a case here.
+const goodMetrics = JSON.parse(fs.readFileSync(path.join(root, 'metrics.json'), 'utf8'))
+function handoffWith(name, mutate) {
+  const metrics = JSON.parse(JSON.stringify(goodMetrics))
+  mutate(metrics.metrics[0])
+  fs.writeFileSync(path.join(root, `${name}-metrics.json`), JSON.stringify(metrics))
+  const file = path.join(root, `${name}.json`)
+  const body = JSON.parse(fs.readFileSync(manifest, 'utf8'))
+  body.runtimeMetrics = `${name}-metrics.json`
+  fs.writeFileSync(file, JSON.stringify(body))
+  return spawnSync(process.execPath, [script, file], { encoding: 'utf8' })
+}
+
+const missingCounter = handoffWith('missing-counter', (row) => { delete row.dividerCount })
+assert.equal(missingCounter.status, 1)
+assert.match(missingCounter.stderr, /runtimeMetrics:route-and-composition/)
+
+const stringCounter = handoffWith('string-counter', (row) => { row.titleCount = '1' })
+assert.equal(stringCounter.status, 1)
+assert.match(stringCounter.stderr, /runtimeMetrics:route-and-composition/)
+
+const negativeCounter = handoffWith('negative-counter', (row) => { row.pillCount = -1 })
+assert.equal(negativeCounter.status, 1)
+assert.match(negativeCounter.stderr, /runtimeMetrics:route-and-composition/)
+
+const unnamedRoute = handoffWith('unnamed-route', (row) => { row.route = '' })
+assert.equal(unnamedRoute.status, 1)
+assert.match(unnamedRoute.stderr, /runtimeMetrics:route-and-composition/)
+
+const numericRoute = handoffWith('numeric-route', (row) => { row.route = 7 })
+assert.equal(numericRoute.status, 1)
+assert.match(numericRoute.stderr, /runtimeMetrics:route-and-composition/)
+
+const zeroCounters = handoffWith('zero-counters', (row) => {
+  for (const key of Object.keys(row)) if (key !== 'route' && key !== 'width') row[key] = 0
+})
+assert.equal(zeroCounters.status, 0, `zero is a real measurement: ${zeroCounters.stderr}`)
+
+fs.writeFileSync(path.join(root, 'not-advisory-metrics.json'), JSON.stringify({ advisory: false, metrics: goodMetrics.metrics }))
+const notAdvisoryBody = JSON.parse(fs.readFileSync(manifest, 'utf8'))
+notAdvisoryBody.runtimeMetrics = 'not-advisory-metrics.json'
+const notAdvisoryFile = path.join(root, 'not-advisory.json')
+fs.writeFileSync(notAdvisoryFile, JSON.stringify(notAdvisoryBody))
+const notAdvisory = spawnSync(process.execPath, [script, notAdvisoryFile], { encoding: 'utf8' })
+assert.equal(notAdvisory.status, 1)
+assert.match(notAdvisory.stderr, /runtimeMetrics:route-and-composition/)
+
+const unreadableMetricsBody = JSON.parse(fs.readFileSync(manifest, 'utf8'))
+unreadableMetricsBody.runtimeMetrics = 'absent-metrics.json'
+const unreadableMetricsFile = path.join(root, 'unreadable-metrics.json')
+fs.writeFileSync(unreadableMetricsFile, JSON.stringify(unreadableMetricsBody))
+const unreadableMetrics = spawnSync(process.execPath, [script, unreadableMetricsFile], { encoding: 'utf8' })
+assert.equal(unreadableMetrics.status, 1)
+assert.match(unreadableMetrics.stderr, /runtimeMetrics:json/)
+
 process.stdout.write('validate-delivery-gate self-test passed\n')

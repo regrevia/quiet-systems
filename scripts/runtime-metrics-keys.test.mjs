@@ -81,3 +81,10 @@ test('one missing counter still blocks, so the check is not vacuous', () => {
   const run = spawnSync(process.execPath, [path.resolve('scripts/validate-delivery-gate.mjs'), manifestPath], { encoding: 'utf8' })
   assert.match(run.stdout + run.stderr, /runtimeMetrics:route-and-composition/)
 })
+
+test('the delivery doc names both failures the gate can report for metrics', () => {
+  const doc = fs.readFileSync('references/delivery.md', 'utf8')
+  const codes = [...gate.matchAll(/missing\.push\('(runtimeMetrics:[a-z0-9-]+)'\)/g)].map((match) => match[1])
+  assert.deepEqual(codes.sort(), ['runtimeMetrics:390-and-1440', 'runtimeMetrics:json', 'runtimeMetrics:route-and-composition'])
+  for (const code of codes) assert.ok(doc.includes(code), `the delivery doc never mentions ${code}`)
+})
