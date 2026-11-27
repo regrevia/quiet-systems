@@ -92,4 +92,33 @@ fs.writeFileSync(strictTrailingPressure, `# Review\n\n## P0\n无 P0。\n\n## P1\
 const strictTrailingPressureResult = spawnSync(process.execPath, [script, '--strict', strictTrailingPressure], { encoding: 'utf8' })
 assert.equal(strictTrailingPressureResult.status, 0)
 
+// The report checker accepts a metrics line by matching one of the seven names
+// the reviewer contract documents. A checker that accepts the line without any
+// name lets a report claim composition coverage it never gave, and one that
+// rejects the seventh name makes the contract unfollowable.
+const allSeven = path.join(root, 'strict-all-seven.md')
+fs.writeFileSync(allSeven, '# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n' + '指标：title=1 secondary=0 text-action=1 icon-only-action=1 surface=2 pill=0 separator=0。\n' + 'empty-space pressure：删除副标题。证据：src/Editor.tsx:18。\ntext-button pressure：改用熟悉图标。证据：src/Toolbar.tsx:24。\ndecoration pressure：删除玻璃。证据：src/Surface.css:9。\ncopy deletion check：重跑结果不变。证据：src/Copy.tsx:31。\n')
+const allSevenResult = spawnSync(process.execPath, [script, '--strict', allSeven], { encoding: 'utf8' })
+assert.equal(allSevenResult.status, 0, allSevenResult.stderr)
+
+// Each documented name must be sufficient on its own: icon-only-action is a
+// separate counter from text-action, so a metrics line reporting only that one is
+// still a composition report.
+const iconOnlyAlone = path.join(root, 'strict-icon-only-alone.md')
+fs.writeFileSync(iconOnlyAlone, '# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n' + '指标：icon-only-action=3。\n' + 'empty-space pressure：删除副标题。证据：src/Editor.tsx:18。\ntext-button pressure：改用熟悉图标。证据：src/Toolbar.tsx:24。\ndecoration pressure：删除玻璃。证据：src/Surface.css:9。\ncopy deletion check：重跑结果不变。证据：src/Copy.tsx:31。\n')
+const iconOnlyAloneResult = spawnSync(process.execPath, [script, '--strict', iconOnlyAlone], { encoding: 'utf8' })
+assert.equal(iconOnlyAloneResult.status, 0, iconOnlyAloneResult.stderr)
+
+const noMetricName = path.join(root, 'strict-no-metric-name.md')
+fs.writeFileSync(noMetricName, '# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n' + '指标：见上一节。\n' + 'empty-space pressure：删除副标题。证据：src/Editor.tsx:18。\ntext-button pressure：改用熟悉图标。证据：src/Toolbar.tsx:24。\ndecoration pressure：删除玻璃。证据：src/Surface.css:9。\ncopy deletion check：重跑结果不变。证据：src/Copy.tsx:31。\n')
+const noMetricNameResult = spawnSync(process.execPath, [script, '--strict', noMetricName], { encoding: 'utf8' })
+assert.equal(noMetricNameResult.status, 1)
+assert.match(noMetricNameResult.stderr, /missing composition metrics/)
+
+const onlyCopyNames = path.join(root, 'strict-only-copy-names.md')
+fs.writeFileSync(onlyCopyNames, '# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n' + '指标：标题=1 副文案=0 按钮=1 图标按钮=1 表面=2 胶囊=0 分隔线=0。\n' + 'empty-space pressure：删除副标题。证据：src/Editor.tsx:18。\ntext-button pressure：改用熟悉图标。证据：src/Toolbar.tsx:24。\ndecoration pressure：删除玻璃。证据：src/Surface.css:9。\ncopy deletion check：重跑结果不变。证据：src/Copy.tsx:31。\n')
+const onlyCopyNamesResult = spawnSync(process.execPath, [script, '--strict', onlyCopyNames], { encoding: 'utf8' })
+assert.equal(onlyCopyNamesResult.status, 1)
+assert.match(onlyCopyNamesResult.stderr, /missing composition metrics/)
+
 process.stdout.write('validate-review-report self-test passed\n')
