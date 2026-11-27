@@ -83,7 +83,7 @@ WorkBuddy 的 MiniMax-M3.1-Flash 建议用固定数据核对详情字段。采�
 
 修订后同题重跑，在两个宽度下均能看到重试等待状态、新的行内失败原因，以及成功后的清除。仍有两处可复现的问题：同一行重复显示“重试中”，“查看”只弹出“正在打开 月报.pdf”，没有呈现详情。对查看操作的验收因此要求打开后能读到对象与可用字段。
 
-打开两张 390px 实拍对照：[UI Guard 修订后](examples/comparison/recovery-quiet.png) 和 [frontend-design](examples/comparison/recovery-frontend-design.png)。UI Guard 用蓝色强调唯一的恢复操作，查看按钮退到次级，首屏也省去了无来源的时间戳。两份原型的文件名、原因和操作都靠位置分开。若一屏同时出现多条失败记录，还需重新检查多个蓝色按钮是否争夺注意力。
+打开两张 390px 实拍对照：[UI Guard 修订后](../examples/comparison/recovery-quiet.png) 和 [frontend-design](../examples/comparison/recovery-frontend-design.png)。UI Guard 用蓝色强调唯一的恢复操作，查看按钮退到次级，首屏也省去了无来源的时间戳。两份原型的文件名、原因和操作都靠位置分开。若一屏同时出现多条失败记录，还需重新检查多个蓝色按钮是否争夺注意力。
 
 再把同一原型接到本机 HTTP 接口，第一次重试返回 503 和新的失败原因，第二次返回 200。在两个宽度下连续按两次 Enter 均只产生一个初始 POST，新的原因出现在失败行，再次重试后显示完成。这次验证使用本机测试服务。
 
@@ -98,7 +98,7 @@ WorkBuddy 的 MiniMax-M3.1-Flash 建议用固定数据核对详情字段。采�
 
 ### 同题实测：需求不明确时选方向
 
-用两条社区藏品记录生成通览和逐件阅读两个方向。首次生成在 390px 和 1440px 下均可按键打开裁纸刀记录并返回，但正文都新增了刀刃磨损等细节，返回焦点也未落到原记录。强调保留一行原文后，同题重跑仍编造了刀刃状态。针对这种情况，两个可打开的参考样板现在直接读取同一份字段。可用 [通览样板](examples/direction-samples/archive/overview.html) 比较年份，用 [阅读样板](examples/direction-samples/archive/reading.html) 打开单件，再回到原入口。这两个是经人工修订的参考实现。
+用两条社区藏品记录生成通览和逐件阅读两个方向。首次生成在 390px 和 1440px 下均可按键打开裁纸刀记录并返回，但正文都新增了刀刃磨损等细节，返回焦点也未落到原记录。强调保留一行原文后，同题重跑仍编造了刀刃状态。针对这种情况，两个可打开的参考样板现在直接读取同一份字段。可用 [通览样板](../examples/direction-samples/archive/overview.html) 比较年份，用 [阅读样板](../examples/direction-samples/archive/reading.html) 打开单件，再回到原入口。这两个是经人工修订的参考实现。
 
 WorkBuddy 的 Kimi-K3.1-Pro 提醒，选择方向还需考虑低频但必要的任务。两件年份是否必须同屏可比，可以实际操作后回答。
 
@@ -110,7 +110,7 @@ Apple 对自定义动效的两条原文是 “Make motion optional.” 和 “Le
 
 WorkBuddy 的 MiniMax-M3.1-Flash 提出用宿主元素检查样式泄漏。脚本现同时检查独立元素的动画名称和时长；即使全局覆盖只把时长改成 1ms，也会触发失败。普通模式的测试会暂停正在进入的弹窗，以便确定关闭发生在动画完成前。
 
-本机草稿的[可运行样板](examples/local-draft/index.html)把保存错误留在输入区旁，写入成功后才确认。装有 Chrome 和 playwright-core 的项目可运行 `node "$SKILL_HOME/scripts/verify-sample-save.mjs"`，检查键盘重试和刷新后的内容。
+本机草稿的[可运行样板](../examples/local-draft/index.html)把保存错误留在输入区旁，写入成功后才确认。装有 Chrome 和 playwright-core 的项目可运行 `node "$SKILL_HOME/scripts/verify-sample-save.mjs"`，检查键盘重试和刷新后的内容。
 
 ### 原生页面视觉复核
 
@@ -130,15 +130,15 @@ node "$SKILL_HOME/scripts/verify-tab-switch.mjs" "$PAGE_URL" 原文 校注 '保�
 
 脚本在 390 和 1440 像素宽度检查方向键焦点、激活、面板关联和实际内容。古籍记录样板在两个宽度均通过。把校注页签指回原文面板，脚本会报错。
 
-Kimi-K3.1-Pro 查看[原文截图](examples/comparison/tabs-original.png)和[校注截图](examples/comparison/tabs-annotation.png)，读对了两句正文，也指出单独一句校注缺少归属。两张图已经显示页签名；真正缺失的是当前记录的名称。因此规范要求在上下文容易丢失时保留对象名称，可复用现有页面标题或面包屑。
+Kimi-K3.1-Pro 查看[原文截图](../examples/comparison/tabs-original.png)和[校注截图](../examples/comparison/tabs-annotation.png)，读对了两句正文，也指出单独一句校注缺少归属。两张图已经显示页签名；真正缺失的是当前记录的名称。因此规范要求在上下文容易丢失时保留对象名称，可复用现有页面标题或面包屑。
 
-[卷三修复记录样板](examples/record-tabs/index.html)可离线打开。用左右方向键切换原文和校注，两页共用一个记录标题。MiniMax-M3.1-Flash 在窄屏截图中读出了卷名、页签和正文，也发现单句校注下方有大块留白。样板已取消面板的固定最小高度，让内容决定卡片高度。
+[卷三修复记录样板](../examples/record-tabs/index.html)可离线打开。用左右方向键切换原文和校注，两页共用一个记录标题。MiniMax-M3.1-Flash 在窄屏截图中读出了卷名、页签和正文，也发现单句校注下方有大块留白。样板已取消面板的固定最小高度，让内容决定卡片高度。
 
 长内容回归可运行 `node "$SKILL_HOME/scripts/verify-record-reflow.mjs"`，末尾可加 PNG 输出路径。脚本把连续档案编号与多行中文放入真实样板，在 320、390、1440 像素宽度检查页面溢出和面板裁切。Claude Code 看过 320 像素截图，读出了编号末四位 0198，也注意到校注页签上的蓝框。蓝框标记键盘焦点，下划线标记选中状态。它把末句的“页”看成了“见”，逐字校验仍应对照源文本。
 
-预约页实测中，初稿与更新提示词后的第二次生成都索要了需求以外的手机号。Kimi 看过初稿，指出“灰色为已满，其余可直接预约”重复了时段状态。按实际表单逐项核对后，删除了联系人、手机号、时长及相关校验，并在标题保留“今晚”。复核版可用键盘完成二号室 20:00 的本页模拟确认，覆盖 390 和 1440 像素宽度。[复核后的窄屏页面](examples/comparison/booking-reviewed.png)
+预约页实测中，初稿与更新提示词后的第二次生成都索要了需求以外的手机号。Kimi 看过初稿，指出“灰色为已满，其余可直接预约”重复了时段状态。按实际表单逐项核对后，删除了联系人、手机号、时长及相关校验，并在标题保留“今晚”。复核版可用键盘完成二号室 20:00 的本页模拟确认，覆盖 390 和 1440 像素宽度。[复核后的窄屏页面](../examples/comparison/booking-reviewed.png)
 
-两种[演出海报](examples/comparison/booking-poster.png)和[档案纸页](examples/comparison/booking-archive.png)方向沿用完全相同的预约内容。MiniMax-M3.1-Flash 查看匿名截图后匹配了两种风格，并发现海报标题在“排练室”词中换行，浅黄字与实际卡片底色对比不足。修订版保留海报排版，把完整词组放在一行并调整标题背景。
+两种[演出海报](../examples/comparison/booking-poster.png)和[档案纸页](../examples/comparison/booking-archive.png)方向沿用完全相同的预约内容。MiniMax-M3.1-Flash 查看匿名截图后匹配了两种风格，并发现海报标题在“排练室”词中换行，浅黄字与实际卡片底色对比不足。修订版保留海报排版，把完整词组放在一行并调整标题背景。
 
 一次同题试验用 Claude Code Sonnet 分别加载本机 Impeccable 与 UI Guard 的入口提示词，关闭工具，生成《慢火》试听页。需求只提供艺人、曲名、时长、暂未上线状态和复制动作。Impeccable 样本添加了“独立厂牌出品”，UI Guard 样本添加了四个搜索平台和“敬请关注”。两者都需要复核。因此检查还覆盖凭空添加的去向、发行承诺及操作前已经出现的成功提示。单个样本不构成竞品排名。
 

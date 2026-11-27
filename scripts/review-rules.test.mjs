@@ -85,6 +85,31 @@ for (const doc of ['README.md', path.join('docs', 'evaluation.md')]) {
   }
 }
 
+// A relative link that points nowhere turns a cited screenshot into a dead end,
+// and nothing in the suite noticed when the docs were moved under docs/.
+const markdownFiles = []
+const collect = (dir) => {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === 'node_modules' || entry.name === '.git') continue
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) collect(full)
+    else if (entry.name.endsWith('.md')) markdownFiles.push(full)
+  }
+}
+collect(repoRoot)
+const deadLinks = []
+for (const file of markdownFiles) {
+  const body = fs.readFileSync(file, 'utf8')
+  for (const match of body.matchAll(/\]\(([^)#\s]+)(?:#[^)]*)?\)/g)) {
+    const target = match[1]
+    if (target.startsWith('http') || target.startsWith('mailto:')) continue
+    if (!fs.existsSync(path.resolve(path.dirname(file), target))) {
+      deadLinks.push(`${path.relative(repoRoot, file)} -> ${target}`)
+    }
+  }
+}
+assert.deepEqual(deadLinks, [], `markdown links point at files that do not exist: ${deadLinks.join(', ')}`)
+
 // The allowed config keys are quoted in the docs, and a hand-maintained list
 // silently loses a key the moment one is added — which is how `treatAsProduction`
 // went missing. Read the list from configSchema instead of trusting the prose.
