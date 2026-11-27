@@ -29,7 +29,7 @@ else inventory.actions.forEach((action, index) => {
   if (action?.role && !roles.has(action.role)) missing.push(`actions[${index}]:role-enum`)
   if (action?.labelForm && !new Set(['text', 'icon-only', 'icon+label']).has(action.labelForm)) missing.push(`actions[${index}]:labelForm-enum`)
   if (action?.labelForm === 'icon-only' && (!action.recognitionBasis || typeof action.recognitionBasis !== 'string' || !action.recognitionBasis.trim())) missing.push(`actions[${index}]:recognitionBasis`)
-  if (action?.labelForm === 'icon-only' && ['destructive', 'recovery'].includes(action.role)) missing.push(`actions[${index}]:labelForm-risk`)
+  if (action?.labelForm === 'icon-only' && ['primary', 'destructive', 'recovery'].includes(action.role)) missing.push(`actions[${index}]:labelForm-risk`)
 })
 
 if (missing.length > 0) {
