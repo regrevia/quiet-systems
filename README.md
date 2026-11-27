@@ -110,6 +110,8 @@ node scripts/validate-review-report.mjs --strict path/to/review.md
 配置放在 `.ui-guard.json`：顶层只允许 `include`、`ignore`、`ignoreDirs`、`maxFileBytes`、`treatAsProduction`、`rules`；忽略目录与规则、文案预算（可分窄屏/宽屏）、最大文件大小、`treatAsProduction` 反面样例白名单。`examples/configs/` 有 Tailwind 与 CSS 变量两份模板。忽略规则按配置目录和扫描根分别匹配，从不同工作目录运行都成立。超过大小上限的文件进 JSON 报告的 `skipped`。选项写错、或 `--baseline` 后面没跟路径，会以退出码 2 报出这个名字，不会当作没写而放过整个目录；`--help` 打印用法后退出 0。脚本只做固定代码检查，不能替代浏览器、键盘、读屏、真机和真实数据验证。
 
 接进 PR 见 [`examples/ci/ui-guard.yml`](examples/ci/ui-guard.yml)；审阅自己有发现的仓库时用 `--baseline` 冻结存量，只让新增发现挡住合入。
+`node --test scripts/*.test.mjs` 与 `npm test` 是同一条命令，由 `scripts/self-test-command.test.mjs` 绑定：两处写法必须一致，测试文件必须留在 `scripts/` 一层，否则通配符扫不到、套件静默变小。
+
 
 `examples/direction-samples/README.md` 规定需求不明确时如何制作多个低成本方向。`examples/fixtures/` 提供长文本、空状态和权限受限的 production-shaped fixture。`review-template.md` 记录信息层级、数据映射和验证证据。`reviewer-contract.md` 为 Claude Code、Kimi 和 MiniMax 提供统一的只读审阅提示、P0/P1/P2 分级、证据要求和未验证项格式；审阅器不能修改工作区，也不能把截图美感当成真实数据或交互证据。
 
