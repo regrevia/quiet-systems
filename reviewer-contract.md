@@ -16,7 +16,7 @@
 - 每条界面文案是否通过口语还原测试：能直接对没看过屏幕的同事说出口，说明谁把什么东西变成什么；出现「一键洞察」「智能治理」「深度对齐」这类被压缩成能力名的短语，或首次出现未解释的内部缩写时，按 P1 记录
 - 动效是否短时、克制，并提供 prefers-reduced-motion 路径
 - 图标、原生控件、焦点、读屏名称和响应式行为是否形成统一契约
-- 真实数据、空状态、加载、错误、权限、离线、陈旧和恢复状态是否与原型一致
+- 加载、真实数据、空状态、错误、权限、离线、部分失败和恢复这八种状态是否与原型一致
 - 静态审阅脚本的发现是否真实，是否存在误报或未覆盖的边界
 
 先读取当前实现和相关 fixture，再给出报告。不要用截图美感替代数据、状态和交互证据。
@@ -43,7 +43,7 @@
 - field mapping 字段映射：界面上的每个字段来自哪个数据源，缺数据时显示什么。
 - state matrix 状态矩阵：加载、空、错误、权限、离线、陈旧、部分失败、恢复八种状态各写一行。
 - viewport evidence：390 与 1440 视口各看过哪一屏，截了什么。
-- composition metrics 指标：title、secondary、text-action、surface、pill、separator 的逐屏计数，作为删除前后的对照。
+- composition metrics 指标：title、secondary、text-action、icon-only-action、surface、pill、separator 七项逐屏计数，作为删除前后的对照。
 - empty-space pressure：副标题与留白的删除复测，写清删除后重排结果和证据：`src/Dashboard.tsx:41`
 - text-button pressure：文字按钮保留或改成图标动作的结论，写清为什么图标仍可发现，证据：`src/Toolbar.tsx:18`
 - decoration pressure：渐变、玻璃、发光这类装饰的删除决定，证据：`src/Card.css:22`

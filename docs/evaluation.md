@@ -71,6 +71,12 @@ MiniMax 审阅提示还要验证合计。另用图书归还月报检验迁移：
 
 加入保留定稿要求后，同题重跑仍出现三处逗号差异。交付时可以将浏览器可见正文与定稿分别按段导出，再运行 `node scripts/compare-article-copy.mjs approved.txt rendered.txt`。返回 0 表示段落内容与顺序一致，1 表示存在差异，2 表示输入错误这三个码由 `scripts/compare-article-copy-docs.test.mjs` 对着真实运行核对：文档里的命令按原样执行，0/1/2 各自跑一次，语义改错或命令写坏都会变红。脚本只核对导出的文字，目录定位和遮挡仍需浏览器走查。
 
+交付门槛的最后一环是「文档里承诺的东西必须真能被执行」。以下三处手写清单由测试绑定：
+
+- 七个 composition 指标名（`references/report-validation.md` 表格、`reviewer-contract.md`、`scripts/validate-review-report.mjs` 的正则）必须与 `scripts/measure-composition.mjs` 实际产出的计数键一一对应，由 `scripts/report-metrics-names.test.mjs` 强制。
+- `scripts/validate-delivery-gate.mjs` 索要的运行时指标键必须就是测量脚本写出的键，否则每一份 handoff 都会被一个没人能提供的字段挡住；由 `scripts/runtime-metrics-keys.test.mjs` 强制，并带一条缺键仍被拒的负向对照。
+- `reviewer-contract.md` 里那张状态清单必须与 `examples/view-state-contract.ts` 的八状态联合逐词对齐（加载、真实数据、空状态、错误、权限、离线、部分失败、恢复），由 `scripts/reviewer-contract.test.mjs` 强制；`README.md` 与 `references/review.md` 必须仍指向该文件。
+
 ### 同题实测：产品介绍与示例
 
 给同一模型一条会议原文和对应的决策清单，要求访客在产品介绍页原地打开、关闭示例。Chrome 在 390px、1440px 两种宽度下都复现了初版的问题：UI Guard 把打开和关闭做成原文与清单的切换；frontend-design 能切换按钮并归还焦点，但收起后浏览器可访问性树仍暴露示例，还添加了简报以外的会议事项。

@@ -20,7 +20,7 @@ function png(width, height = 1) {
 for (const file of ['contract.md', 'direction-a.html', 'direction-b.html', 'inventory.md', 'mapping.md', 'states.md', 'entry.md', 'fixture.json', 'rollback.md']) fs.writeFileSync(path.join(root, file), 'evidence')
 fs.writeFileSync(path.join(root, 'screen-390.png'), png(390))
 fs.writeFileSync(path.join(root, 'screen-1440.png'), png(1440))
-fs.writeFileSync(path.join(root, 'metrics.json'), JSON.stringify({ advisory: true, metrics: [390, 1440].map((width) => ({ width, route: '/editor', headingCount: 1, secondaryCopyCount: 0, textActionCount: 1, iconOnlyActionCount: 2, surfaceCount: 1, pillCount: 0, dividerCount: 1 })) }))
+fs.writeFileSync(path.join(root, 'metrics.json'), JSON.stringify({ advisory: true, metrics: [390, 1440].map((width) => ({ width, route: '/editor', titleCount: 1, secondaryCopyCount: 0, textActionCount: 1, iconOnlyActionCount: 2, surfaceCount: 1, pillCount: 0, dividerCount: 1 })) }))
 const manifest = path.join(root, 'delivery.json')
 fs.writeFileSync(manifest, JSON.stringify({
   phase: 'handoff-ready',

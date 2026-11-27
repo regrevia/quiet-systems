@@ -62,3 +62,51 @@ test('rewriting the contract keeps the pressure checks paired with evidence', ()
     assert.match(line, /`[^`]+\.(?:tsx?|css|md):\d+`/, `${name} must show where the evidence is`)
   }
 })
+
+// The contract tells an outside reviewer which states to look for. The union in
+// examples/view-state-contract.ts is what a project actually renders. If the
+// contract names a state the union does not have, the reviewer hunts for a
+// screen that cannot exist and skips the one that can.
+const stateNames = {
+  loading: '加载',
+  ready: '真实数据',
+  empty: '空状态',
+  error: '错误',
+  permission: '权限',
+  offline: '离线',
+  partial: '部分失败',
+  recovered: '恢复'
+}
+
+function unionKinds() {
+  const source = fs.readFileSync(path.join('examples', 'view-state-contract.ts'), 'utf8')
+  const start = source.indexOf('export type ViewState<T> =')
+  const end = source.indexOf('export type RecoveryAction')
+  assert.ok(start > 0 && end > start, 'examples/view-state-contract.ts no longer declares ViewState')
+  return [...source.slice(start, end).matchAll(/\{ kind: '([a-z]+)'/g)].map((match) => match[1]).sort()
+}
+
+test('the contract lists one state word per member of the view-state union', () => {
+  const kinds = unionKinds()
+  assert.equal(kinds.length, 8, `the union has ${kinds.length} kinds; the contract must be updated with it`)
+  assert.deepEqual(Object.keys(stateNames).sort(), kinds)
+  assert.equal(new Set(Object.values(stateNames)).size, 8, 'eight distinct words, one per kind')
+})
+
+test('every state word appears on the contract line that describes state coverage', () => {
+  const line = contract.split('\n').find((text) => text.includes('状态是否与原型一致'))
+  assert.ok(line, 'the contract no longer asks whether every state matches the prototype')
+  for (const word of Object.values(stateNames)) {
+    assert.ok(line.includes(word), `the contract does not name the ${word} state`)
+  }
+  assert.ok(!line.includes('陈旧'), 'the contract still names a state the union does not define')
+  assert.match(line, /八种状态/, 'the contract should say how many states a reviewer checks')
+})
+
+test('the README and the review reference both point at the contract', () => {
+  const readme = fs.readFileSync('README.md', 'utf8')
+  assert.ok(readme.includes('`reviewer-contract.md`'), 'README.md no longer mentions the reviewer contract')
+  const review = fs.readFileSync(path.join('references', 'review.md'), 'utf8')
+  assert.ok(review.includes('[reviewer contract](../reviewer-contract.md)'), 'references/review.md no longer links the contract')
+  assert.ok(fs.existsSync('reviewer-contract.md'), 'the contract file the docs link to is missing')
+})

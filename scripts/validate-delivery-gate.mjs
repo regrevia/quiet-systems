@@ -89,7 +89,7 @@ if (requiredNames.includes('runtimeMetrics')) {
     const metrics = JSON.parse(fs.readFileSync(path.resolve(root, manifest.runtimeMetrics), 'utf8'))
     const widths = new Set((metrics.metrics ?? []).map((metric) => metric.width))
     if (!widths.has(390) || !widths.has(1440)) missing.push('runtimeMetrics:390-and-1440')
-    const compositionKeys = ['headingCount', 'secondaryCopyCount', 'textActionCount', 'iconOnlyActionCount', 'surfaceCount', 'pillCount', 'dividerCount']
+    const compositionKeys = ['titleCount', 'secondaryCopyCount', 'textActionCount', 'iconOnlyActionCount', 'surfaceCount', 'pillCount', 'dividerCount']
     if (metrics.advisory !== true || (metrics.metrics ?? []).some((metric) => typeof metric.route !== 'string' || !metric.route || compositionKeys.some((key) => !Number.isFinite(metric[key]) || metric[key] < 0))) missing.push('runtimeMetrics:route-and-composition')
   } catch {
     missing.push('runtimeMetrics:json')

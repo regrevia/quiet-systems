@@ -35,11 +35,13 @@
 | field mapping | field mapping 或 字段映射 |
 | state matrix | state matrix 或 状态矩阵 |
 | viewport evidence | viewport 或 视口 与 390 或 1440 同段出现 |
-| composition metrics | metrics 或 指标 与 title、secondary、text-action、surface、pill、separator 之一同段出现 |
+| composition metrics | metrics 或 指标 与 title、secondary、text-action、icon-only-action、surface、pill、separator 之一同段出现 |
 | empty-space pressure | 空白填充、副标题或 empty space 与 删除、重排、拒绝或 delete、reflow、reject 同段出现 |
 | text-button pressure | 文字按钮或 text button 与 图标、拒绝或 icon、reject 同段出现 |
 | decoration pressure | 装饰、渐变、玻璃或 decoration、gradient、glass 与 拒绝、删除或 reject、remove 同段出现 |
 | copy deletion check | 文案删除、删除复测或 copy deletion 与 重跑、结果、决策或 rerun、decision 同段出现 |
+
+七个指标名与运行时实测一一对应：`title`=`titleCount`、`secondary`=`secondaryCopyCount`、`text-action`=`textActionCount`、`icon-only-action`=`iconOnlyActionCount`、`surface`=`surfaceCount`、`pill`=`pillCount`、`separator`=`dividerCount`。名字由 `scripts/measure-composition.mjs` 产出、`scripts/validate-delivery-gate.mjs` 校验；三份手写清单（本表、`reviewer-contract.md`、校验器正则）与产出侧的一致性由 `scripts/report-metrics-names.test.mjs`、`scripts/runtime-metrics-keys.test.mjs` 强制。
 
 后四项按标签切块检查：从标签出现的位置到下一个压力标签之间，必须出现 `证据`、`evidence`、`位置`、`文件`、`file`、`line` 之一，并带 `行 N`、`line N` 或带行号的文件名（`.ts`、`.tsx`、`.js`、`.jsx`、`.vue`、`.svelte`、`.css`、`.md`、`.json`）。否则报 `<标签> needs file, line, or evidence`。
 
