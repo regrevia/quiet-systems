@@ -72,6 +72,10 @@ const ignored = new Set(['node_modules', '.git', 'dist', 'build', 'coverage'])
 const findings = []
 const skipped = []
 const metrics = []
+// How many files were actually read. A verdict of "clean" over zero files is not
+// the same answer as a clean tree, and the reader cannot tell them apart without
+// this number.
+let reviewed = 0
 const configFileNames = ['.ui-guard.json', '.quiet-systems.json']
 const severityByRule = {
   'QS-PROTOTYPE-001': 'P0',
@@ -371,6 +375,7 @@ function actionMetrics(source) {
 }
 
 function inspect(file) {
+  reviewed += 1
   let text
   try {
     text = fs.readFileSync(file, 'utf8')
@@ -768,6 +773,7 @@ const byRule = Object.fromEntries([...new Set(findings.map((item) => item.rule))
 const output = {
   version: 2,
   roots,
+  reviewed,
   findings: findings.map((item) => ({ ...item, file: displayPath(item.file) })),
   metrics,
   summary: {
@@ -783,7 +789,10 @@ const output = {
 if (json) {
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`)
 } else if (findings.length === 0) {
-  process.stdout.write(incomplete ? 'ui-guard review: scan incomplete\n' : 'ui-guard review: no static findings\n')
+  process.stdout.write(incomplete ? 'ui-guard review: scan incomplete\n' : `ui-guard review: no static findings (${reviewed} file(s) reviewed)\n`)
+  if (reviewed === 0) {
+    process.stdout.write('ui-guard review: reviewed no files — check the root path, the extension list, or pass --include-markdown\n')
+  }
   if (skipped.length > 0) {
     for (const item of skipped) process.stdout.write(`ui-guard review: skipped ${displayPath(item.file)} (${item.reason})\n`)
   }
@@ -806,7 +815,7 @@ if (json) {
     process.stdout.write(`${group.rule}${scope} → ${remediation}\n`)
   }
   const counts = ['P0', 'P1', 'P2'].filter((severity) => bySeverity[severity] > 0).map((severity) => `${bySeverity[severity]} ${severity}`)
-  process.stdout.write(`ui-guard review: ${findings.length} finding(s) (${counts.join(', ')})\n`)
+  process.stdout.write(`ui-guard review: ${findings.length} finding(s) (${counts.join(', ')}) in ${reviewed} file(s)\n`)
   if (baselineSuppressed > 0) process.stdout.write(`ui-guard review: ${baselineSuppressed} finding(s) matched the baseline\n`)
   for (const item of skipped) process.stdout.write(`ui-guard review: skipped ${displayPath(item.file)} (${item.reason})\n`)
   if (incomplete) process.stdout.write('ui-guard review: scan incomplete\n')

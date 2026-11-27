@@ -275,6 +275,18 @@ assert.match(nativeHits[0], /Bare\.tsx/)
 fs.rmSync(alias, { recursive: true, force: true })
 
 // The JSON report is a stable, machine-readable contract.
+// "Clean" over zero files is not the same answer as a clean tree. The count is
+// reported in both formats, and an empty scan says why it is empty.
+const emptyRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-empty-'))
+const emptyRun = spawnSync(process.execPath, [script, emptyRoot], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.equal(emptyRun.status, 0, emptyRun.stdout + emptyRun.stderr)
+assert.match(emptyRun.stdout, /0 file\(s\) reviewed/)
+assert.match(emptyRun.stdout, /reviewed no files/)
+const emptyJson = spawnSync(process.execPath, [script, emptyRoot, '--json'], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.equal(JSON.parse(emptyJson.stdout).reviewed, 0)
+fs.rmSync(emptyRoot, { recursive: true, force: true })
+assert.ok(wildcard.reviewed > 0, 'a scan that read files must say so')
+
 assert.equal(wildcard.version, 2)
 assert.deepEqual(Object.keys(wildcard.summary).sort(), ['baselined', 'byRule', 'bySeverity', 'skipped', 'total'])
 assert.deepEqual(Object.keys(wildcard.summary.bySeverity), ['P0', 'P1', 'P2'])
