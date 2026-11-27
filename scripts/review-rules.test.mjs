@@ -119,11 +119,17 @@ const schemaBlock = source.slice(
 )
 const schemaKeys = [...schemaBlock.matchAll(/^\s{2}([A-Za-z_]+):/gm)].map((match) => match[1])
 assert(schemaKeys.length > 0, 'configSchema not found')
-const configProse = fs.readFileSync(path.join(repoRoot, 'docs', 'evaluation.md'), 'utf8')
-const proseKeys = configProse.match(/顶层只允许([^；]+)；/)
-assert(proseKeys, 'docs/evaluation.md no longer lists the allowed config keys')
-const claimed = [...proseKeys[1].matchAll(/`([A-Za-z_]+)`/g)].map((match) => match[1]).sort()
-assert.deepEqual(claimed, [...schemaKeys].sort(), 'docs/evaluation.md config key list disagrees with configSchema')
+const keyLists = [
+  { file: path.join('docs', 'evaluation.md'), pattern: /顶层只允许([^；]+)；/ },
+  { file: path.join('references', 'copy-constraints.md'), pattern: /顶层只允许([^；]+)；/ },
+  { file: path.join('references', 'review.md'), pattern: /Six top-level keys exist:([^.]+)\./ }
+]
+for (const { file, pattern } of keyLists) {
+  const prose = fs.readFileSync(path.join(repoRoot, file), 'utf8').match(pattern)
+  assert(prose, `${file} no longer lists the allowed config keys`)
+  const claimed = [...prose[1].matchAll(/`([A-Za-z_]+)`/g)].map((match) => match[1]).sort()
+  assert.deepEqual(claimed, [...schemaKeys].sort(), `${file} config key list disagrees with configSchema`)
+}
 
 // The severity table in references/review.md is normative, so a registered
 // severity that disagrees with the table is a documentation defect.

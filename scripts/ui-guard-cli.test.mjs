@@ -295,6 +295,20 @@ const quoted = readme.match(/ui-guard review: \d+ finding\(s\) \([^)]+\) in \d+ 
 assert.ok(quoted, 'README no longer quotes a summary line from the bad sample')
 assert.equal(quoted[0], sampleSummary, 'README quotes a summary line the bad sample no longer produces')
 
+// The quoted finding must be a line the tool actually prints, position included.
+// A sample whose path or line number is invented teaches the reader to distrust
+// every number in the output.
+const quotedFinding = readme.match(/^(examples\/\S+\.(?:tsx|ts|jsx|js|css|vue|svelte|astro|html)):(\d+) (P[012]) (QS-[A-Z0-9-]+) (.+)$/m)
+assert.ok(quotedFinding, 'README no longer quotes a sample finding line')
+const [, quotedPath, quotedLine, , quotedRule] = quotedFinding
+const liveLines = sampleRun.stdout.split('\n')
+const liveLine = liveLines.find((line) => line.startsWith(`${quotedPath}:${quotedLine} `))
+assert.ok(liveLine, `README quotes ${quotedPath}:${quotedLine} but the bad sample produces no finding there`)
+assert.ok(liveLine.includes(quotedRule), 'README quotes a rule the bad sample no longer produces')
+const liveEvidence = liveLines[liveLines.indexOf(liveLine) + 1]
+assert.equal(liveEvidence.trim(), readme.split('\n')[readme.split('\n').indexOf(quotedFinding[0]) + 1].trim(), 'README quotes evidence the bad sample no longer prints')
+
+
 // The interaction rules must not fire on labelled controls: a named destructive
 // action and a control that names its object are exactly what the repair asks for.
 const namedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-named-'))
