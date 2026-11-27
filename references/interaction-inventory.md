@@ -44,4 +44,4 @@ Two of those audits are machine-checkable, so the reviewer does not have to reme
 
 一份填满七个角色的清单在 [`examples/interaction-inventory.json`](../examples/interaction-inventory.json)，可直接跑校验脚本对照字段写法。
 
-Save the inventory as JSON when it is used as a handoff artifact and run `node "$SKILL_HOME/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The validator checks the object, result, recovery path, action role, control grammar, and accessible name without prescribing a visual theme.
+Save the inventory as JSON when it is used as a handoff artifact and run `node "$SKILL_HOME/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The validator checks `object`, `goal`, `result`, `recoveryPath`, then for every action `label`, `role`, `labelForm`, `controlGrammar`, `accessibleName`, without prescribing a visual theme. `recognitionBasis` is required only for `icon-only` actions.

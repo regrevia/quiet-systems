@@ -147,3 +147,41 @@ test('the evaluation doc states the label-form rule the validator enforces', () 
   const named = [...clause.matchAll(/`([a-z-]+)`/g)].map((match) => match[1]).filter((name) => guarded.includes(name))
   assert.deepEqual([...new Set(named)].sort(), [...guarded].sort(), 'the roles the doc spares from icon-only must be the roles the validator spares')
 })
+
+// The doc sentence that tells a reviewer what the validator checks is the only
+// place they learn which fields are mandatory. A field the validator enforces
+// but the sentence omits reads as optional, and the reviewer omits it.
+test('the doc names every field the validator requires', () => {
+  const source = fs.readFileSync('scripts/validate-interaction-inventory.mjs', 'utf8')
+  const topLine = source.split('\n').find((line) => line.includes("['object', 'goal'"))
+  assert.ok(topLine, 'the validator no longer lists its top-level fields')
+  const top = [...topLine.matchAll(/'([a-zA-Z]+)'/g)].map((match) => match[1])
+  const actionLine = source.split('\n').find((line) => line.includes("['label', 'role'"))
+  assert.ok(actionLine, 'the validator no longer lists its per-action fields')
+  const perAction = [...actionLine.matchAll(/'([a-zA-Z]+)'/g)].map((match) => match[1])
+  const doc = fs.readFileSync('references/interaction-inventory.md', 'utf8')
+  const sentence = doc.split('\n').find((line) => line.includes('The validator checks'))
+  assert.ok(sentence, 'references/interaction-inventory.md no longer says what the validator checks')
+  // Both directions matter. A field the validator enforces but the doc omits
+  // reads as optional; a field the doc demands but the validator ignores makes a
+  // reviewer hand-write something nobody checks.
+  // Both directions matter. A field the validator enforces but the doc omits
+  // reads as optional; a field the doc demands but the validator ignores makes a
+  // reviewer hand-write something nobody checks. The filter is a fixed field
+  // vocabulary rather than the validator's own list, so quietly dropping a field
+  // from the validator cannot make the two sides agree by shrinking together.
+  const required = new Set([...top, ...perAction, 'recognitionBasis'])
+  // The sentence backticks two different kinds of token: the fields it requires,
+  // and the label-form values it talks about. Excluding the values (not an
+  // unknown-name allowlist) is what makes a field the doc invents visible.
+  const notFields = new Set(['text', 'icon-only', 'icon+label'])
+  const documented = [...sentence.matchAll(/`([a-zA-Z+-]+)`/g)]
+    .map((match) => match[1])
+    .filter((name) => !notFields.has(name))
+  assert.deepEqual(
+    [...new Set(documented)].sort(),
+    [...required].sort(),
+    'the fields the doc lists must be exactly the fields the validator requires'
+  )
+  assert.match(sentence, /recognitionBasis.*only for `icon-only`/, 'the doc should say recognitionBasis is conditional')
+})
