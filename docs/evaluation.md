@@ -73,7 +73,7 @@ MiniMax 审阅提示还要验证合计。另用图书归还月报检验迁移：
 
 交付门槛的最后一环是「文档里承诺的东西必须真能被执行」。以下五处手写清单由测试绑定：
 
-- 七个 composition 指标名在四处出现：`references/report-validation.md` 的表格、`references/delivery.md` 的交付清单、`reviewer-contract.md`、`scripts/validate-review-report.mjs` 的正则。四处必须与 `scripts/measure-composition.mjs` 实际产出的计数键一一对应，且不许给同一个计数起第二个名字（`divider` 是 `separator` 的实现名，报告里只认后者），由 `scripts/report-metrics-names.test.mjs` 强制。
+- 七个 composition 指标名在四处出现：`references/report-validation.md` 的表格、`references/delivery.md` 的交付清单、`reviewer-contract.md`、`scripts/validate-review-report.mjs` 的正则。四处必须与 `scripts/measure-composition.mjs` 实际产出的计数键一一对应；`references/report-validation.md` 里「四份手写清单」这个数字本身也由同一条测试对着文件数一遍，且不许给同一个计数起第二个名字（`divider` 是 `separator` 的实现名，报告里只认后者），由 `scripts/report-metrics-names.test.mjs` 强制。
 - `scripts/validate-delivery-gate.mjs` 索要的运行时指标键必须就是测量脚本写出的键，否则每一份 handoff 都会被一个没人能提供的字段挡住；由 `scripts/runtime-metrics-keys.test.mjs` 强制，并带一条缺键仍被拒的负向对照。
 - 同一个七项指标在 `reviewer-contract.md` 里是给人看的名字（`title`、`separator`），在代码里是计数键（`titleCount`、`dividerCount`）。两套词表不对称：浏览器侧数文档标题（`titleCount`），静态侧数标题元素（`headingCount`），副文案没有静态计数键、按文本重量测。每个名字都要能追到真实产出它的计数器，由 `scripts/reviewer-contract.test.mjs` 逐项核对，改名或删键都会红。
 - 动作清单里的 `labelForm` 只有 `text`、`icon-only`、`icon+label` 三个取值，且 `primary`、`destructive`、`recovery` 三个角色不接受 `icon-only`——第一次使用就得读得懂的动作不能只留一个图标。这份枚举写在 `references/interaction-inventory.md`，由 `scripts/validate-interaction-inventory.test.mjs` 逐值核对，并带一条 `primary` 只留图标必须被拒的负向对照。

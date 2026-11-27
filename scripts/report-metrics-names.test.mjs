@@ -93,3 +93,24 @@ test('the delivery doc names the same seven counters as the contract', () => {
     assert.equal(line.includes(wrong), false, `references/delivery.md renames a counter to ${wrong}`)
   }
 })
+
+test('the validation table counts exactly the hand-written lists that carry the names', () => {
+  const line = table.split('\n').find((text) => text.includes('手写清单'))
+  assert.ok(line, 'references/report-validation.md no longer says how many lists carry the names')
+  const numerals = { 二: 2, 三: 3, 四: 4, 五: 5, 六: 6 }
+  const stated = [...line.matchAll(/([二三四五六])份手写清单/g)].map((match) => numerals[match[1]])
+  assert.equal(stated.length, 1, 'the table states its list count more than once, or in digits')
+  const docs = ['references/report-validation.md', 'references/delivery.md', 'reviewer-contract.md']
+  const carriers = docs.filter((file) => {
+    const text = fs.readFileSync(file, 'utf8')
+    return Object.values(reportName).every((name) => text.includes(name))
+  })
+  assert.deepEqual(carriers, docs, 'a doc the table credits no longer names all seven counters')
+  // The checker spells the hyphenated names as an alternation (`text.?action`),
+  // so it counts as a carrier only if its pattern accepts all seven.
+  const pattern = checkerPattern()
+  const checkerCarries = Object.values(reportName).every((name) => pattern.includes(name) || pattern.includes(name.replaceAll('-', '.?')))
+  assert.equal(checkerCarries, true, 'the checker no longer accepts all seven names')
+  const total = carriers.length + 1
+  assert.equal(stated[0], total, `the table says ${stated[0]} lists, ${total} places carry the names`)
+})

@@ -41,7 +41,7 @@
 | decoration pressure | 装饰、渐变、玻璃或 decoration、gradient、glass 与 拒绝、删除或 reject、remove 同段出现 |
 | copy deletion check | 文案删除、删除复测或 copy deletion 与 重跑、结果、决策或 rerun、decision 同段出现 |
 
-七个指标名与运行时实测一一对应：`title`=`titleCount`、`secondary`=`secondaryCopyCount`、`text-action`=`textActionCount`、`icon-only-action`=`iconOnlyActionCount`、`surface`=`surfaceCount`、`pill`=`pillCount`、`separator`=`dividerCount`。名字由 `scripts/measure-composition.mjs` 产出、`scripts/validate-delivery-gate.mjs` 校验；三份手写清单（本表、`reviewer-contract.md`、校验器正则）与产出侧的一致性由 `scripts/report-metrics-names.test.mjs`、`scripts/runtime-metrics-keys.test.mjs` 强制。
+七个指标名与运行时实测一一对应：`title`=`titleCount`、`secondary`=`secondaryCopyCount`、`text-action`=`textActionCount`、`icon-only-action`=`iconOnlyActionCount`、`surface`=`surfaceCount`、`pill`=`pillCount`、`separator`=`dividerCount`。名字由 `scripts/measure-composition.mjs` 产出、`scripts/validate-delivery-gate.mjs` 校验；四份手写清单（本表、`references/delivery.md`、`reviewer-contract.md`、校验器正则）与产出侧的一致性由 `scripts/report-metrics-names.test.mjs`、`scripts/runtime-metrics-keys.test.mjs` 强制。
 
 每个名字各自都算数：只要报告里出现其中一个（例如只给 `icon-only-action=3`），composition metrics 一项即视为覆盖，因为图标按钮与文字按钮是两个互斥计数器，只测其一也是实测。反过来，只写「指标：见上一节」或全用中文标签名（`标题`、`副文案`）都不算，校验器会报 `missing composition metrics`。
 
