@@ -124,6 +124,15 @@ test('accepts a primary action that keeps a short label beside its icon', () => 
   assert.equal(result.status, 0, result.stderr)
 })
 
+test('blocks a state marker that is carried only by an icon', () => {
+  const result = run({
+    ...base,
+    actions: [{ label: '已满', role: 'state', labelForm: 'icon-only', recognitionBasis: 'filled dot', controlGrammar: 'read-only status text', accessibleName: '已满' }]
+  })
+  assert.equal(result.status, 1, 'a state marker drawn as an icon is unreadable and unguessable')
+  assert.match(result.stderr, /actions\[0\]:labelForm-risk/)
+})
+
 test('an icon-only navigation action stays allowed with a recognition basis', () => {
   const result = run({
     ...base,
@@ -261,4 +270,34 @@ test('the doc names every exit code the validator can produce', () => {
   assert.equal(usage.length, 1, 'the doc should describe exactly one usage outcome')
   assert.match(usage[0], /退出 `2`/, 'a usage error exits 2')
   assert.match(usage[0], /不打印 `blocked`/, 'a usage error must say it is not a blocked verdict')
+})
+
+// The guarded role set is spelled out in three places, and each one is read by a
+// different person: the validator by the machine, the inventory doc by whoever
+// writes the inventory, the evaluation doc by whoever audits the rules. A set
+// that grows in one and not the others turns a real block into a surprise.
+test('all three carriers name the same roles that may not be icon-only', () => {
+  const source = fs.readFileSync(script, 'utf8')
+  const guarded = source.match(/labelForm === 'icon-only' && \[([^\]]+)\]\.includes/)
+  assert.ok(guarded, 'validator no longer declares its guarded roles in one literal')
+  const expected = [...guarded[1].matchAll(/'([a-z-]+)'/g)].map((match) => match[1]).sort()
+  assert.deepEqual(expected, ['destructive', 'primary', 'recovery', 'state'], 'the guarded role set changed')
+
+  const carriers = {
+    'references/interaction-inventory.md': /`icon-only` 直接判成 `labelForm-risk`/,
+    'docs/evaluation.md': /不接受 `icon-only`/
+  }
+  for (const [file, marker] of Object.entries(carriers)) {
+    const doc = fs.readFileSync(path.resolve(file), 'utf8')
+    const line = doc.split('\n').find((candidate) => marker.test(candidate))
+    assert.ok(line, `${file} no longer states which roles may not be icon-only`)
+    // Only the enumeration counts. Both lines keep using these role names later
+    // in the same sentence to explain the rule, so a line-wide harvest would stay
+    // green after the list itself lost a role.
+    const list = line.slice(0, line.search(marker))
+    const stated = [...new Set([...list.matchAll(/`([a-z-]+)`/g)].map((match) => match[1]))]
+      .filter((name) => ['primary', 'frequent-compact', 'navigation', 'state', 'destructive', 'recovery', 'low-frequency'].includes(name))
+      .sort()
+    assert.deepEqual(stated, expected, `${file} names a different set of guarded roles`)
+  }
 })

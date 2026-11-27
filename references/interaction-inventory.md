@@ -23,7 +23,7 @@
 - `labelForm` 只有三个取值，写别的会被校验脚本拒：`text`、`icon-only`、`icon+label`。
 - Familiar frequent compact action may use an icon-only control.
 - Navigation may use an icon with a visible label when the scope is not obvious.
-- Destructive, first-use, ambiguous, and recovery actions keep visible text. 校验脚本把 `primary`、`destructive`、`recovery` 三个角色里的 `icon-only` 直接判成 `labelForm-risk`，因为这三类动作在第一次使用时就得能读懂；其余角色允许只留图标，条件是写清 `recognitionBasis`。
+- Destructive, first-use, ambiguous, and recovery actions keep visible text. 校验脚本把 `primary`、`destructive`、`recovery`、`state` 四个角色里的 `icon-only` 直接判成 `labelForm-risk`，因为这四类动作在第一次使用时就得能读懂，而 `state` 本身是只读标记、根本不该长成可点控件；其余角色允许只留图标，条件是写清 `recognitionBasis`。
 - A familiar download or share icon may be icon-only when its scope is unambiguous in the surrounding toolbar or editor. Keep its accessible name, tooltip, focus state, and a sufficient hit area.
 - State indicators use readable text and may add a small semantic marker.
 - Never replace a clear action with an unfamiliar symbol to reduce text.
