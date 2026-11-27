@@ -275,6 +275,17 @@ assert.match(nativeHits[0], /Bare\.tsx/)
 fs.rmSync(alias, { recursive: true, force: true })
 
 // The JSON report is a stable, machine-readable contract.
+// README quotes a real summary line from the bad sample. A hand-copied count
+// drifts the moment a rule is added, so the quoted line is compared against a
+// live run of the sample instead of being trusted.
+const sampleRun = spawnSync(process.execPath, [script, path.join(repoRoot, 'examples', 'bad-sample')], { encoding: 'utf8', cwd: repoRoot })
+const sampleSummary = sampleRun.stdout.trim().split('\n').pop()
+assert.match(sampleSummary, /^ui-guard review: \d+ finding\(s\) \(.+?\) in \d+ file\(s\)$/)
+const readme = fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8')
+const quoted = readme.match(/ui-guard review: \d+ finding\(s\) \([^)]+\) in \d+ file\(s\)/)
+assert.ok(quoted, 'README no longer quotes a summary line from the bad sample')
+assert.equal(quoted[0], sampleSummary, 'README quotes a summary line the bad sample no longer produces')
+
 // The interaction rules must not fire on labelled controls: a named destructive
 // action and a control that names its object are exactly what the repair asks for.
 const namedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-named-'))

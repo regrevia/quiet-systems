@@ -12,6 +12,8 @@
     "reviewer-contract.md",
     ".quiet-systems.json",
     "examples/",
+    "!examples/before-after.md",
+    "!examples/comparison/recruiting-copy-original.png",
     "scripts/",
     "references/"
   ],

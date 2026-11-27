@@ -22,6 +22,17 @@ node scripts/ui-guard-review.mjs path/to/ui
 
 有发现时退出码 `1`，干净时 `0`，扫描没跑完（读取失败、根目录不存在、配置无效）是 `2`。
 
+每条发现带文件、行号和证据，修复建议按规则在末尾汇总一次，同一句建议不会在每条发现下重复：
+
+```text
+examples/bad-sample/RoomPicker.tsx:9 P1 QS-INTERACTION-001 破坏性或不可逆动作只有图标，没有可见文字标签。…
+  <button aria-label="删除房间"><TrashIcon /></button>
+QS-INTERACTION-001 → 补上可见的动作名与作用对象；图标可以保留，但不能是唯一的识别方式。
+ui-guard review: 31 finding(s) (1 P0, 20 P1, 10 P2) in 4 file(s)
+```
+
+干净时末行是 `ui-guard review: no static findings (66 file(s) reviewed)`。文件数不是装饰：根路径写错、扩展名清单不匹配、整棵树被忽略时，扫描读到 0 个文件，再加一行 `reviewed no files` 说明这三个原因——否则「没发现问题」和「没看任何文件」是同一句话。
+
 日常任务从短版 [SKILL.md](SKILL.md) 进入。需要研究设计取舍时，再读 [Apple、Linear 与竞品实现对照](references/design-sources.md)。效果怎么衡量、同题实测与受控比较记录在 [评估与实测记录](docs/evaluation.md)。
 
 ## 安装
