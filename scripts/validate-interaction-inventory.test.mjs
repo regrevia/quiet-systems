@@ -185,3 +185,80 @@ test('the doc names every field the validator requires', () => {
   )
   assert.match(sentence, /recognitionBasis.*only for `icon-only`/, 'the doc should say recognitionBasis is conditional')
 })
+
+// Each branch below reports its own name in the blocked list. A branch that
+// starts reporting someone else's name sends the reviewer to the wrong field,
+// so every one is driven on its own with the rest of the inventory valid.
+test('the top-level fields each report their own name', () => {
+  for (const name of ['object', 'goal', 'result', 'recoveryPath']) {
+    const value = { ...base, [name]: '' }
+    const result = run(value)
+    assert.equal(result.status, 1, `a blank ${name} should block`)
+    assert.match(result.stderr, new RegExp(`^- ${name}$`, 'm'), `a blank ${name} should name ${name}`)
+  }
+})
+
+test('an inventory without actions blocks under its own name', () => {
+  for (const value of [[], undefined, null, 'primary']) {
+    const result = run({ ...base, actions: value })
+    assert.equal(result.status, 1, `actions: ${JSON.stringify(value)} should block`)
+    assert.match(result.stderr, /^- actions$/m, 'an empty or non-array actions field should name actions')
+  }
+})
+
+test('an unknown role or label form reports its own name', () => {
+  const role = run({ ...base, actions: [{ ...base.actions[0], role: 'secondary' }] })
+  assert.equal(role.status, 1)
+  assert.match(role.stderr, /^- actions\[0\]:role-enum$/m, 'an unknown role is an enum failure, not a semantic one')
+  assert.doesNotMatch(role.stderr, /controlGrammar/, 'an unknown role should not be blamed on another field')
+
+  const form = run({ ...base, actions: [{ ...base.actions[0], labelForm: 'icon' }] })
+  assert.equal(form.status, 1)
+  assert.match(form.stderr, /^- actions\[0\]:labelForm-enum$/m, 'an unknown label form is an enum failure')
+  assert.doesNotMatch(form.stderr, /recognitionBasis/, 'a bad label form should not also demand a recognition basis')
+})
+
+test('a missing argument and unreadable JSON both exit two', () => {
+  const noArg = spawnSync(process.execPath, [script], { encoding: 'utf8' })
+  assert.equal(noArg.status, 2, 'no path is a usage error, not a review verdict')
+  assert.match(noArg.stderr, /^usage: node scripts\/validate-interaction-inventory\.mjs path\/to\/interaction-inventory\.json$/m)
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-inventory-'))
+  const file = path.join(root, 'broken.json')
+  fs.writeFileSync(file, '{"actions": [')
+  const broken = spawnSync(process.execPath, [script, file], { encoding: 'utf8' })
+  assert.equal(broken.status, 2, 'unparseable JSON is a usage error, not a blocked inventory')
+  assert.match(broken.stderr, /cannot read inventory/)
+  assert.doesNotMatch(broken.stderr, /blocked/, 'unreadable JSON should not look like a review verdict')
+})
+
+// A caller that only greps stdout for the word "valid" treats a usage error as a
+// pass, and one that only checks for a non-zero code cannot tell "fix the file"
+// from "fix your command". The three outcomes have to be told apart by code, and
+// the doc is where a reviewer learns that.
+test('the doc names every exit code the validator can produce', () => {
+  const source = fs.readFileSync(script, 'utf8')
+  const codes = [...new Set([...source.matchAll(/process\.exit\((\d)\)/g)].map((match) => match[1]))].sort()
+  assert.deepEqual(codes, ['1', '2'], 'the validator no longer exits 1 and 2')
+  const doc = fs.readFileSync(path.resolve('references/interaction-inventory.md'), 'utf8')
+  const section = doc.slice(doc.indexOf('三种结局'))
+  assert.ok(section.length > 0, 'references/interaction-inventory.md no longer explains the exit codes')
+  const paragraph = section.slice(0, section.indexOf('\n\n') === -1 ? section.length : section.indexOf('\n\n'))
+  for (const code of ['0', ...codes]) {
+    assert.match(paragraph, new RegExp(`退出 \`${code}\``), `the doc does not say what exit ${code} means`)
+  }
+  // The code and the word have to sit in the same clause. Reading the paragraph
+  // as a whole let a rewrite pair `blocked` with the wrong code and still pass.
+  const clauses = paragraph.split('；')
+  const blocked = clauses.filter((clause) => clause.includes('阻塞') || clause.includes('字段不合格'))
+  assert.equal(blocked.length, 1, 'the doc should describe exactly one blocked outcome')
+  assert.match(blocked[0], /退出 `1`/, 'a blocked inventory exits 1, not 2')
+  assert.match(blocked[0], /`blocked`/, 'the doc should say a blocked run prints blocked')
+  assert.match(blocked[0], /`- `/, 'the doc should say each blocked line starts with a dash')
+  // A usage error is the one outcome a reviewer must not read as a verdict, so
+  // the clause that describes it has to say so, not just omit the word.
+  const usage = clauses.filter((clause) => clause.includes('`usage:`'))
+  assert.equal(usage.length, 1, 'the doc should describe exactly one usage outcome')
+  assert.match(usage[0], /退出 `2`/, 'a usage error exits 2')
+  assert.match(usage[0], /不打印 `blocked`/, 'a usage error must say it is not a blocked verdict')
+})

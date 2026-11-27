@@ -45,3 +45,5 @@ Two of those audits are machine-checkable, so the reviewer does not have to reme
 一份填满七个角色的清单在 [`examples/interaction-inventory.json`](../examples/interaction-inventory.json)，可直接跑校验脚本对照字段写法。
 
 Save the inventory as JSON when it is used as a handoff artifact and run `node "$SKILL_HOME/scripts/validate-interaction-inventory.mjs" interaction-inventory.json`. The validator checks `object`, `goal`, `result`, `recoveryPath`, then for every action `label`, `role`, `labelForm`, `controlGrammar`, `accessibleName`, without prescribing a visual theme. `recognitionBasis` is required only for `icon-only` actions.
+
+三种结局要靠退出码分开，不能只看有没有输出：清单合格时退出 `0` 并打印 `valid (N actions)`；有字段不合格时退出 `1`，stderr 第一行是 `blocked`，下面每行以 `- ` 开头、写清是哪个字段（顶层字段写名字，动作内字段写 `actions[0]:labelForm` 这样带下标的路径）；参数缺失或文件不是合法 JSON 时退出 `2`，只给 `usage:` 或 `cannot read inventory`，不打印 `blocked`——这种情况先修文件或命令，不要按清单内容去改。
