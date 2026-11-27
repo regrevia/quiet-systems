@@ -41,7 +41,7 @@ const fixtures = {
   'QS-COPY-006': { file: 'Promise.tsx', code: '<p>敬请期待</p>\n' },
   'QS-COPY-007': { file: 'Jargon.tsx', code: '<p>这条流程必须打穿闭环</p>\n' },
   'QS-COPY-008': { file: 'Abbrev.tsx', code: '<p>QBR 结论已同步</p>\n' },
-  'QS-COPY-009': { file: 'Aphorism.tsx', code: '<p>不止于工具</p>\n' },
+  'QS-COPY-009': { file: 'Aphorism.tsx', code: '<p>\n  不止于工具\n</p>\n' },
   'QS-COPY-010': { file: 'Compressed.tsx', code: '<p>一键洞察，智能治理全链路</p>\n' },
   'QS-COMPOSITION-001': { file: 'TwoHeadings.tsx', code: '<h1>收藏</h1>\n<h2>最近</h2>\n' },
   'QS-HIERARCHY-001': { file: 'Caption.tsx', code: '<small>说明</small>\n' },
@@ -129,6 +129,23 @@ for (const { file, pattern } of keyLists) {
   assert(prose, `${file} no longer lists the allowed config keys`)
   const claimed = [...prose[1].matchAll(/`([A-Za-z_]+)`/g)].map((match) => match[1]).sort()
   assert.deepEqual(claimed, [...schemaKeys].sort(), `${file} config key list disagrees with configSchema`)
+}
+
+// A reader picking a family has no way to tell whether the README lists all of
+// them, and a family that exists only in the registry is a rule nobody is told
+// about. Publish the per-family counts and read them back.
+const familyClaims = new Map()
+for (const line of fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8').split('\n')) {
+  for (const match of line.matchAll(/`QS-([A-Z0-9]+)` (\d+)/g)) familyClaims.set(match[1], Number(match[2]))
+}
+const familyActual = new Map()
+for (const rule of registeredRules) {
+  const family = rule.split('-')[1]
+  familyActual.set(family, (familyActual.get(family) ?? 0) + 1)
+}
+assert.deepEqual([...familyClaims.keys()].sort(), [...familyActual.keys()].sort(), 'README lists a different set of rule families than the registry')
+for (const [family, count] of familyActual) {
+  assert.equal(familyClaims.get(family), count, `README says QS-${family} has ${familyClaims.get(family)} rules, the registry has ${count}`)
 }
 
 // The severity table in references/review.md is normative, so a registered

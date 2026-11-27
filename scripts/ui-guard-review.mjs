@@ -463,6 +463,7 @@ function inspect(file) {
   // 「一键洞察」names a capability while dropping the object the user would act on. The
   // rule fires only when no concrete action is on the line, so 「查看排期」stays clean.
   const compressedCopy = /(?:一键|自动|智能|深度|全量|统一|批量|无感|极简|轻量)(?:洞察|治理|对齐|编排|调度|协同|赋能|沉淀|拉通|归因|复盘|看板|中台|矩阵|体系|链路|范式|能力|闭环)|(?:洞察|治理|对齐|编排|调度|赋能|沉淀)(?:一切|全域|全量|全链路|全场景|全景)/i
+  const aphorismMessage = '发现格言式或翻译腔句式。请还原成能对同事直接说出的句子：谁，做什么，结果是什麼。'
   const aphorismCopy = /(?:为.{1,12}而生|不是.{1,14}而是.{1,14}的|让.{1,12}重新(?:定义|想象|出发)|才是.{1,12}的(?:答案|开始|方式)|(?:就|也)是一种.{1,10}|不止于|是.{1,8}的态度|born for|isn't just|is not just|more than just)/i
   const knownAbbreviations = new Set(['API', 'URL', 'URI', 'ID', 'UI', 'UX', 'JSON', 'HTML', 'CSS', 'HTTP', 'HTTPS', 'PDF', 'CSV', 'PNG', 'JPEG', 'SVG', 'OK', 'CPU', 'RAM', 'GPU', 'USB', 'OS', 'SQL', 'DNS', 'SDK', 'CLI', 'TLS', 'SSH', 'IP', 'MFA', 'OTP', 'AI', 'ML', 'GPS', 'FAQ', 'UUID', 'RSS', 'IDE', 'REST', 'YAML', 'UTF'])
   lines.forEach((source, index) => {
@@ -555,7 +556,7 @@ function inspect(file) {
     }
 
     if (isProductionSource(file) && aphorismCopy.test(source) && copyContext.test(source) && !/^\s*(\/\/|\*|\/\*)/.test(source)) {
-      add(file, line, 'QS-COPY-009', '发现格言式或翻译腔句式。请还原成能对同事直接说出的句子：谁，做什么，结果是什麼。', source)
+      add(file, line, 'QS-COPY-009', aphorismMessage, source)
     }
 
     const demoName = /\b(?:mock|demo|fake|fixture)(?:Data|User|Item|_[A-Za-z0-9]+|[A-Z][A-Za-z0-9]*)\b|\b(?:Mock|Demo|Fake|Fixture)(?:Data|User|Item|_[A-Za-z0-9]+|[A-Z][A-Za-z0-9]*)\b/.test(source)
@@ -581,6 +582,14 @@ function inspect(file) {
     const visibleCopy = match[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
     const line = text.slice(0, match.index).split(/\r?\n/).length
     const evidence = match[0].split(/\r?\n/)[0]
+    // Inspect literal text across JSX line breaks, excluding expressions and comments.
+    if (isProductionSource(file) && match[2].includes('\n') && !/[{}<>]/.test(match[2])) {
+      const phrase = aphorismCopy.exec(match[2].replace(/\s/g, ' '))
+      if (phrase) {
+        const bodyStart = match.index + match[0].indexOf('>') + 1
+        add(file, lineOf(bodyStart + phrase.index), 'QS-COPY-009', aphorismMessage, visibleCopy)
+      }
+    }
     const blockRules = [
       [defensiveCopy, 'QS-COPY-004', '发现防御性或礼貌性解释文案。删除无法改变当前决策的安抚、免责声明和“方便说明”，只保留具体条件、结果、限制或恢复动作。'],
       [disclaimerCopy, 'QS-COPY-005', '发现免责声明式文案。只保留会改变当前操作的具体限制，并放在对应决策旁，删除泛化防御和责任转移。'],
