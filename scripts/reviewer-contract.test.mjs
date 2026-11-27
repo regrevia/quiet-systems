@@ -105,7 +105,9 @@ test('every state word appears on the contract line that describes state coverag
 
 test('the README and the review reference both point at the contract', () => {
   const readme = fs.readFileSync('README.md', 'utf8')
-  assert.ok(readme.includes('`reviewer-contract.md`'), 'README.md no longer mentions the reviewer contract')
+  // A bare backticked filename is not a clickable reference; the README has to
+  // carry a markdown link, otherwise a reader gets a name and no target.
+  assert.match(readme, /\[[^\]]*reviewer-contract\.md[^\]]*\]\(reviewer-contract\.md\)/, 'README.md no longer links the reviewer contract')
   const review = fs.readFileSync(path.join('references', 'review.md'), 'utf8')
   assert.ok(review.includes('[reviewer contract](../reviewer-contract.md)'), 'references/review.md no longer links the contract')
   assert.ok(fs.existsSync('reviewer-contract.md'), 'the contract file the docs link to is missing')

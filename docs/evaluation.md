@@ -71,7 +71,7 @@ MiniMax 审阅提示还要验证合计。另用图书归还月报检验迁移：
 
 加入保留定稿要求后，同题重跑仍出现三处逗号差异。交付时可以将浏览器可见正文与定稿分别按段导出，再运行 `node scripts/compare-article-copy.mjs approved.txt rendered.txt`。返回 0 表示段落内容与顺序一致，1 表示存在差异，2 表示输入错误这三个码由 `scripts/compare-article-copy-docs.test.mjs` 对着真实运行核对：文档里的命令按原样执行，0/1/2 各自跑一次，语义改错或命令写坏都会变红。脚本只核对导出的文字，目录定位和遮挡仍需浏览器走查。
 
-交付门槛的最后一环是「文档里承诺的东西必须真能被执行」。以下五处手写清单由测试绑定：
+交付门槛的最后一环是「文档里承诺的东西必须真能被执行」。以下六处手写清单由测试绑定：
 
 - 七个 composition 指标名在四处出现：`references/report-validation.md` 的表格、`references/delivery.md` 的交付清单、`reviewer-contract.md`、`scripts/validate-review-report.mjs` 的正则。四处必须与 `scripts/measure-composition.mjs` 实际产出的计数键一一对应；`references/report-validation.md` 里「四份手写清单」这个数字本身也由同一条测试对着文件数一遍，且不许给同一个计数起第二个名字（`divider` 是 `separator` 的实现名，报告里只认后者），由 `scripts/report-metrics-names.test.mjs` 强制。
 - `scripts/validate-delivery-gate.mjs` 索要的运行时指标键必须就是测量脚本写出的键，否则每一份 handoff 都会被一个没人能提供的字段挡住；由 `scripts/runtime-metrics-keys.test.mjs` 强制，并带一条缺键仍被拒的负向对照。
