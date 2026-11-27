@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 
 const script = fileURLToPath(new URL('./ui-guard-review.mjs', import.meta.url))
+const repoRoot = path.dirname(path.dirname(script))
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-cli-'))
 // Run from a neutral directory so reported paths are relative to the fixture, not
 // to this repository.
@@ -38,7 +39,7 @@ write('src/Run.tsx', "<button style={{ color: '#fff' }}>Run · 3 files</button>\
 const findingRun = run(root)
 assert.equal(findingRun.status, 1, findingRun.stdout + findingRun.stderr)
 assert.match(findingRun.stdout, /Run\.tsx:\d+ P[012] QS-[A-Z0-9]+-\d{3} /m)
-assert.match(findingRun.stdout, /^\s+→ /m)
+assert.match(findingRun.stdout, /^QS-[A-Z0-9]+-\d{3}(?: \(\d+ finding\(s\)\))? → /m, 'each rule repair is printed once, keyed by rule id')
 assert.match(findingRun.stdout, /finding\(s\) \(\d+ P[012]/)
 
 // Exit code 2: a root that does not exist makes the scan incomplete, not clean.
@@ -177,6 +178,13 @@ write3(gate, '.ui-guard.json', JSON.stringify({ rules: { 'QS-COPY-003': { maxLen
 const wide = spawnSync(process.execPath, [script, path.join(gate, 'src'), '--json'], { encoding: 'utf8', cwd: os.tmpdir() })
 assert.equal(wide.status, 0, wide.stdout + wide.stderr)
 
+// A reader that stops reading early must not produce a stack trace. `| head` is
+// ordinary use on a 90-line report, and an unhandled EPIPE reads like the
+// reviewed project crashed.
+const piped = spawnSync('/bin/sh', ['-c', `"${process.execPath}" "${script}" "${path.join(repoRoot, 'examples', 'bad-sample')}" | head -2`], { encoding: 'utf8' })
+assert.equal(piped.stderr, '', `expected no stderr when the pipe closes early, got: ${piped.stderr}`)
+assert.match(piped.stdout, /QS-PROTOTYPE-001/)
+
 // A symlinked directory is reported, not silently skipped: a workspace layout
 // that links a package in would otherwise report clean on unseen content.
 const linked = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-symlink-'))
@@ -261,7 +269,7 @@ for (const [name, marker] of [
 }
 const aliasRun = spawnSync(process.execPath, [script, path.join(alias, 'src')], { encoding: 'utf8', cwd: os.tmpdir() })
 assert.equal(aliasRun.status, 1, aliasRun.stdout + aliasRun.stderr)
-const nativeHits = aliasRun.stdout.split('\n').filter((row) => row.includes('QS-COMPONENT-001'))
+const nativeHits = aliasRun.stdout.split('\n').filter((row) => /:1 P[012] QS-COMPONENT-001 /.test(row))
 assert.equal(nativeHits.length, 1, aliasRun.stdout)
 assert.match(nativeHits[0], /Bare\.tsx/)
 fs.rmSync(alias, { recursive: true, force: true })

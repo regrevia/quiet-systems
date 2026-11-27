@@ -73,6 +73,16 @@ const remediationBlock = source.slice(
 )
 const remediatedRules = new Set([...remediationBlock.matchAll(/'(QS-[A-Z0-9]+-\d{3})':/g)].map((match) => match[1]))
 
+// Prose that quotes the rule count drifts every time a rule is added, and a
+// stale number is the first thing a reader checks. Keep the claims tied to the
+// registry instead of to whoever last edited the paragraph.
+for (const doc of ['README.md', path.join('docs', 'evaluation.md')]) {
+  const text = fs.readFileSync(path.join(repoRoot, doc), 'utf8')
+  for (const match of text.matchAll(/(\d+)\s*条规则/g)) {
+    assert.equal(Number(match[1]), registeredRules.length, `${doc} claims ${match[1]} rules but the registry has ${registeredRules.length}`)
+  }
+}
+
 // The severity table in references/review.md is normative, so a registered
 // severity that disagrees with the table is a documentation defect.
 const severityTable = new Map(

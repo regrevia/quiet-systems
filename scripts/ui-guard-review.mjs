@@ -11,6 +11,15 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+// `ui-guard review . | head` closes the pipe as soon as it has what it wanted,
+// and Node turns the next write into an unhandled EPIPE — a stack trace that
+// reads like the reviewed project crashed. A reader that stops reading is not an
+// error in the scan, so exit quietly instead.
+process.stdout.on('error', (error) => {
+  if (error.code === 'EPIPE') process.exit(0)
+  throw error
+})
+
 const args = process.argv.slice(2)
 const json = args.includes('--json')
 const includeMarkdown = args.includes('--include-markdown')
@@ -782,7 +791,19 @@ if (json) {
   for (const item of findings) {
     process.stdout.write(`${displayPath(item.file)}:${item.line} ${item.severity} ${item.rule} ${item.message}\n`)
     process.stdout.write(`  ${item.evidence}\n`)
-    if (item.remediation) process.stdout.write(`  → ${item.remediation}\n`)
+  }
+  // The repair belongs to the rule, not to the sighting. Printing it under every
+  // finding repeated the same three sentences 29 times and pushed the file list —
+  // the part the reader acts on — off the first screen. One repair per rule, at
+  // the end, with how many places it applies to.
+  const repairGroups = [...new Set(findings.map((item) => item.rule))]
+    .map((rule) => ({ rule, items: findings.filter((item) => item.rule === rule) }))
+    .sort((left, right) => severityRank[left.items[0].severity] - severityRank[right.items[0].severity] || left.rule.localeCompare(right.rule))
+  for (const group of repairGroups) {
+    const remediation = group.items[0].remediation
+    if (!remediation) continue
+    const scope = group.items.length > 1 ? ` (${group.items.length} finding(s))` : ''
+    process.stdout.write(`${group.rule}${scope} → ${remediation}\n`)
   }
   const counts = ['P0', 'P1', 'P2'].filter((severity) => bySeverity[severity] > 0).map((severity) => `${bySeverity[severity]} ${severity}`)
   process.stdout.write(`ui-guard review: ${findings.length} finding(s) (${counts.join(', ')})\n`)
