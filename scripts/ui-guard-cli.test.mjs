@@ -275,6 +275,15 @@ assert.match(nativeHits[0], /Bare\.tsx/)
 fs.rmSync(alias, { recursive: true, force: true })
 
 // The JSON report is a stable, machine-readable contract.
+// The compatibility entry point exists so older callers keep working. If it ever
+// drifts from the real one, those callers get a different answer on the same tree
+// and have no way to notice.
+const shim = path.resolve('scripts/quiet-systems-review.mjs')
+const shimRun = spawnSync(process.execPath, [shim, path.join(repoRoot, 'examples', 'bad-sample')], { encoding: 'utf8', cwd: repoRoot })
+const realRun = spawnSync(process.execPath, [script, path.join(repoRoot, 'examples', 'bad-sample')], { encoding: 'utf8', cwd: repoRoot })
+assert.equal(shimRun.status, realRun.status, 'the compatibility entry point exits differently from ui-guard-review')
+assert.equal(shimRun.stdout, realRun.stdout, 'the compatibility entry point prints something else')
+
 // README quotes a real summary line from the bad sample. A hand-copied count
 // drifts the moment a rule is added, so the quoted line is compared against a
 // live run of the sample instead of being trusted.
