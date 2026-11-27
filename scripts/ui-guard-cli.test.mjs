@@ -177,6 +177,41 @@ write3(gate, '.ui-guard.json', JSON.stringify({ rules: { 'QS-COPY-003': { maxLen
 const wide = spawnSync(process.execPath, [script, path.join(gate, 'src'), '--json'], { encoding: 'utf8', cwd: os.tmpdir() })
 assert.equal(wide.status, 0, wide.stdout + wide.stderr)
 
+// A symlinked directory is reported, not silently skipped: a workspace layout
+// that links a package in would otherwise report clean on unseen content.
+const linked = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-symlink-'))
+write3(linked, 'real/a.tsx', '<p>一键洞察，智能治理全链路</p>\n')
+fs.symlinkSync(path.join(linked, 'real'), path.join(linked, 'link'), 'dir')
+const linkedRun = spawnSync(process.execPath, [script, '--json', linked], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.equal(linkedRun.status, 1, linkedRun.stdout + linkedRun.stderr)
+const linkedReport = JSON.parse(linkedRun.stdout)
+assert.ok(linkedReport.skipped.some((item) => item.reason === 'symlink'), 'expected the symlink to be reported in skipped')
+assert.equal(linkedReport.summary.skipped, 1, linkedReport.summary.skipped)
+fs.rmSync(linked, { recursive: true, force: true })
+
+// A value flag with no value is a usage error, not a crash and not a pass.
+const emptyValue = spawnSync(process.execPath, [script, '--write-baseline', '', path.join(gate, 'src')], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.equal(emptyValue.status, 2, emptyValue.stdout + emptyValue.stderr)
+assert.match(emptyValue.stderr, /--write-baseline needs a file path/)
+const danglingValue = spawnSync(process.execPath, [script, '--baseline', '--json', path.join(gate, 'src')], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.equal(danglingValue.status, 2, danglingValue.stdout + danglingValue.stderr)
+assert.match(danglingValue.stderr, /--baseline needs a file path/)
+const unwritable = spawnSync(process.execPath, [script, '--write-baseline', path.join(gate, 'missing-dir', 'b.json'), path.join(gate, 'src')], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.equal(unwritable.status, 2, unwritable.stdout + unwritable.stderr)
+assert.match(unwritable.stderr, /cannot write baseline/)
+
+// `include` has to actually widen the scan. Accepting the key and then ignoring
+// it reads as a clean run over files that were never opened.
+const widen = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-include-'))
+write3(widen, 'src/view.tpl', '<p>一键洞察，智能治理全链路</p>\n')
+const narrowRun = spawnSync(process.execPath, [script, path.join(widen, 'src')], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.equal(narrowRun.status, 0, narrowRun.stdout + narrowRun.stderr)
+write3(widen, '.ui-guard.json', JSON.stringify({ include: ['**/*.tpl'] }))
+const widenRun = spawnSync(process.execPath, [script, path.join(widen, 'src')], { encoding: 'utf8', cwd: os.tmpdir() })
+assert.equal(widenRun.status, 1, widenRun.stdout + widenRun.stderr)
+assert.match(widenRun.stdout, /view\.tpl:1 P1 QS-COPY-007/)
+fs.rmSync(widen, { recursive: true, force: true })
+
 // A misspelled flag must not silently pass: it is a usage error, not a clean run.
 const helpRun = spawnSync(process.execPath, [script, '--help'], { encoding: 'utf8', cwd: os.tmpdir() })
 assert.equal(helpRun.status, 0, helpRun.stdout + helpRun.stderr)

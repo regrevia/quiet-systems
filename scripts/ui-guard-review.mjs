@@ -21,6 +21,18 @@ const valueOf = (flag) => {
 }
 const baselinePath = valueOf('--baseline')
 const writeBaselinePath = valueOf('--write-baseline')
+const usage = 'usage: ui-guard-review [--json] [--include-markdown] [--baseline PATH] [--write-baseline PATH] [ROOT...]\n'
+// A value flag given nothing is a usage error. `--write-baseline ""` used to
+// reach fs.writeFileSync and crash with a stack trace, which reads as a bug in
+// the project being reviewed rather than in the command line.
+for (const [flag, value] of [['--baseline', baselinePath], ['--write-baseline', writeBaselinePath]]) {
+  if (value === null) continue
+  if (value.trim() === '' || value.startsWith('--')) {
+    process.stderr.write(`ui-guard review: ${flag} needs a file path\n`)
+    process.stderr.write(usage)
+    process.exit(2)
+  }
+}
 const consumed = new Set()
 for (const flag of ['--baseline', '--write-baseline']) {
   const index = args.indexOf(flag)
@@ -32,11 +44,11 @@ const knownFlags = new Set(['--json', '--include-markdown', '--baseline', '--wri
 const unknownFlags = args.filter((arg) => arg.startsWith('--') && !knownFlags.has(arg))
 if (unknownFlags.length > 0) {
   process.stderr.write(`ui-guard review: unknown option ${unknownFlags.join(', ')}\n`)
-  process.stderr.write('usage: ui-guard-review [--json] [--include-markdown] [--baseline PATH] [--write-baseline PATH] [ROOT...]\n')
+  process.stderr.write(usage)
   process.exit(2)
 }
 if (args.includes('--help')) {
-  process.stdout.write('usage: ui-guard-review [--json] [--include-markdown] [--baseline PATH] [--write-baseline PATH] [ROOT...]\n')
+  process.stdout.write(usage)
   process.exit(0)
 }
 const roots = args.filter((arg, index) => !arg.startsWith('--') && !consumed.has(index))
@@ -238,7 +250,13 @@ function walk(entry) {
     recordReadError(entry, error)
     return
   }
-  if (stat.isSymbolicLink()) return
+  // Symlinks are neither followed nor silently dropped. A workspace layout that
+  // links a package in (`packages/app -> ../../app`) would otherwise report clean
+  // on content that was never opened.
+  if (stat.isSymbolicLink()) {
+    skipped.push({ file: entry, reason: 'symlink' })
+    return
+  }
   if (stat.isDirectory()) {
     if (ignored.has(path.basename(entry)) || config.ignoreDirs?.includes(path.basename(entry))) return
     let children
@@ -255,7 +273,22 @@ function walk(entry) {
     skipped.push({ file: entry, reason: 'maxFileBytes' })
     return
   }
-  if (extensions.has(path.extname(entry))) inspect(entry)
+  if (extensions.has(path.extname(entry)) || matchesInclude(entry)) inspect(entry)
+}
+
+// `include` forces a file past the extension list, so a project can review a
+// template format the script does not know about. Without this the key was
+// accepted, validated and then ignored: a config that looked like it widened
+// the scan reported nothing about the files it named.
+function matchesInclude(file) {
+  const patterns = config.include ?? []
+  if (patterns.length === 0) return false
+  const relativeToConfig = path.relative(config.__baseDir ?? process.cwd(), file).split(path.sep).join('/')
+  const relativeToRoot = path.relative(scanRoot, file).split(path.sep).join('/')
+  return patterns.some((pattern) => {
+    const matcher = globToRegExp(pattern)
+    return matcher.test(relativeToConfig) || matcher.test(relativeToRoot)
+  })
 }
 
 // Suppression comments are per line and per rule:
@@ -631,7 +664,11 @@ for (const root of roots) {
   if (process.exitCode === 2 && exitBefore !== 2) incomplete = true
   // `maxFileBytes` is a declared boundary, not a failed read: it is reported but
   // does not make the scan incomplete.
-  for (const item of skipped.slice(skippedBefore)) if (item.reason !== 'maxFileBytes') incomplete = true
+  // `symlink` is a declared boundary too: the target is reviewed from wherever it
+  // really lives, so a link inside the tree is visibility, not a failed read.
+  for (const item of skipped.slice(skippedBefore)) {
+    if (item.reason !== 'maxFileBytes' && item.reason !== 'symlink') incomplete = true
+  }
 }
 
 const severityRank = { P0: 0, P1: 1, P2: 2 }
@@ -706,7 +743,12 @@ if (baselinePath !== null) {
 
 if (writeBaselinePath !== null) {
   const entries = findings.map(baselineKey).sort()
-  fs.writeFileSync(writeBaselinePath, `${JSON.stringify({ version: 1, entries }, null, 2)}\n`)
+  try {
+    fs.writeFileSync(writeBaselinePath, `${JSON.stringify({ version: 1, entries }, null, 2)}\n`)
+  } catch (error) {
+    process.stderr.write(`ui-guard review: cannot write baseline ${writeBaselinePath}: ${error.message}\n`)
+    process.exit(2)
+  }
   process.stdout.write(`ui-guard review: wrote baseline ${writeBaselinePath} (${entries.length} finding(s))\n`)
   process.exit(0)
 }

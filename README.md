@@ -96,7 +96,7 @@ node scripts/validate-fixtures.mjs examples/fixtures
 node scripts/validate-review-report.mjs --strict path/to/review.md
 ```
 
-配置放在 `.ui-guard.json`：忽略目录与规则、文案预算（可分窄屏/宽屏）、最大文件大小、`treatAsProduction` 反面样例白名单。`examples/configs/` 有 Tailwind 与 CSS 变量两份模板。忽略规则按配置目录和扫描根分别匹配，从不同工作目录运行都成立。超过大小上限的文件进 JSON 报告的 `skipped`。选项写错会以退出码 2 报出这个名字，不会当作没写而放过整个目录；`--help` 打印用法后退出 0。脚本只做固定代码检查，不能替代浏览器、键盘、读屏、真机和真实数据验证。
+配置放在 `.ui-guard.json`：忽略目录与规则、文案预算（可分窄屏/宽屏）、最大文件大小、`treatAsProduction` 反面样例白名单。`examples/configs/` 有 Tailwind 与 CSS 变量两份模板。忽略规则按配置目录和扫描根分别匹配，从不同工作目录运行都成立。超过大小上限的文件进 JSON 报告的 `skipped`。选项写错、或 `--baseline` 后面没跟路径，会以退出码 2 报出这个名字，不会当作没写而放过整个目录；`--help` 打印用法后退出 0。脚本只做固定代码检查，不能替代浏览器、键盘、读屏、真机和真实数据验证。
 
 接进 PR 见 [`examples/ci/ui-guard.yml`](examples/ci/ui-guard.yml)；审阅自己有发现的仓库时用 `--baseline` 冻结存量，只让新增发现挡住合入。
 
