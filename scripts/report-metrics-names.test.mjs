@@ -12,6 +12,7 @@ const gate = fs.readFileSync('scripts/validate-delivery-gate.mjs', 'utf8')
 const checker = fs.readFileSync('scripts/validate-review-report.mjs', 'utf8')
 const contract = fs.readFileSync('reviewer-contract.md', 'utf8')
 const table = fs.readFileSync('references/report-validation.md', 'utf8')
+const delivery = fs.readFileSync('references/delivery.md', 'utf8')
 
 // The name a report uses for each counter the runtime measurement produces.
 const reportName = {
@@ -78,4 +79,17 @@ test('the delivery gate demands the same seven counters the report names', () =>
   assert.ok(start > 0, 'the gate no longer lists runtime composition keys')
   const asked = [...gate.slice(start, gate.indexOf(']', start)).matchAll(/'([A-Za-z]+)'/g)].map((match) => match[1])
   assert.deepEqual(asked.sort(), Object.keys(reportName).sort())
+})
+
+test('the delivery doc names the same seven counters as the contract', () => {
+  const line = delivery.split('\n').find((text) => text.includes('The metrics must include'))
+  assert.ok(line, 'references/delivery.md no longer lists the metrics a handoff must carry')
+  for (const name of Object.values(reportName)) {
+    assert.ok(line.includes(name), `references/delivery.md calls a counter something other than ${name}`)
+  }
+  // Handing the same measurement two spellings lets a reviewer report the one
+  // the checker rejects, so the alternative wording is refused outright.
+  for (const wrong of ['divider', 'secondary-copy']) {
+    assert.equal(line.includes(wrong), false, `references/delivery.md renames a counter to ${wrong}`)
+  }
 })

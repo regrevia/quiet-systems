@@ -47,7 +47,7 @@ When a visual or data check fails, return to the earliest layer that caused it. 
 
 ### 5. Verify and review
 
-Every review handoff must include the design contract, interaction and icon inventory, API-to-view field mapping, state matrix, screenshot paths for 390 and 1440 CSS pixels, and composition metrics. The metrics must include title, secondary-copy, text-action, icon-only-action, surface, pill, and divider counts. Run the pressure scenarios in `references/pressure-scenarios.md` when changing this skill or when a generated page still looks generic.
+Every review handoff must include the design contract, interaction and icon inventory, API-to-view field mapping, state matrix, screenshot paths for 390 and 1440 CSS pixels, and composition metrics. The metrics must include title, secondary, text-action, icon-only-action, surface, pill, and separator counts. Run the pressure scenarios in `references/pressure-scenarios.md` when changing this skill or when a generated page still looks generic.
 
 Use `node "$SKILL_HOME/scripts/capture-preview.mjs" page.html output-directory` for previews shown in desktop clients. It uses the same 390/1440 CSS viewports, disables headless GPU tiling, captures complete JPEGs, and fails when an image is incomplete, clipped, or the page overflows horizontally. Do not treat a partially visible screenshot as a valid visual result.
 
