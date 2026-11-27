@@ -110,3 +110,66 @@ test('the README and the review reference both point at the contract', () => {
   assert.ok(review.includes('[reviewer contract](../reviewer-contract.md)'), 'references/review.md no longer links the contract')
   assert.ok(fs.existsSync('reviewer-contract.md'), 'the contract file the docs link to is missing')
 })
+
+// The metrics bullet tells an outside reviewer which names to write down. Each
+// name is a different measurement with its own spelling in two places: the
+// static source pass in scripts/ui-guard-review.mjs, and the browser pass in
+// scripts/measure-composition.mjs. A reviewer who reads a name the emitters do
+// not produce writes a number nobody can reproduce, so every name is traced to
+// a real counter here. The two passes are not a mirror image: the browser counts
+// the document title, the static pass counts heading elements, and secondary copy
+// has no static counter at all — it is measured as text weight, which is why the
+// table below is asymmetric instead of a single list of keys.
+const metricFields = {
+  title: { static: 'headingCount', browser: 'titleCount' },
+  secondary: { browser: 'secondaryCopyCount' },
+  'text-action': { static: 'textActionCount', browser: 'textActionCount' },
+  'icon-only-action': { static: 'iconOnlyActionCount', browser: 'iconOnlyActionCount' },
+  surface: { static: 'surfaceCount', browser: 'surfaceCount' },
+  pill: { static: 'pillCount', browser: 'pillCount' },
+  separator: { static: 'dividerCount', browser: 'dividerCount' }
+}
+
+function staticCounters() {
+  const source = fs.readFileSync(path.join('scripts', 'ui-guard-review.mjs'), 'utf8')
+  const start = source.indexOf('const composition = {')
+  const end = source.indexOf('metrics.push(composition)')
+  assert.ok(start > 0 && end > start, 'ui-guard-review.mjs no longer builds a composition row')
+  const literal = [...source.slice(start, end).matchAll(/^\s{4}([A-Za-z]+)[:,]/gm)].map((match) => match[1])
+  // The two action counts arrive through a spread, so they are read from the helper.
+  const helper = source.slice(source.indexOf('function actionMetrics'), source.indexOf('metrics.push(composition)'))
+  const returned = helper.match(/return \{ ([A-Za-z]+), ([A-Za-z]+) \}/)
+  assert.ok(returned, 'actionMetrics no longer returns a pair of counts')
+  return [...new Set([...literal, returned[1], returned[2]])].sort()
+}
+
+function browserCounters() {
+  const source = fs.readFileSync(path.join('scripts', 'measure-composition.mjs'), 'utf8')
+  const start = source.indexOf('return {')
+  const end = source.indexOf('metrics.push({ width')
+  assert.ok(start > 0 && end > start, 'measure-composition.mjs no longer returns a metrics row')
+  return [...source.slice(start, end).matchAll(/^\s{8}([A-Za-z]+):/gm)].map((match) => match[1]).sort()
+}
+
+test('every metric name the contract asks for is a counter an emitter really produces', () => {
+  const line = contract.split('\n').find((text) => text.startsWith('- composition metrics'))
+  assert.ok(line, 'the contract no longer documents composition metrics')
+  const staticKeys = staticCounters()
+  const browserKeys = browserCounters()
+  for (const [name, fields] of Object.entries(metricFields)) {
+    assert.ok(line.includes(name), `the contract stopped naming ${name}`)
+    for (const [pass, counter] of Object.entries(fields)) {
+      const available = pass === 'static' ? staticKeys : browserKeys
+      assert.ok(available.includes(counter), `${name} is read from ${counter}, which the ${pass} pass does not emit`)
+    }
+  }
+  assert.equal(line.includes('divider'), false, 'the contract invents a divider name; the emitters call it separator')
+  assert.equal('static' in metricFields.secondary, false, 'secondary copy is measured as text weight, not as a counter')
+})
+
+test('the evaluation doc states the asymmetry the metric table encodes', () => {
+  const doc = fs.readFileSync(path.join('docs', 'evaluation.md'), 'utf8')
+  assert.ok(doc.includes('scripts/reviewer-contract.test.mjs'), 'docs/evaluation.md no longer credits the metric-name test')
+  assert.ok(doc.includes('headingCount') && doc.includes('titleCount'), 'the doc must name both spellings of the title count')
+  assert.ok(doc.includes('副文案没有静态计数键'), 'the doc must say secondary copy has no static counter')
+})

@@ -75,6 +75,8 @@ MiniMax 审阅提示还要验证合计。另用图书归还月报检验迁移：
 
 - 七个 composition 指标名（`references/report-validation.md` 表格、`reviewer-contract.md`、`scripts/validate-review-report.mjs` 的正则）必须与 `scripts/measure-composition.mjs` 实际产出的计数键一一对应，由 `scripts/report-metrics-names.test.mjs` 强制。
 - `scripts/validate-delivery-gate.mjs` 索要的运行时指标键必须就是测量脚本写出的键，否则每一份 handoff 都会被一个没人能提供的字段挡住；由 `scripts/runtime-metrics-keys.test.mjs` 强制，并带一条缺键仍被拒的负向对照。
+- 同一个七项指标在 `reviewer-contract.md` 里是给人看的名字（`title`、`separator`），在代码里是计数键（`titleCount`、`dividerCount`）。两套词表不对称：浏览器侧数文档标题（`titleCount`），静态侧数标题元素（`headingCount`），副文案没有静态计数键、按文本重量测。每个名字都要能追到真实产出它的计数器，由 `scripts/reviewer-contract.test.mjs` 逐项核对，改名或删键都会红。
+- 交付门槛收到指标文件时，缺失计数键、计数写成字符串、负值、`route` 为空或不是名字，四种形状都给同一个 `runtimeMetrics:route-and-composition`；文件读不成 JSON 才是 `runtimeMetrics:json`；缺 390 或 1440 行是 `runtimeMetrics:390-and-1440`。三条码写在 `references/delivery.md`，由 `scripts/runtime-metrics-keys.test.mjs` 从脚本里读出码名逐条核对。
 - `reviewer-contract.md` 里那张状态清单必须与 `examples/view-state-contract.ts` 的八状态联合逐词对齐（加载、真实数据、空状态、错误、权限、离线、部分失败、恢复），由 `scripts/reviewer-contract.test.mjs` 强制；`README.md` 与 `references/review.md` 必须仍指向该文件。
 
 ### 同题实测：产品介绍与示例

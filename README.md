@@ -113,7 +113,7 @@ node scripts/validate-review-report.mjs --strict path/to/review.md
 `node --test scripts/*.test.mjs` 与 `npm test` 是同一条命令，由 `scripts/self-test-command.test.mjs` 绑定：两处写法必须一致，测试文件必须留在 `scripts/` 一层，否则通配符扫不到、套件静默变小。
 
 
-`examples/direction-samples/README.md` 规定需求不明确时如何制作多个低成本方向。`examples/fixtures/` 提供长文本、空状态和权限受限的 production-shaped fixture。`review-template.md` 记录信息层级、数据映射和验证证据。`reviewer-contract.md` 为 Claude Code、Kimi 和 MiniMax 提供统一的只读审阅提示、P0/P1/P2 分级、证据要求和未验证项格式；审阅器不能修改工作区，也不能把截图美感当成真实数据或交互证据。
+`examples/direction-samples/README.md` 规定需求不明确时如何制作多个低成本方向。`examples/fixtures/` 提供长文本、空状态和权限受限的 production-shaped fixture。`review-template.md` 记录信息层级、数据映射和验证证据。[`reviewer-contract.md`](reviewer-contract.md) 为 Claude Code、Kimi 和 MiniMax 提供统一的只读审阅提示、P0/P1/P2 分级、证据要求和未验证项格式；审阅器不能修改工作区，也不能把截图美感当成真实数据或交互证据。
 
 契约细节按需读：[Fixture 与状态契约](references/fixture-contract.md)、[审阅报告校验](references/report-validation.md)、[交付流程](references/delivery.md)。
 
