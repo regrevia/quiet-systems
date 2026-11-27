@@ -1,0 +1,64 @@
+// reviewer-contract.md is handed to another model together with a target project,
+// so it is the only place the reviewer learns what a complete report contains. The
+// checker that scores those reports lives in validate-review-report.mjs. If the two
+// drift, a reviewer produces a report the project then rejects — or worse, one it
+// accepts while a required check was never mentioned anywhere.
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
+import test from 'node:test'
+
+const contract = fs.readFileSync('reviewer-contract.md', 'utf8')
+const checker = fs.readFileSync(path.join('scripts', 'validate-review-report.mjs'), 'utf8')
+
+function evidenceNames() {
+  const start = checker.indexOf('const requiredEvidence = [')
+  const end = checker.indexOf('const evidencePattern')
+  assert.ok(start > 0 && end > start, 'validate-review-report.mjs no longer declares requiredEvidence')
+  return [...checker.slice(start, end).matchAll(/\{ name: '([^']+)', pattern: /g)].map((match) => match[1])
+}
+
+function sectionNames() {
+  const start = checker.indexOf('const requiredSections = [')
+  const end = checker.indexOf('const missing =')
+  return [...checker.slice(start, end).matchAll(/\{ name: '([^']+)', pattern: /g)].map((match) => match[1])
+}
+
+test('every strict evidence item the checker requires is named in the contract', () => {
+  const names = evidenceNames()
+  assert.equal(names.length, 10, 'the strict checklist changed size; update the contract and this test together')
+  const missing = names.filter((name) => !contract.includes(name))
+  assert.deepEqual(missing, [], 'a reviewer cannot supply evidence it was never asked for: ' + missing.join(', '))
+})
+
+test('the contract does not document a check the checker dropped', () => {
+  for (const name of ['design contract', 'interaction inventory', 'field mapping', 'state matrix', 'viewport evidence', 'composition metrics', 'empty-space pressure', 'text-button pressure', 'decoration pressure', 'copy deletion check']) {
+    assert.ok(contract.includes(name), `${name} is quoted in the contract but no longer exists — update both`)
+  }
+})
+
+test('the fixed output order matches the order the checker enforces', () => {
+  const names = sectionNames()
+  assert.deepEqual(names, ['P0', 'P1', 'P2', 'verified', 'unverified'])
+  const positions = ['1. `P0`', '2. `P1`', '3. `P2`', '4. 已验证的约束', '5. 尚未验证的项目'].map((line) => contract.indexOf(line))
+  assert.ok(positions.every((position) => position > 0), 'the contract no longer lists the five sections in order')
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions, 'the contract lists the sections out of order')
+  assert.match(checker, /sections must be ordered P0, P1, P2, verified, unverified/)
+})
+
+test('the read-only promise is stated before the reviewer is told what to look at', () => {
+  const promise = contract.indexOf('不要修改任何文件')
+  const checklist = contract.indexOf('使用 UI Guard 的设计约束')
+  assert.ok(promise > 0, 'the contract no longer forbids editing the workspace')
+  assert.ok(promise < checklist, 'the read-only rule must come before the review checklist, not after it')
+})
+
+test('rewriting the contract keeps the pressure checks paired with evidence', () => {
+  // The three pressure checks are only meaningful with a location, because a
+  // deletion argument without a file is an opinion.
+  for (const name of ['empty-space pressure', 'text-button pressure', 'decoration pressure', 'copy deletion check']) {
+    const line = contract.split('\n').find((text) => text.startsWith(`- ${name}`))
+    assert.ok(line, `${name} needs its own bullet in the contract`)
+    assert.match(line, /`[^`]+\.(?:tsx?|css|md):\d+`/, `${name} must show where the evidence is`)
+  }
+})

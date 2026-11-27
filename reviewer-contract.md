@@ -36,7 +36,18 @@
 
 每条发现控制在三句以内：位置（文件:行号或可复现步骤）、一句事实缺陷（读到了什么、为什么它不成立）、一句最小改法（改成什么）。论证、取舍和设计史写进“尚未验证的项目”或评审记录，不占发现条目。超过三句时先删解释，再删形容词。
 
-严格报告还必须包含设计合同、交互清单、字段映射、状态矩阵、390 和 1440 视口证据，以及 title、secondary、text-action、icon-only-action、surface、pill、separator 指标。缺少任何一项时，不能标记为完成。
+严格报告按 `--strict` 的清单逐项给证据，缺一项就不能标记为完成。清单原文在 `scripts/validate-review-report.mjs` 的 `requiredEvidence`，下面这段是它的说明，两处由 `scripts/reviewer-contract.test.mjs` 同步。
+
+- design contract 设计合同：这次任务要求什么层级，产品语义允许哪些例外。证据：`reviewer-contract.md:39`
+- interaction inventory 交互清单：每个动作的角色、标签形式与可达名称。
+- field mapping 字段映射：界面上的每个字段来自哪个数据源，缺数据时显示什么。
+- state matrix 状态矩阵：加载、空、错误、权限、离线、陈旧、部分失败、恢复八种状态各写一行。
+- viewport evidence：390 与 1440 视口各看过哪一屏，截了什么。
+- composition metrics 指标：title、secondary、text-action、surface、pill、separator 的逐屏计数，作为删除前后的对照。
+- empty-space pressure：副标题与留白的删除复测，写清删除后重排结果和证据：`src/Dashboard.tsx:41`
+- text-button pressure：文字按钮保留或改成图标动作的结论，写清为什么图标仍可发现，证据：`src/Toolbar.tsx:18`
+- decoration pressure：渐变、玻璃、发光这类装饰的删除决定，证据：`src/Card.css:22`
+- copy deletion check：文案删除复测重跑后，哪个用户决策或恢复动作发生了变化，证据：`src/Settings.tsx:64`
 
 保留副标题、解释性文案、渐变、玻璃、发光、状态胶囊或额外边框时，必须同时写出删除前后的截图路径，并说明删除后哪一个用户决策、状态辨认或恢复动作发生变化。只写“更清晰”“更高级”“帮助理解”不构成证据。
 

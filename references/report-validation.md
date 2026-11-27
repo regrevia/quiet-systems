@@ -64,6 +64,8 @@ P0、P1、P2 三段各自从章节名到下一章之间，要么以 `无 P0`、`
 
 结尾可能追加三种行，彼此独立：`N finding(s) matched the baseline`（被 `--baseline` 冻结的存量）、每个 `skipped` 文件一行（`maxFileBytes`、`symlink`、读取失败）、以及 `scan incomplete`。前两者是声明的边界，不改变退出码；读取失败是覆盖缺口，退 `2`。
 
+上段点名的三种行由 `scripts/report-lines.test.mjs` 逐字对着 `scripts/ui-guard-review.mjs` 校验：文档写了 `scan incomplete` 而脚本不再打印它时，测试直接失败。读者按名字 grep 输出，名字和实现对不上的代价比少一行更大。
+
 输出接到管道中途被关掉（`ui-guard review . | head`）不算失败：脚本对 `EPIPE` 直接退出 `0`，不打印 Node 堆栈。
 
 ## 退出码
