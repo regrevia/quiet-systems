@@ -121,4 +121,70 @@ const onlyCopyNamesResult = spawnSync(process.execPath, [script, '--strict', onl
 assert.equal(onlyCopyNamesResult.status, 1)
 assert.match(onlyCopyNamesResult.stderr, /missing composition metrics/)
 
+// One label losing its evidence must be blamed on that label alone. The suite
+// proved the block rule worked for a paragraph, not that each of the four labels
+// is checked on its own, so a loop that skipped the fourth label would still have
+// looked green.
+const pressureLines = {
+  'empty-space pressure': 'empty-space pressure：删除副标题并重排空白。证据：src/Editor.tsx:18。',
+  'text-button pressure': 'text-button pressure：改用熟悉图标并拒绝纯文字按钮。证据：src/Toolbar.tsx:24。',
+  'decoration pressure': 'decoration pressure：拒绝渐变和玻璃。证据：src/Surface.css:9。',
+  'copy deletion check': 'copy deletion check：删除文案后重跑，结果不变。证据：src/Copy.tsx:31。'
+}
+function pressureReport(dropped) {
+  const lines = Object.entries(pressureLines)
+    .map(([label, line]) => (label === dropped ? `${label}：删除多余装饰，效果很好。` : line))
+    .join('\n')
+  return `# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n指标：title=1 secondary=0 text-action=0 surface=1 pill=0 separator=0。\n${lines}\n`
+}
+for (const label of Object.keys(pressureLines)) {
+  const file = path.join(root, `strict-pressure-without-${label.replaceAll(' ', '-')}.md`)
+  fs.writeFileSync(file, pressureReport(label))
+  const result = spawnSync(process.execPath, [script, '--strict', file], { encoding: 'utf8' })
+  assert.equal(result.status, 1, `${label} without evidence must fail the strict check`)
+  assert.match(result.stderr, new RegExp(`${label} needs file, line, or evidence`), `${label} was not blamed for its own missing evidence`)
+  for (const other of Object.keys(pressureLines)) {
+    if (other !== label) assert.doesNotMatch(result.stderr, new RegExp(`${other} needs`), `${label} was blamed for ${other}, which still has evidence`)
+  }
+}
+
+// The three graded sections share one loop, so proving P1 is checked says
+// nothing about P2 — the loop could stop one section early and only P1 would
+// still be caught.
+const strictMissingP2Evidence = path.join(root, 'strict-missing-p2-evidence.md')
+fs.writeFileSync(strictMissingP2Evidence, '# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n分隔线太多，需要理顺。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n指标：title=1 secondary=0 text-action=0 surface=1 pill=0 separator=0。\n' + Object.values(pressureLines).join('\n') + '\n')
+const strictMissingP2EvidenceResult = spawnSync(process.execPath, [script, '--strict', strictMissingP2Evidence], { encoding: 'utf8' })
+assert.equal(strictMissingP2EvidenceResult.status, 1)
+assert.match(strictMissingP2EvidenceResult.stderr, /P2 findings need file, line, or evidence/)
+assert.doesNotMatch(strictMissingP2EvidenceResult.stderr, /P1 findings need/, 'P2 without evidence must not be blamed on P1')
+
+// P0 was never the section under test: every fixture said 无 P0, so a loop that
+// started at P1 would still have been green. P0 is the section that blocks a
+// handoff, so it gets its own failing fixture.
+const strictMissingP0Evidence = path.join(root, 'strict-missing-p0-evidence.md')
+fs.writeFileSync(strictMissingP0Evidence, '# Review\n\n## P0\n主按钮点不动，无法交付。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n设计合同：已冻结。\n交互清单：已完成。\n字段映射：已核对。\n状态矩阵：已覆盖。\n视口：390 / 1440。\n指标：title=1 secondary=0 text-action=0 surface=1 pill=0 separator=0。\n' + Object.values(pressureLines).join('\n') + '\n')
+const strictMissingP0EvidenceResult = spawnSync(process.execPath, [script, '--strict', strictMissingP0Evidence], { encoding: 'utf8' })
+assert.equal(strictMissingP0EvidenceResult.status, 1)
+assert.match(strictMissingP0EvidenceResult.stderr, /P0 findings need file, line, or evidence/)
+assert.doesNotMatch(strictMissingP0EvidenceResult.stderr, /P1 findings need/, 'P0 without evidence must not be blamed on P1')
+
+// The doc now claims each pressure label and each graded section is judged on its
+// own. A claim like that is only worth making if the labels it promises are the
+// labels the validator actually loops over.
+const reportDoc = fs.readFileSync(path.resolve('references/report-validation.md'), 'utf8')
+const labelCarrier = reportDoc.split('\n').find((line) => line.includes('四个标签各算各的'))
+assert.ok(labelCarrier, 'references/report-validation.md no longer says the pressure labels are judged separately')
+for (const label of Object.keys(pressureLines)) {
+  assert.match(labelCarrier, new RegExp(label.replaceAll('-', '.?')), `the doc omits the ${label} label the validator checks`)
+}
+assert.match(labelCarrier, /P0`?、`P1`?、`P2`/, 'the doc no longer says the graded sections are judged separately')
+const validatorLabels = fs.readFileSync(path.resolve('scripts/validate-review-report.mjs'), 'utf8')
+  .match(/const pressureLabels = \[([^\]]+)\]/)
+assert.ok(validatorLabels, 'validator no longer declares its pressure labels in one literal')
+assert.deepEqual(
+  [...validatorLabels[1].matchAll(/'([a-z- ]+)'/g)].map((match) => match[1]),
+  Object.keys(pressureLines),
+  'the doc and the validator disagree about which pressure labels exist'
+)
+
 process.stdout.write('validate-review-report self-test passed\n')

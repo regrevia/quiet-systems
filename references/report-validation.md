@@ -45,7 +45,7 @@
 
 每个名字各自都算数：只要报告里出现其中一个（例如只给 `icon-only-action=3`），composition metrics 一项即视为覆盖，因为图标按钮与文字按钮是两个互斥计数器，只测其一也是实测。反过来，只写「指标：见上一节」或全用中文标签名（`标题`、`副文案`）都不算，校验器会报 `missing composition metrics`。
 
-后四项按标签切块检查：从标签出现的位置到下一个压力标签之间，必须出现 `证据`、`evidence`、`位置`、`文件`、`file`、`line` 之一，并带 `行 N`、`line N` 或带行号的文件名（`.ts`、`.tsx`、`.js`、`.jsx`、`.vue`、`.svelte`、`.css`、`.md`、`.json`）。否则报 `<标签> needs file, line, or evidence`。
+四个压力标签——`empty-space pressure`、`text-button pressure`、`decoration pressure`、`copy deletion check`——按标签切块检查：从标签出现的位置到下一个压力标签之间，必须出现 `证据`、`evidence`、`位置`、`文件`、`file`、`line` 之一，并带 `行 N`、`line N` 或带行号的文件名（`.ts`、`.tsx`、`.js`、`.jsx`、`.vue`、`.svelte`、`.css`、`.md`、`.json`）。否则报 `<标签> needs file, line, or evidence`。四个标签各算各的：只有缺证据的那个标签会被点名，其余三个仍带证据，不会替它背锅；`P0`、`P1`、`P2` 三段也各算各的，只剩一段没写证据时只报那一段。
 
 P0、P1、P2 三段各自从章节名到下一章之间，要么以 `无 P0`、`没有 P0`、`none P0`、`no P0` 这样的写法声明无问题，要么提供证据。证据的两种可接受写法：
 
