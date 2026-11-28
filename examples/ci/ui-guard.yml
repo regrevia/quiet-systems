@@ -1,6 +1,10 @@
 name: ui-guard
 on: [pull_request]
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   review:
     runs-on: ubuntu-latest
@@ -10,12 +14,16 @@ jobs:
         with:
           node-version: 24
       - run: npm install --save-dev @regrevia/ui-guard
-      - name: Static review
-        run: npx ui-guard-review --json . > ui-guard-report.json || exit 1
+      - name: Static review (SARIF)
+        id: sarif
+        continue-on-error: true
+        run: npx ui-guard-review --format sarif . > ui-guard.sarif
+      - name: Upload SARIF to GitHub Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ui-guard.sarif
+      - name: Static review (PR annotations & gate)
+        run: npx ui-guard-review --format github .
       - name: Fixture contract
         run: node node_modules/@regrevia/ui-guard/scripts/validate-fixtures.mjs examples/fixtures
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ui-guard-report
-          path: ui-guard-report.json

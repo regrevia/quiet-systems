@@ -347,6 +347,93 @@ for (const finding of wildcard.findings) {
   assert.deepEqual(Object.keys(finding).sort(), ['evidence', 'file', 'line', 'message', 'remediation', 'rule', 'severity'])
 }
 
+// `--format github` and `--format sarif` emit machine-readable CI formats while
+// preserving exit codes and emitting valid SARIF even on incomplete scans.
+const ciRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-ci-'))
+write3(ciRoot, 'src/Alert.tsx', '<p>出了点问题，请稍后再试</p>\n<p>全新体验</p>\n')
+const ghRun = spawnSync(process.execPath, [script, '--format', 'github', ciRoot], { encoding: 'utf8', cwd: ciRoot })
+assert.equal(ghRun.status, 1, ghRun.stdout + ghRun.stderr)
+assert.match(ghRun.stdout, /^::error file=src\/Alert\.tsx,line=1,title=QS-COPY-013 \(P1\)::/m)
+assert.match(ghRun.stdout, /^::warning file=src\/Alert\.tsx,line=2,title=QS-SLOP-003 \(P2\)::/m)
+assert.match(ghRun.stdout, /^::notice::ui-guard review: 2 finding\(s\)/m)
+
+const sarifRun = spawnSync(process.execPath, [script, '--format', 'sarif', ciRoot], { encoding: 'utf8', cwd: ciRoot })
+assert.equal(sarifRun.status, 1, sarifRun.stdout + sarifRun.stderr)
+const sarif = JSON.parse(sarifRun.stdout)
+assert.equal(sarif.version, '2.1.0')
+assert.equal(sarif.runs[0].tool.driver.name, 'ui-guard')
+assert.equal(sarif.runs[0].tool.driver.rules.length, 31)
+assert.equal(sarif.runs[0].results.length, 2)
+assert.equal(sarif.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri, 'src/Alert.tsx')
+assert.equal(sarif.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uriBaseId, '%SRCROOT%')
+assert.equal(sarif.runs[0].invocations[0].executionSuccessful, true)
+
+const sarifIncomplete = spawnSync(process.execPath, [script, '--format', 'sarif', path.join(ciRoot, 'missing-dir')], { encoding: 'utf8', cwd: ciRoot })
+assert.equal(sarifIncomplete.status, 2)
+const sarifErr = JSON.parse(sarifIncomplete.stdout)
+assert.equal(sarifErr.runs[0].invocations[0].executionSuccessful, false)
+assert.ok(sarifErr.runs[0].invocations[0].toolExecutionNotifications.length > 0)
+
+const badFormat = spawnSync(process.execPath, [script, '--format', 'xml', ciRoot], { encoding: 'utf8', cwd: ciRoot })
+assert.equal(badFormat.status, 2)
+const conflictFormat = spawnSync(process.execPath, [script, '--json', '--format', 'sarif', ciRoot], { encoding: 'utf8', cwd: ciRoot })
+assert.equal(conflictFormat.status, 2)
+
+// `--include-i18n` is opt-in so existing CI pipelines never break on upgrade; when
+// enabled it scans pure-string locale JSON dictionaries while stripping interpolations.
+const i18nRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-i18n-'))
+write3(i18nRoot, 'locales/zh-CN.json', JSON.stringify({
+  errors: { generic: '出了点问题，请稍后再试' },
+  cta: { hero: '🚀 一键洞察，智能治理全链路' },
+  form: { emailPlaceholder: 'example@example.com' },
+  greeting: '欢迎 {USER_ID}，共 {{count}} 条记录'
+}, null, 2))
+write3(i18nRoot, 'package.json', JSON.stringify({ name: 'app', version: '1.0.0', description: '出了点问题' }, null, 2))
+const i18nOff = spawnSync(process.execPath, [script, '--json', i18nRoot], { encoding: 'utf8', cwd: i18nRoot })
+assert.equal(i18nOff.status, 0, i18nOff.stdout + i18nOff.stderr)
+const i18nOn = spawnSync(process.execPath, [script, '--json', '--include-i18n', i18nRoot], { encoding: 'utf8', cwd: i18nRoot })
+assert.equal(i18nOn.status, 1, i18nOn.stdout + i18nOn.stderr)
+const i18nReport = JSON.parse(i18nOn.stdout)
+const i18nRules = new Set(i18nReport.findings.map((item) => item.rule))
+assert(i18nRules.has('QS-COPY-013'))
+assert(i18nRules.has('QS-COPY-010'))
+assert(i18nRules.has('QS-SLOP-002'))
+assert(!i18nReport.findings.some((item) => item.file.endsWith('package.json')))
+assert(!i18nReport.findings.some((item) => item.evidence.includes('emailPlaceholder')))
+assert(!i18nReport.findings.some((item) => item.rule === 'QS-COPY-008'))
+
+// Claude Code PostToolUse hook blocks (exit 2) on P0/P1, stays advisory (exit 0) on P2,
+// and rejects symlink/outside-project paths without stalling the edit loop.
+const hookScript = path.join(repoRoot, 'examples', 'hooks', 'claude-post-edit.mjs')
+const hookP1 = spawnSync(process.execPath, [hookScript], {
+  cwd: ciRoot,
+  env: { ...process.env, CLAUDE_PROJECT_DIR: ciRoot, UI_GUARD_REVIEW_SCRIPT: script },
+  input: JSON.stringify({ tool_input: { file_path: 'src/Alert.tsx' } }),
+  encoding: 'utf8'
+})
+assert.equal(hookP1.status, 2, hookP1.stderr)
+assert.match(hookP1.stderr, /QS-COPY-013/)
+
+write3(ciRoot, 'src/P2Only.tsx', '<p>全新体验</p>\n')
+const hookP2 = spawnSync(process.execPath, [hookScript], {
+  cwd: ciRoot,
+  env: { ...process.env, CLAUDE_PROJECT_DIR: ciRoot, UI_GUARD_REVIEW_SCRIPT: script },
+  input: JSON.stringify({ tool_input: { file_path: 'src/P2Only.tsx' } }),
+  encoding: 'utf8'
+})
+assert.equal(hookP2.status, 0, hookP2.stderr)
+assert.match(hookP2.stderr, /QS-SLOP-003/)
+
+const hookOutside = spawnSync(process.execPath, [hookScript], {
+  cwd: ciRoot,
+  env: { ...process.env, CLAUDE_PROJECT_DIR: ciRoot, UI_GUARD_REVIEW_SCRIPT: script },
+  input: JSON.stringify({ tool_input: { file_path: '/etc/hosts' } }),
+  encoding: 'utf8'
+})
+assert.equal(hookOutside.status, 0)
+
+fs.rmSync(ciRoot, { recursive: true, force: true })
+fs.rmSync(i18nRoot, { recursive: true, force: true })
 fs.rmSync(root, { recursive: true, force: true })
 fs.rmSync(clean, { recursive: true, force: true })
 process.stdout.write('ui-guard cli self-test passed\n')

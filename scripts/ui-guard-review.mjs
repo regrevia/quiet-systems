@@ -21,8 +21,9 @@ process.stdout.on('error', (error) => {
 })
 
 const args = process.argv.slice(2)
-const json = args.includes('--json')
+const jsonFlag = args.includes('--json')
 const includeMarkdown = args.includes('--include-markdown')
+const includeI18n = args.includes('--include-i18n')
 // Value flags consume the next argument so a path is never mistaken for a root.
 const valueOf = (flag) => {
   const index = args.indexOf(flag)
@@ -30,7 +31,8 @@ const valueOf = (flag) => {
 }
 const baselinePath = valueOf('--baseline')
 const writeBaselinePath = valueOf('--write-baseline')
-const usage = 'usage: ui-guard-review [--json] [--include-markdown] [--baseline PATH] [--write-baseline PATH] [ROOT...]\n'
+const formatArg = valueOf('--format')
+const usage = 'usage: ui-guard-review [--format text|json|github|sarif] [--json] [--include-markdown] [--include-i18n] [--baseline PATH] [--write-baseline PATH] [ROOT...]\n'
 // A value flag given nothing is a usage error. `--write-baseline ""` used to
 // reach fs.writeFileSync and crash with a stack trace, which reads as a bug in
 // the project being reviewed rather than in the command line.
@@ -42,12 +44,26 @@ for (const [flag, value] of [['--baseline', baselinePath], ['--write-baseline', 
     process.exit(2)
   }
 }
+const allowedFormats = new Set(['text', 'json', 'github', 'sarif'])
+if (formatArg !== null) {
+  if (formatArg.trim() === '' || formatArg.startsWith('--') || !allowedFormats.has(formatArg)) {
+    process.stderr.write(`ui-guard review: --format must be one of text, json, github, sarif\n`)
+    process.stderr.write(usage)
+    process.exit(2)
+  }
+}
+if (jsonFlag && formatArg !== null && formatArg !== 'json') {
+  process.stderr.write(`ui-guard review: --json cannot be combined with --format ${formatArg}\n`)
+  process.stderr.write(usage)
+  process.exit(2)
+}
+const format = formatArg ?? (jsonFlag ? 'json' : 'text')
 const consumed = new Set()
-for (const flag of ['--baseline', '--write-baseline']) {
+for (const flag of ['--baseline', '--write-baseline', '--format']) {
   const index = args.indexOf(flag)
   if (index !== -1) consumed.add(index + 1)
 }
-const knownFlags = new Set(['--json', '--include-markdown', '--baseline', '--write-baseline', '--help'])
+const knownFlags = new Set(['--json', '--format', '--include-markdown', '--include-i18n', '--baseline', '--write-baseline', '--help'])
 // A misspelled flag used to be dropped on the floor, which turned `--basline`
 // into a silent pass. An unrecognised flag is now a usage error.
 const unknownFlags = args.filter((arg) => arg.startsWith('--') && !knownFlags.has(arg))
@@ -384,6 +400,69 @@ function actionMetrics(source) {
   return { textActionCount, iconOnlyActionCount }
 }
 
+function isStringOnlyObject(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const entries = Object.values(value)
+  if (entries.length === 0) return false
+  return entries.every((entry) => typeof entry === 'string' || isStringOnlyObject(entry))
+}
+
+function isI18nJsonFile(file, text) {
+  if (!includeI18n || path.extname(file).toLowerCase() !== '.json') return false
+  if (!isProductionSource(file)) return false
+  const base = path.basename(file)
+  const inI18nDir = /(?:^|[/\\])(?:locales?|i18n|messages|lang|translations?)([/\\]|$)/i.test(file)
+  const localeBase = /^(?:zh|en|ja|ko|fr|de|es|pt|ru|it)(?:[-_][A-Za-z0-9]+)?\.json$/i.test(base)
+  if (!inI18nDir && !localeBase) return false
+  try {
+    return isStringOnlyObject(JSON.parse(text))
+  } catch {
+    return false
+  }
+}
+
+function extractJsonStringLeaves(text) {
+  const tokens = []
+  let i = 0
+  let line = 1
+  while (i < text.length) {
+    const ch = text[i]
+    if (ch === '\n') { line += 1; i += 1; continue }
+    if (ch === '"') {
+      const start = i
+      const startLine = line
+      i += 1
+      while (i < text.length) {
+        if (text[i] === '\\') { i += 2; continue }
+        if (text[i] === '\n') line += 1
+        if (text[i] === '"') { i += 1; break }
+        i += 1
+      }
+      const raw = text.slice(start, i)
+      try {
+        tokens.push({ type: 'string', value: JSON.parse(raw), raw, line: startLine })
+      } catch {
+        tokens.push({ type: 'string', value: raw.slice(1, -1), raw, line: startLine })
+      }
+      continue
+    }
+    if (ch === ':') { tokens.push({ type: 'colon', line }); i += 1; continue }
+    if (ch === '{' || ch === '}' || ch === '[' || ch === ']' || ch === ',') {
+      tokens.push({ type: ch, line })
+      i += 1
+      continue
+    }
+    i += 1
+  }
+  const leaves = []
+  for (let idx = 0; idx + 2 < tokens.length; idx += 1) {
+    if (tokens[idx].type === 'string' && tokens[idx + 1].type === 'colon' && tokens[idx + 2].type === 'string') {
+      leaves.push({ key: tokens[idx].value, value: tokens[idx + 2].value, line: tokens[idx + 2].line, raw: `${tokens[idx].raw}: ${tokens[idx + 2].raw}` })
+    }
+  }
+  return leaves
+}
+
 function inspect(file) {
   reviewed += 1
   let text
@@ -492,6 +571,67 @@ function inspect(file) {
   const metricSourcedMarker = /(?:ui-guard|quiet-systems):\s*metric-sourced/i
   const accentReviewedMarker = /(?:ui-guard|quiet-systems):\s*accent-reviewed/i
   const knownAbbreviations = new Set(['API', 'URL', 'URI', 'ID', 'UI', 'UX', 'JSON', 'HTML', 'CSS', 'HTTP', 'HTTPS', 'PDF', 'CSV', 'PNG', 'JPEG', 'SVG', 'OK', 'CPU', 'RAM', 'GPU', 'USB', 'OS', 'SQL', 'DNS', 'SDK', 'CLI', 'TLS', 'SSH', 'IP', 'MFA', 'OTP', 'AI', 'ML', 'GPS', 'FAQ', 'UUID', 'RSS', 'IDE', 'REST', 'YAML', 'UTF'])
+  if (isI18nJsonFile(file, text)) {
+    const skippedKey = /(?:placeholder|hint|example|comment|schema)$/i
+    for (const leaf of extractJsonStringLeaves(text)) {
+      if (leaf.key.startsWith('_') || leaf.key.startsWith('$') || skippedKey.test(leaf.key)) continue
+      const cleaned = leaf.value.replace(/\{\{[^}]*\}\}|\{[^}]*\}|%[sdif]|%\d+\$[sdif]|<\/?\d+>/g, ' ').replace(/\s+/g, ' ').trim()
+      if (!cleaned) continue
+      const evidence = leaf.raw
+      if (/\S\s*[·•⋅∙]\s*\S/.test(cleaned)) { // ui-guard: ignore QS-COPY-001 — detector source
+        add(file, leaf.line, 'QS-COPY-001', '行内装饰性分隔符会把不同字段收缩成一段不可扫描文本，请拆成独立元素。', evidence)
+      }
+      if (/\S\s+[|／/]\s+\S/.test(cleaned) && !/https?:\/\//.test(cleaned) && !/\d+\s*\/\s*\d+/.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-002', '不要用竖线或斜杠替代中点连接元信息，请使用布局和语义字段。', evidence)
+      }
+      if (copyWeight(cleaned) > maxCopyLength) {
+        add(file, leaf.line, 'QS-COPY-003', `可见 UI 文案过长${budgetNote}，可能把解释性文本塞进了当前层级。请考虑摘要、详情或错误恢复区域。`, evidence)
+      }
+      if (defensiveCopy.test(cleaned) && !concreteSafetyCondition.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-004', '发现防御性或礼貌性解释文案。删除无法改变当前决策的安抚、免责声明和“方便说明”，只保留具体条件、结果、限制或恢复动作。', evidence)
+      }
+      if (disclaimerCopy.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-005', '发现免责声明式文案。只保留会改变当前操作的具体限制，并放在对应决策旁，删除泛化防御和责任转移。', evidence)
+      }
+      if (promiseCopy.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-006', '发现无法由当前界面证明的未来承诺或安抚语。改成已完成的结果、具体日期或当前可执行动作。', evidence)
+      }
+      if (metaphorCopy.test(cleaned) && !concreteActionNearby.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-007', '发现用抽象隐喻或行话代替具体动作。请写成「动词 + 具体对象」，并在评审里给出这句话的可执行含义。', evidence)
+      }
+      const bare = [...new Set([...cleaned.matchAll(abbreviationToken)].map((match) => match[1]))]
+        .filter((token) => !knownAbbreviations.has(token))
+        .filter((token) => !new RegExp(`\\b${token}\\s*[（(]`).test(cleaned))
+      if (bare.length > 0) {
+        add(file, leaf.line, 'QS-COPY-008', `发现首次出现且未解释的缩写 ${bare.join(', ')}。请写出完整说法，或紧跟括号说明。`, evidence)
+      }
+      if (aphorismCopy.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-009', aphorismMessage, evidence)
+      }
+      if (compressedCopy.test(cleaned) && !concreteActionNearby.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-010', '发现被压缩成能力名的短语，宾语被省掉了。请写出谁把什么东西变成什么，让读者能指认它对应哪个动作。', evidence)
+      }
+      if (aiRhythmPattern.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-011', aiRhythmMessage, evidence)
+      }
+      if (unverifiedClaimCopy.test(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-012', unverifiedClaimMessage, evidence)
+      }
+      if (isLazyStatusCopy(cleaned)) {
+        add(file, leaf.line, 'QS-COPY-013', lazyStatusMessage, evidence)
+      }
+      if (decorativeEmoji.test(cleaned)) {
+        add(file, leaf.line, 'QS-SLOP-002', '发现用装饰 Emoji 充当 UI 图标或标题前缀，请替换为统一矢量图标或纯文字。', evidence)
+      }
+      if (copySlop.test(cleaned)) {
+        add(file, leaf.line, 'QS-SLOP-003', '发现可能脱离当前对象和动作的泛化营销文案。请改成具体对象、结果或下一步动作，或在评审中说明它的产品语义。', evidence)
+      }
+      if (hardPlaceholder.test(cleaned) || fakeEntity.test(cleaned)) {
+        add(file, leaf.line, 'QS-PROTOTYPE-001', '生产源文件中出现演示数据命名或硬编码占位文本。请通过明确的 adapter 和生产数据类型接入，或将其移到 prototype、test 或 fixture 目录。', evidence)
+      }
+    }
+    return
+  }
   lines.forEach((source, index) => {
     const line = index + 1
     const trimmed = source.trim()
@@ -913,8 +1053,91 @@ const output = {
   skipped
 }
 
-if (json) {
+const packageVersion = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version ?? '0.0.0'
+  } catch {
+    return '0.0.0'
+  }
+})()
+
+const toPosixUri = (file) => displayPath(file).split(path.sep).join('/').replace(/^\.\//, '')
+const escapeGhProp = (value) => String(value).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A').replace(/:/g, '%3A').replace(/,/g, '%2C')
+const escapeGhData = (value) => String(value).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A')
+
+function buildSarif() {
+  const allRules = Object.keys(severityByRule).sort()
+  const ruleIndexMap = new Map(allRules.map((rule, index) => [rule, index]))
+  const rules = allRules.map((rule) => ({
+    id: rule,
+    shortDescription: { text: `${rule} (${severityByRule[rule]})` },
+    help: { text: remediationByRule[rule] ?? '' },
+    helpUri: 'https://github.com/regrevia/ui-guard/blob/main/references/review.md',
+    defaultConfiguration: { level: severityByRule[rule] === 'P2' ? 'warning' : 'error' },
+    properties: { severity: severityByRule[rule] }
+  }))
+  const results = findings.map((item) => {
+    const physicalLocation = {
+      artifactLocation: { uri: toPosixUri(item.file), uriBaseId: '%SRCROOT%' }
+    }
+    if (Number.isInteger(item.line) && item.line >= 1) {
+      physicalLocation.region = { startLine: item.line }
+    }
+    return {
+      ruleId: item.rule,
+      ruleIndex: ruleIndexMap.get(item.rule),
+      level: item.severity === 'P2' ? 'warning' : 'error',
+      message: { text: item.remediation ? `${item.message} ${item.remediation}` : item.message },
+      locations: [{ physicalLocation }],
+      properties: { severity: item.severity }
+    }
+  })
+  const notifications = skipped
+    .filter((item) => item.reason !== 'maxFileBytes' && item.reason !== 'symlink')
+    .map((item) => ({
+      level: 'error',
+      message: { text: `Failed to read ${toPosixUri(item.file)} (${item.reason})` }
+    }))
+  return {
+    $schema: 'https://json.schemastore.org/sarif-2.1.0.json',
+    version: '2.1.0',
+    runs: [{
+      tool: {
+        driver: {
+          name: 'ui-guard',
+          version: packageVersion,
+          informationUri: 'https://github.com/regrevia/ui-guard',
+          rules
+        }
+      },
+      results,
+      invocations: [{
+        executionSuccessful: !incomplete,
+        toolExecutionNotifications: notifications
+      }]
+    }]
+  }
+}
+
+if (format === 'json') {
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`)
+} else if (format === 'sarif') {
+  process.stdout.write(`${JSON.stringify(buildSarif(), null, 2)}\n`)
+} else if (format === 'github') {
+  for (const item of findings) {
+    const level = item.severity === 'P2' ? 'warning' : 'error'
+    const props = [`file=${escapeGhProp(toPosixUri(item.file))}`]
+    if (Number.isInteger(item.line) && item.line >= 1) props.push(`line=${item.line}`)
+    props.push(`title=${escapeGhProp(`${item.rule} (${item.severity})`)}`)
+    const body = item.remediation ? `${item.message} → ${item.remediation}` : item.message
+    process.stdout.write(`::${level} ${props.join(',')}::${escapeGhData(body)}\n`)
+  }
+  const counts = ['P0', 'P1', 'P2'].filter((severity) => bySeverity[severity] > 0).map((severity) => `${bySeverity[severity]} ${severity}`)
+  const summaryText = findings.length === 0
+    ? `ui-guard review: no static findings (${reviewed} file(s) reviewed)`
+    : `ui-guard review: ${findings.length} finding(s) (${counts.join(', ')}) in ${reviewed} file(s)`
+  process.stdout.write(`::notice::${escapeGhData(summaryText)}\n`)
+  if (incomplete) process.stdout.write('::error::ui-guard review: scan incomplete\n')
 } else if (findings.length === 0) {
   process.stdout.write(incomplete ? 'ui-guard review: scan incomplete\n' : `ui-guard review: no static findings (${reviewed} file(s) reviewed)\n`)
   if (reviewed === 0) {

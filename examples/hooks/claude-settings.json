@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node node_modules/@regrevia/ui-guard/examples/hooks/claude-post-edit.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}

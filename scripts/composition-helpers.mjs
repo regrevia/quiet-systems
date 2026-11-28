@@ -1,6 +1,7 @@
 /**
- * Pure geometry, color, shadow, and contrast helpers shared between Node unit
- * tests and the Chromium DOM audit in scripts/measure-composition.mjs.
+ * Pure geometry, color, shadow, contrast, and CJK/numeric typography helpers
+ * shared between Node unit tests and the Chromium DOM audit in
+ * scripts/measure-composition.mjs.
  *
  * `browserHelperSource()` serialises these exact functions into the page so
  * the browser runtime and the Node tests always execute the same implementation.
@@ -113,6 +114,37 @@ export function isNonConcentricChild({ parentBox, parentRadius, parentPadding, c
   return nearX && nearY && childRadius > parentRadius - pPad + 1
 }
 
+export function resolveLineHeightRatio(lineHeightRaw, fontSize) {
+  if (!Number.isFinite(fontSize) || fontSize <= 0) return null
+  if (!lineHeightRaw || lineHeightRaw === 'normal') return 1.2
+  const numeric = Number.parseFloat(lineHeightRaw)
+  if (!Number.isFinite(numeric) || numeric <= 0) return null
+  return lineHeightRaw.endsWith('px') ? numeric / fontSize : numeric
+}
+
+export function isTightCjkParagraph({ text, fontSize, lineHeightRaw, lineCount }) {
+  const cjkCount = (text.match(/[\u4e00-\u9fff]/g) || []).length
+  if (cjkCount < 12 || lineCount < 2) return false
+  const ratio = resolveLineHeightRatio(lineHeightRaw, fontSize)
+  return ratio !== null && ratio < 1.45
+}
+
+export function isCrampedSmallCjkBold({ text, fontSize, fontWeight }) {
+  if (!/[\u4e00-\u9fff]/.test(text)) return false
+  return fontSize <= 12 && fontWeight >= 700
+}
+
+export function isNumericCellText(text) {
+  const trimmed = (text || '').trim()
+  if (!trimmed || trimmed.length > 24) return false
+  return /^[+-]?[$€£¥₩]?\d[\d,.]*(?:%|:[\d:]+)?$/.test(trimmed)
+}
+
+export function isTabularOrMonospace({ fontVariantNumeric, fontFamily }) {
+  if (/\btabular-nums\b/i.test(fontVariantNumeric || '')) return true
+  return /\b(?:ui-monospace|monospace|sfmono|sf mono|menlo|monaco|consolas|jetbrains mono|fira code|geist mono|ibm plex mono|source code pro|roboto mono)\b/i.test(fontFamily || '')
+}
+
 export function browserHelperSource() {
   const fns = [
     parseRgbColor,
@@ -123,7 +155,12 @@ export function browserHelperSource() {
     contrastRatio,
     resolveCanvasFallback,
     resolveContrastChain,
-    isNonConcentricChild
+    isNonConcentricChild,
+    resolveLineHeightRatio,
+    isTightCjkParagraph,
+    isCrampedSmallCjkBold,
+    isNumericCellText,
+    isTabularOrMonospace
   ].map((fn) => fn.toString()).join('\n')
-  return `(() => {\n${fns}\nwindow.__uiGuardMath = { parseRgbColor, splitShadowLayers, hasVisibleShadow, sourceOver, luminance, contrastRatio, resolveCanvasFallback, resolveContrastChain, isNonConcentricChild }\n})()`
+  return `(() => {\n${fns}\nwindow.__uiGuardMath = { parseRgbColor, splitShadowLayers, hasVisibleShadow, sourceOver, luminance, contrastRatio, resolveCanvasFallback, resolveContrastChain, isNonConcentricChild, resolveLineHeightRatio, isTightCjkParagraph, isCrampedSmallCjkBold, isNumericCellText, isTabularOrMonospace }\n})()`
 }

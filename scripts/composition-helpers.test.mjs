@@ -5,10 +5,15 @@ import {
   browserHelperSource,
   contrastRatio,
   hasVisibleShadow,
+  isCrampedSmallCjkBold,
   isNonConcentricChild,
+  isNumericCellText,
+  isTabularOrMonospace,
+  isTightCjkParagraph,
   parseRgbColor,
   resolveCanvasFallback,
   resolveContrastChain,
+  resolveLineHeightRatio,
   sourceOver
 } from './composition-helpers.mjs'
 
@@ -35,7 +40,6 @@ test('resolveContrastChain composites translucent foreground, stacked ancestor o
   assert.equal(transparentFg.unknown, false)
   assert.ok(contrastRatio(transparentFg.fg, transparentFg.bg) < 1.05)
 
-  // Two stacked 0.5 opacity ancestors turn black text on white into ~0.25 alpha gray.
   const nestedOpacity = resolveContrastChain([0, 0, 0, 1], [
     { bgColor: [0, 0, 0, 0], opacity: 0.5, hasBgImage: false },
     { bgColor: [0, 0, 0, 0], opacity: 0.5, hasBgImage: false },
@@ -44,13 +48,11 @@ test('resolveContrastChain composites translucent foreground, stacked ancestor o
   assert.equal(nestedOpacity.unknown, false)
   assert.ok(contrastRatio(nestedOpacity.fg, nestedOpacity.bg) < 2.0)
 
-  // Background image underneath transparent bg marks contrast unknown.
   const overImage = resolveContrastChain([255, 255, 255, 1], [
     { bgColor: [0, 0, 0, 0], opacity: 1, hasBgImage: true }
   ])
   assert.equal(overImage.unknown, true)
 
-  // Unparseable bgColor marks contrast unknown instead of falling back to white.
   const unparsed = resolveContrastChain([0, 0, 0, 1], [
     { bgColor: null, opacity: 1, hasBgImage: false }
   ])
@@ -66,7 +68,6 @@ test('resolveCanvasFallback handles dark-only and ambiguous light-dark schemes',
 
 test('isNonConcentricChild skips padding >= radius, pills, and center elements, catches corner violation', () => {
   const parentBox = { left: 0, right: 300, top: 0, bottom: 200 }
-  // rounded-lg (8px) with p-6 (24px): pPad >= pRadius -> skip
   assert.equal(isNonConcentricChild({
     parentBox,
     parentRadius: 8,
@@ -75,7 +76,6 @@ test('isNonConcentricChild skips padding >= radius, pills, and center elements, 
     childRadius: 6
   }), false)
 
-  // Outer 16px, padding 8px -> max inner 8px; corner child with 14px fails
   assert.equal(isNonConcentricChild({
     parentBox,
     parentRadius: 16,
@@ -84,7 +84,6 @@ test('isNonConcentricChild skips padding >= radius, pills, and center elements, 
     childRadius: 14
   }), true)
 
-  // Middle child touching left edge only (not top/bottom corner) -> skip
   assert.equal(isNonConcentricChild({
     parentBox,
     parentRadius: 16,
@@ -93,7 +92,6 @@ test('isNonConcentricChild skips padding >= radius, pills, and center elements, 
     childRadius: 14
   }), false)
 
-  // Pill button inside corner -> skip
   assert.equal(isNonConcentricChild({
     parentBox,
     parentRadius: 16,
@@ -103,10 +101,34 @@ test('isNonConcentricChild skips padding >= radius, pills, and center elements, 
   }), false)
 })
 
+test('CJK line-height, small bold, and tabular numeric helpers catch defects without false positives', () => {
+  assert.equal(resolveLineHeightRatio('normal', 16), 1.2)
+  assert.equal(resolveLineHeightRatio('24px', 16), 1.5)
+  assert.equal(isTightCjkParagraph({ text: '这是一段超过十二个汉字的正文内容用于验证中文行高是否过紧', fontSize: 16, lineHeightRaw: 'normal', lineCount: 2 }), true)
+  assert.equal(isTightCjkParagraph({ text: '这是一段超过十二个汉字的正文内容用于验证中文行高是否过紧', fontSize: 16, lineHeightRaw: '26px', lineCount: 2 }), false)
+  assert.equal(isTightCjkParagraph({ text: '这是一段超过十二个汉字的正文内容用于验证中文行高是否过紧', fontSize: 16, lineHeightRaw: '20px', lineCount: 1 }), false)
+  assert.equal(isTightCjkParagraph({ text: 'Short English paragraph with tight line height', fontSize: 16, lineHeightRaw: '20px', lineCount: 2 }), false)
+
+  assert.equal(isCrampedSmallCjkBold({ text: '已归档', fontSize: 12, fontWeight: 700 }), true)
+  assert.equal(isCrampedSmallCjkBold({ text: '已归档', fontSize: 12, fontWeight: 500 }), false)
+  assert.equal(isCrampedSmallCjkBold({ text: '已归档', fontSize: 14, fontWeight: 700 }), false)
+  assert.equal(isCrampedSmallCjkBold({ text: 'DRAFT', fontSize: 12, fontWeight: 700 }), false)
+
+  assert.equal(isNumericCellText('$1,240.50'), true)
+  assert.equal(isNumericCellText('98.5%'), true)
+  assert.equal(isNumericCellText('14:30:05'), true)
+  assert.equal(isNumericCellText('Room 2'), false)
+
+  assert.equal(isTabularOrMonospace({ fontVariantNumeric: 'tabular-nums', fontFamily: 'sans-serif' }), true)
+  assert.equal(isTabularOrMonospace({ fontVariantNumeric: 'normal', fontFamily: 'ui-monospace, SFMono-Regular' }), true)
+  assert.equal(isTabularOrMonospace({ fontVariantNumeric: 'normal', fontFamily: 'Inter, sans-serif' }), false)
+})
+
 test('browserHelperSource exposes the same pure functions on window.__uiGuardMath', () => {
   const sandbox = { window: {} }
   vm.runInNewContext(browserHelperSource(), sandbox)
   assert.equal(typeof sandbox.window.__uiGuardMath.resolveContrastChain, 'function')
   assert.equal(typeof sandbox.window.__uiGuardMath.isNonConcentricChild, 'function')
+  assert.equal(typeof sandbox.window.__uiGuardMath.isTightCjkParagraph, 'function')
   assert.deepEqual(Array.from(sandbox.window.__uiGuardMath.parseRgbColor('rgba(10, 20, 30, 0.5)')), [10, 20, 30, 0.5])
 })

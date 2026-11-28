@@ -155,8 +155,27 @@ try {
     metrics.push({ width, ...result })
     const audit = await page.evaluate(() => {
       const { parseColor, hasVisibleShadow, visible, hasFullBorder, isRowOrCellRole } = window.__uiGuardDom
-      const { contrastRatio, resolveContrastChain, isNonConcentricChild } = window.__uiGuardMath
+      const { contrastRatio, resolveContrastChain, isNonConcentricChild, isTightCjkParagraph, isCrampedSmallCjkBold, isNumericCellText, isTabularOrMonospace } = window.__uiGuardMath
       const rootScheme = getComputedStyle(document.documentElement).colorScheme || ''
+      const countRenderedLines = (element) => {
+        const range = document.createRange()
+        range.selectNodeContents(element)
+        const tops = []
+        for (const rect of range.getClientRects()) {
+          if (rect.width <= 0 || rect.height <= 0) continue
+          if (!tops.some((top) => Math.abs(top - rect.top) <= 3)) tops.push(rect.top)
+        }
+        return tops.length
+      }
+      const nearestBlockAncestor = (element) => {
+        let current = element
+        while (current && current !== document.body) {
+          const display = getComputedStyle(current).display
+          if (display === 'block' || display === 'flex' || display === 'grid' || display === 'list-item' || display === 'table-cell') return current
+          current = current.parentElement
+        }
+        return element
+      }
       const isCardLike = (element) => {
         if (!visible(element) || isRowOrCellRole(element)) return false
         const style = getComputedStyle(element)
@@ -182,13 +201,19 @@ try {
       let tinyTextCount = 0
       let lowContrastCount = 0
       let contrastUnknownCount = 0
+      let tightCjkLineHeightCount = 0
+      const crampedCjkBlocks = new Set()
       const textElements = [...document.querySelectorAll('div, p, span, a, button, label, li, td, th, small, h1, h2, h3, h4, h5, h6')].filter(visible)
       for (const el of textElements) {
         const directText = [...el.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE).map((node) => node.textContent.trim()).join('')
         if (!directText) continue
         const style = getComputedStyle(el)
         const fontSize = Number.parseFloat(style.fontSize)
+        const fontWeight = Number.parseInt(style.fontWeight, 10)
         if (fontSize < 12) tinyTextCount += 1
+        if (el.getAttribute('aria-hidden') !== 'true' && isCrampedSmallCjkBold({ text: directText, fontSize, fontWeight })) {
+          crampedCjkBlocks.add(nearestBlockAncestor(el))
+        }
         const fgRaw = parseColor(style.color)
         const chain = []
         let current = el
@@ -206,9 +231,41 @@ try {
           contrastUnknownCount += 1
           continue
         }
-        const isLarge = fontSize >= 24 || (fontSize >= 18.66 && Number.parseInt(style.fontWeight, 10) >= 700)
+        const isLarge = fontSize >= 24 || (fontSize >= 18.66 && fontWeight >= 700)
         const minRatio = isLarge ? 3.0 : 4.5
         if (contrastRatio(resolved.fg, resolved.bg) < minRatio) lowContrastCount += 1
+      }
+      for (const el of [...document.querySelectorAll('p, li, dd, blockquote')].filter(visible)) {
+        const text = (el.innerText || '').trim()
+        const style = getComputedStyle(el)
+        const fontSize = Number.parseFloat(style.fontSize)
+        const lineCount = countRenderedLines(el)
+        if (isTightCjkParagraph({ text, fontSize, lineHeightRaw: style.lineHeight, lineCount })) {
+          tightCjkLineHeightCount += 1
+        }
+      }
+      let nonTabularNumericColumns = 0
+      const tableContainers = [...document.querySelectorAll('table, [role="table"], [role="grid"]')].filter(visible)
+      for (const table of tableContainers) {
+        const rows = [...table.querySelectorAll('tr, [role="row"]')].filter(visible)
+        if (rows.length < 3) continue
+        const columns = new Map()
+        for (const row of rows) {
+          const cells = [...row.querySelectorAll('td, [role="cell"], [role="gridcell"]')].filter(visible)
+          cells.forEach((cell, colIndex) => {
+            if (!isNumericCellText(cell.innerText)) return
+            if (!columns.has(colIndex)) columns.set(colIndex, [])
+            columns.get(colIndex).push(cell)
+          })
+        }
+        for (const cells of columns.values()) {
+          if (cells.length < 3) continue
+          const hasNonTabular = cells.some((cell) => {
+            const style = getComputedStyle(cell)
+            return !isTabularOrMonospace({ fontVariantNumeric: style.fontVariantNumeric, fontFamily: style.fontFamily })
+          })
+          if (hasNonTabular) nonTabularNumericColumns += 1
+        }
       }
       let nonConcentricRadiusCount = 0
       for (const parent of cards) {
@@ -237,6 +294,9 @@ try {
         lowContrastCount,
         contrastUnknownCount,
         nonConcentricRadiusCount,
+        tightCjkLineHeightCount,
+        crampedSmallCjkBoldCount: crampedCjkBlocks.size,
+        nonTabularNumericColumns,
         horizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth
       }
     })
@@ -255,6 +315,9 @@ try {
       if (item.lowContrastCount > 0) issues.push(`low-contrast=${item.lowContrastCount}`)
       if (item.contrastUnknownCount > 0) issues.push(`contrast-unknown=${item.contrastUnknownCount}`)
       if (item.nonConcentricRadiusCount > 0) issues.push(`non-concentric-radius=${item.nonConcentricRadiusCount}`)
+      if (item.tightCjkLineHeightCount > 0) issues.push(`tight-cjk-line-height=${item.tightCjkLineHeightCount}`)
+      if (item.crampedSmallCjkBoldCount > 0) issues.push(`cramped-cjk-bold=${item.crampedSmallCjkBoldCount}`)
+      if (item.nonTabularNumericColumns > 0) issues.push(`non-tabular-columns=${item.nonTabularNumericColumns}`)
       if (item.horizontalOverflow) issues.push('horizontal-overflow=true')
       if (issues.length > 0) process.stdout.write(`${item.route} ${item.width}px anti-patterns: ${issues.join(' ')}\n`)
     }

@@ -14,10 +14,18 @@
 
 同样的差别也体现在布局上：点缀用的胶囊、重复标题和解释性小字删掉之后，主工作面才是首屏唯一焦点。反面样例在 [`examples/bad-sample/`](examples/bad-sample/)，运行下面的命令能看到它被逐条点名。
 
+真实同题实拍对照（390px 窄屏，从左到右：局部恢复页与复核后的排练室预约页）：
+
+| 局部恢复（唯一主动作 + 行内原因） | 排练室预约（去多余字段与重复状态） |
+| --- | --- |
+| ![局部恢复窄屏实拍](examples/comparison/recovery-quiet.png) | ![排练室预约窄屏实拍](examples/comparison/booking-reviewed.png) |
+
 最快一条命令（Node.js ≥ 24，无依赖）：
 
 ```bash
 node scripts/ui-guard-review.mjs path/to/ui
+# 或通过 npx 直接试用（无需全局安装）：
+npx -p @regrevia/ui-guard ui-guard-review path/to/ui
 ```
 
 有发现时退出码 `1`，干净时 `0`，扫描没跑完（读取失败、根目录不存在、配置无效）是 `2`。
@@ -37,7 +45,13 @@ ui-guard review: 34 finding(s) (1 P0, 22 P1, 11 P2) in 4 file(s)
 
 ## 安装
 
-项目内使用 npm 包可运行 `npm install --save-dev @regrevia/ui-guard`。提示词位于 `node_modules/@regrevia/ui-guard/SKILL.md`，从项目根目录运行 `npx ui-guard-review --json .` 即可扫描。要让 agent 自动发现 skill，可用下方安装方式。
+一键安装 Skill（支持 Claude Code / Codex / Cursor 等兼容客户端）：
+
+```bash
+npx skills add regrevia/ui-guard
+```
+
+项目内使用 npm 包可运行 `npm install --save-dev @regrevia/ui-guard`。提示词位于 `node_modules/@regrevia/ui-guard/SKILL.md`，从项目根目录运行 `npx ui-guard-review --json .` 即可扫描；也支持 `--format github`（PR 行内批注）、`--format sarif`（GitHub Code Scanning）和 `--include-i18n`（扫描 `locales/*.json` 等 i18n 文案词典）。要让 Claude Code 在每次编辑前端文件后实时拦截 `P0/P1` 问题并当场自修，可将 [`examples/hooks/claude-settings.json`](examples/hooks/claude-settings.json) 合并到 `.claude/settings.json`（跨平台 Node.js 脚本在 [`examples/hooks/claude-post-edit.mjs`](examples/hooks/claude-post-edit.mjs)）。要手动安装 skill，可用下方方式。
 
 ### Codex
 
@@ -70,6 +84,14 @@ Claude Code 安装使用 `$HOME/.claude/skills/ui-guard`。脚本本身不读环
 
 和 `no-more-slop` 的分工：`no-more-slop` 只管中文微文案这一个小口子；UI Guard 管整条界面契约——层级、控件语法、图标、动效、8 种状态、真实数据接入和交付闸门，文案是其中一层。两个都装时，文案结论以 `no-more-slop` 为准，其余以 UI Guard 为准。
 
+与其他类型工具的互补边界：
+
+| 关注点 | UI Guard 的定位 | 与其他工具如何组合 |
+| --- | --- | --- |
+| 视觉流派与配色探索 | 不锁死配色、字体、圆角或审美流派，只拦跨风格执行缺陷 | 可叠加偏重视觉方向探索的设计类 Skill（如 `impeccable`、`taste-skill`），由它们定方向，UI Guard 守交付底线 |
+| 中文与双语 UI 去油 | 覆盖源码与 `--include-i18n` 词典里的黑话、压缩词、防御免责、敷衍报错与 CJK 加权预算 | 长文/营销文章去 AI 味仍可搭配专门的散文 Humanizer，界面微文案和状态交互交由 UI Guard |
+| 生产上线闸门 | 零依赖确定性 CLI、`--baseline` 冻结存量、SARIF/GitHub 注解、Claude Code `PostToolUse` 实时拦截、8 状态与真实数据边界 | 接进 CI 和本地 Hook，挡住“首屏截图好看但无法上线”的原型 |
+
 ## 覆盖内容
 
 - Apple 式空间层级、功能层和瞬时层
@@ -99,6 +121,9 @@ Apple 的理念用于提炼方法，不复制 Apple 的品牌资产、SF Symbols
 ```bash
 node scripts/ui-guard-review.mjs path/to/ui
 node scripts/ui-guard-review.mjs --json path/to/ui
+node scripts/ui-guard-review.mjs --format github path/to/ui
+node scripts/ui-guard-review.mjs --format sarif path/to/ui > ui-guard.sarif
+node scripts/ui-guard-review.mjs --include-i18n path/to/ui
 node scripts/ui-guard-review.mjs --include-markdown path/to/ui
 node scripts/ui-guard-review.mjs --write-baseline ui-guard-baseline.json path/to/ui
 node scripts/ui-guard-review.mjs --baseline ui-guard-baseline.json path/to/ui
