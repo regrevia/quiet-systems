@@ -306,4 +306,36 @@ for (const name of namedMissing.slice(1)) {
   assert.ok(requiredSectionNames.includes(name), `the doc names ${name} as a section the validator reports, but it is not one`)
 }
 
+// Six phrasings are rejected as praise, and only one of them was ever written
+// into a fixture, so five of the six could have been deleted unnoticed.
+const praisePhrasings = ['整体很好', '高级感很强', '看起来很棒', 'looks great', 'overall good', 'very polished']
+for (const phrasing of praisePhrasings) {
+  const file = path.join(root, `strict-praise-${Buffer.from(phrasing).toString('hex').slice(0, 12)}.md`)
+  fs.writeFileSync(file, `# Review\n\n## P0\n无 P0。\n\n## P1\n${phrasing}。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n`)
+  const result = spawnSync(process.execPath, [script, '--strict', file], { encoding: 'utf8' })
+  assert.equal(result.status, 1, `${phrasing} is praise, so a report carrying it must fail`)
+  assert.match(result.stderr, /remove vague praise and state an actionable finding or evidence/)
+}
+
+// A near miss must not be caught: the check is a closed list, and widening it to
+// a fuzzy match would reject an honest report that happens to read well.
+const praiseNearMiss = path.join(root, 'strict-praise-near-miss.md')
+fs.writeFileSync(praiseNearMiss, evidenceReport('none').replace(/^# Review/, '# Review\n\n## 备注\n整体很稳定，但 P1 的第二条仍需补证据。\n\n## 备注二\nhighly polished 是赞美，这里必须换成具体问题。\n'))
+const praiseNearMissResult = spawnSync(process.execPath, [script, '--strict', praiseNearMiss], { encoding: 'utf8' })
+assert.equal(praiseNearMissResult.status, 0, `an honest report must pass, stderr: ${praiseNearMissResult.stderr}`)
+
+// The doc lists the six phrasings by name, so its list and the validator's must
+// be the same six — a phrase added to one and not the other leaves a reviewer
+// quoting a rule that no longer exists, or missing one that does.
+const praiseDocLine = reportDoc.split('\n').find((line) => line.includes('六种写法一律判失败'))
+assert.ok(praiseDocLine, 'references/report-validation.md no longer lists the rejected praise phrasings')
+const validatorPraise = fs.readFileSync(path.resolve('scripts/validate-review-report.mjs'), 'utf8')
+  .match(/const vaguePraisePattern = \/\(\?:([^)]+)\)\//)
+assert.ok(validatorPraise, 'validator no longer declares its praise phrasings in one literal')
+const validatorPhrasings = validatorPraise[1].split('|')
+assert.deepEqual(validatorPhrasings, praisePhrasings, 'the fixtures, the doc, and the validator must name the same praise phrasings')
+for (const phrasing of validatorPhrasings) {
+  assert.ok(praiseDocLine.includes(`\`${phrasing}\``), `the doc omits the ${phrasing} phrasing the validator rejects`)
+}
+
 process.stdout.write('validate-review-report self-test passed\n')

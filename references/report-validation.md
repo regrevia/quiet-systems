@@ -24,7 +24,7 @@
 
 ## --strict 追加要求
 
-`--strict` 会进一步要求非“无问题”段落提供文件、行号或非空证据字段，并拒绝空泛赞美。严格校验失败同样返回 1。
+`--strict` 会进一步要求非“无问题”段落提供文件、行号或非空证据字段，并拒绝空泛赞美——`整体很好`、`高级感很强`、`看起来很棒`、`looks great`、`overall good`、`very polished` 六种写法一律判失败，报 `remove vague praise and state an actionable finding or evidence`；近义但不相同的说法（`整体很稳定`、`highly polished`）不拦。严格校验失败同样返回 1。
 
 报告全文必须出现以下 10 项证据，缺一项报一条 `missing <名称>`：
 
