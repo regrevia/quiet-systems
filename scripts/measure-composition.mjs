@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { browserHelperSource } from './composition-helpers.mjs'
+
 const target = process.argv.slice(2).find((argument) => !argument.startsWith('--'))
 if (!target) {
   process.stderr.write('usage: node scripts/measure-composition.mjs [--json] http://localhost:3000/path\n')
@@ -19,26 +21,23 @@ const browser = await chromium.launch({ headless: true })
 try {
   const metrics = []
   const antiPatterns = []
+  const helperScript = browserHelperSource()
   for (const width of [390, 1440]) {
     const page = await browser.newPage({ viewport: { width, height: 844 } })
     await page.goto(target, { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(250)
+    await page.addScriptTag({ content: helperScript })
     await page.evaluate(() => {
+      const math = window.__uiGuardMath
       const probeCanvas = document.createElement('canvas')
       probeCanvas.width = 1
       probeCanvas.height = 1
       const probeCtx = probeCanvas.getContext('2d', { willReadFrequently: true })
       const colorCache = new Map()
       const parseColor = (value) => {
-        if (!value || value === 'transparent') return [0, 0, 0, 0]
         if (colorCache.has(value)) return colorCache.get(value)
-        let parsed = null
-        const rgb = value.match(/^rgba?\(\s*([\d.]+)\s*[,\s]\s*([\d.]+)\s*[,\s]\s*([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/i)
-        if (rgb) {
-          const alphaRaw = rgb[4]
-          const alpha = alphaRaw === undefined ? 1 : (alphaRaw.endsWith('%') ? Number.parseFloat(alphaRaw) / 100 : Number.parseFloat(alphaRaw))
-          parsed = [Number.parseFloat(rgb[1]), Number.parseFloat(rgb[2]), Number.parseFloat(rgb[3]), alpha]
-        } else if (probeCtx && typeof CSS !== 'undefined' && CSS.supports('color', value)) {
+        let parsed = math.parseRgbColor(value)
+        if (parsed === null && value && probeCtx && typeof CSS !== 'undefined' && CSS.supports('color', value)) {
           probeCtx.clearRect(0, 0, 1, 1)
           probeCtx.fillStyle = value
           probeCtx.fillRect(0, 0, 1, 1)
@@ -48,33 +47,7 @@ try {
         colorCache.set(value, parsed)
         return parsed
       }
-      const splitShadowLayers = (value) => {
-        const layers = []
-        let depth = 0
-        let start = 0
-        for (let i = 0; i < value.length; i += 1) {
-          if (value[i] === '(') depth += 1
-          else if (value[i] === ')') depth = Math.max(0, depth - 1)
-          else if (value[i] === ',' && depth === 0) {
-            layers.push(value.slice(start, i).trim())
-            start = i + 1
-          }
-        }
-        layers.push(value.slice(start).trim())
-        return layers.filter(Boolean)
-      }
-      const hasVisibleShadow = (boxShadow) => {
-        if (!boxShadow || boxShadow === 'none') return false
-        for (const layer of splitShadowLayers(boxShadow)) {
-          const lengths = [...layer.matchAll(/(?:^|\s)(-?[\d.]+)px\b/g)].map((m) => Math.abs(Number.parseFloat(m[1])))
-          if (lengths.length > 0 && lengths.every((len) => len === 0)) continue
-          const colorMatch = layer.match(/(?:rgba?|hsla?|oklch|oklab|lab|lch|color)\([^)]*\)|#[0-9a-f]{3,8}\b/i)
-          if (!colorMatch) continue
-          const rgba = parseColor(colorMatch[0])
-          if (rgba && rgba[3] > 0.01) return true
-        }
-        return false
-      }
+      const hasVisibleShadow = (boxShadow) => math.hasVisibleShadow(boxShadow, parseColor)
       const visible = (element) => {
         const style = getComputedStyle(element)
         const box = element.getBoundingClientRect()
@@ -182,60 +155,8 @@ try {
     metrics.push({ width, ...result })
     const audit = await page.evaluate(() => {
       const { parseColor, hasVisibleShadow, visible, hasFullBorder, isRowOrCellRole } = window.__uiGuardDom
-      const sourceOver = (top, bottom) => {
-        const alpha = top[3] + bottom[3] * (1 - top[3])
-        if (alpha <= 0) return [0, 0, 0, 0]
-        return [
-          (top[0] * top[3] + bottom[0] * bottom[3] * (1 - top[3])) / alpha,
-          (top[1] * top[3] + bottom[1] * bottom[3] * (1 - top[3])) / alpha,
-          (top[2] * top[3] + bottom[2] * bottom[3] * (1 - top[3])) / alpha,
-          alpha
-        ]
-      }
-      const luminance = ([r, g, b]) => {
-        const channel = (v) => {
-          const s = v / 255
-          return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
-        }
-        return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
-      }
-      const contrastRatio = (fg, bg) => {
-        const l1 = luminance(fg)
-        const l2 = luminance(bg)
-        return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
-      }
-      const rootScheme = (getComputedStyle(document.documentElement).colorScheme || '').trim().toLowerCase()
-      const resolveContrastColors = (element, fgRaw) => {
-        let fgPixel = [...fgRaw]
-        let bgPixel = [0, 0, 0, 0]
-        let current = element
-        while (current) {
-          const style = getComputedStyle(current)
-          const opacity = Number.parseFloat(style.opacity)
-          if (bgPixel[3] < 0.99 && style.backgroundImage && style.backgroundImage !== 'none') return { unknown: true }
-          const rawBg = style.backgroundColor
-          const bgColor = parseColor(rawBg)
-          if (bgColor === null) return { unknown: true }
-          if (bgColor[3] > 0.01) {
-            fgPixel = sourceOver(fgPixel, bgColor)
-            bgPixel = sourceOver(bgPixel, bgColor)
-          }
-          if (opacity < 1) {
-            fgPixel = [fgPixel[0], fgPixel[1], fgPixel[2], fgPixel[3] * opacity]
-            bgPixel = [bgPixel[0], bgPixel[1], bgPixel[2], bgPixel[3] * opacity]
-          }
-          current = current.parentElement
-        }
-        if (bgPixel[3] < 0.99) {
-          const darkOnly = rootScheme === 'dark' || rootScheme.startsWith('dark only') || rootScheme === 'only dark'
-          const ambiguousScheme = rootScheme.includes('dark') && rootScheme.includes('light')
-          if (ambiguousScheme) return { unknown: true }
-          const canvasFallback = darkOnly ? [18, 18, 18, 1] : [255, 255, 255, 1]
-          fgPixel = sourceOver(fgPixel, canvasFallback)
-          bgPixel = sourceOver(bgPixel, canvasFallback)
-        }
-        return { unknown: false, fg: fgPixel, bg: bgPixel }
-      }
+      const { contrastRatio, resolveContrastChain, isNonConcentricChild } = window.__uiGuardMath
+      const rootScheme = getComputedStyle(document.documentElement).colorScheme || ''
       const isCardLike = (element) => {
         if (!visible(element) || isRowOrCellRole(element)) return false
         const style = getComputedStyle(element)
@@ -269,11 +190,18 @@ try {
         const fontSize = Number.parseFloat(style.fontSize)
         if (fontSize < 12) tinyTextCount += 1
         const fgRaw = parseColor(style.color)
-        if (fgRaw === null) {
-          contrastUnknownCount += 1
-          continue
+        const chain = []
+        let current = el
+        while (current) {
+          const cStyle = getComputedStyle(current)
+          chain.push({
+            bgColor: parseColor(cStyle.backgroundColor),
+            opacity: Number.parseFloat(cStyle.opacity),
+            hasBgImage: Boolean(cStyle.backgroundImage && cStyle.backgroundImage !== 'none')
+          })
+          current = current.parentElement
         }
-        const resolved = resolveContrastColors(el, fgRaw)
+        const resolved = resolveContrastChain(fgRaw, chain, rootScheme)
         if (resolved.unknown) {
           contrastUnknownCount += 1
           continue
@@ -286,24 +214,20 @@ try {
       for (const parent of cards) {
         const pStyle = getComputedStyle(parent)
         const pBox = parent.getBoundingClientRect()
-        const pRadius = Number.parseFloat(pStyle.borderTopLeftRadius)
-        const pPadTop = Number.parseFloat(pStyle.paddingTop)
-        const pPadBottom = Number.parseFloat(pStyle.paddingBottom)
-        const pPadLeft = Number.parseFloat(pStyle.paddingLeft)
-        const pPadRight = Number.parseFloat(pStyle.paddingRight)
-        const pPad = Math.min(pPadTop, pPadLeft)
-        if (pRadius < 6 || pPad < 4 || pPad >= pRadius) continue
-        const maxInnerRadius = pRadius - pPad
+        const parentRadius = Number.parseFloat(pStyle.borderTopLeftRadius)
+        const parentPadding = {
+          top: Number.parseFloat(pStyle.paddingTop),
+          bottom: Number.parseFloat(pStyle.paddingBottom),
+          left: Number.parseFloat(pStyle.paddingLeft),
+          right: Number.parseFloat(pStyle.paddingRight)
+        }
         for (const child of parent.children) {
           if (!visible(child)) continue
           const cStyle = getComputedStyle(child)
-          const cBox = child.getBoundingClientRect()
-          const cRadius = Number.parseFloat(cStyle.borderTopLeftRadius)
-          if (cRadius <= 0) continue
-          if (cRadius >= Math.min(cBox.width, cBox.height) * 0.45) continue
-          const nearX = Math.abs(cBox.left - (pBox.left + pPadLeft)) <= 16 || Math.abs(cBox.right - (pBox.right - pPadRight)) <= 16
-          const nearY = Math.abs(cBox.top - (pBox.top + pPadTop)) <= 16 || Math.abs(cBox.bottom - (pBox.bottom - pPadBottom)) <= 16
-          if (nearX && nearY && cRadius > maxInnerRadius + 1) nonConcentricRadiusCount += 1
+          const childRadius = Number.parseFloat(cStyle.borderTopLeftRadius)
+          if (isNonConcentricChild({ parentBox: pBox, parentRadius, parentPadding, childBox: child.getBoundingClientRect(), childRadius })) {
+            nonConcentricRadiusCount += 1
+          }
         }
       }
       return {

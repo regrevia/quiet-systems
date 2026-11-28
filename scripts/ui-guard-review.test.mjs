@@ -470,6 +470,51 @@ assert.equal(byFileRule('AntiVisual.tsx', 'QS-COMPOSITION-001').length, 1)
 const antiVisualMetric = apReport.metrics.find((metric) => metric.file.endsWith('AntiVisual.tsx'))
 assert.equal(antiVisualMetric.pillCount, 4)
 assert.equal(byFileRule('DemoSlop.tsx', 'QS-SLOP-003').length, 0)
+
+// Round 3 anti-slop coverage: decorative emoji, lazy error/loading copy,
+// standalone AI disclaimers, hardcoded prototype placeholders, and English word forms.
+const round3Dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-round3-'))
+fs.mkdirSync(path.join(round3Dir, 'src'), { recursive: true })
+fs.writeFileSync(path.join(round3Dir, 'src', 'Round3.tsx'), [
+  '<h2>🚀 极速启动</h2>',
+  '<button title="🪄 生成">生成摘要</button>',
+  '<p>出了点问题，请稍后再试</p>',
+  '<p>正在深度思考...</p>',
+  '<p>Something went wrong</p>',
+  '<p>Please try again later.</p>',
+  '<p>AI 可能会犯错，请核实重要信息</p>',
+  '<p>As an AI assistant, I cannot verify this.</p>',
+  '<p>Lorem Ipsum dolor sit amet</p>',
+  '<span>Acme Corp</span>',
+  '<p>Seamlessly and effortlessly revolutionizing your stack</p>',
+  '<p>Unleash magical speed to transform your workflow</p>',
+  '<p>Voilà! 太棒了！</p>',
+  // Negative fixtures that must stay clean:
+  'const reactions = ["🔥", "🎉"]',
+  '<code>✨</code>',
+  '<p>保存草稿失败，请稍后再试</p>',
+  '<p>Failed to save draft. Please try again later.</p>',
+  '<p>发生未知错误</p>',
+  '<p>价格以实际为准</p>',
+  '<p>Use it as an AI pair programmer</p>',
+  '<input type="email" placeholder="example@example.com" data-ui-guard-adapted />',
+  '<input type="text" placeholder="John Doe" data-ui-guard-adapted />',
+  '<button>Magic link</button>',
+  '<p>Transform your coordinates to local time</p>',
+  '<p>搞定</p>'
+].join('\n'))
+const r3Run = spawnSync(process.execPath, [script, '--json', round3Dir], { encoding: 'utf8' })
+assert.equal(r3Run.status, 1)
+const r3Report = JSON.parse(r3Run.stdout)
+const r3ByRule = (rule) => r3Report.findings.filter((item) => item.file.endsWith('Round3.tsx') && item.rule === rule)
+assert.deepEqual(r3ByRule('QS-SLOP-002').map((item) => item.line), [1, 2])
+assert.deepEqual(r3ByRule('QS-COPY-013').map((item) => item.line), [3, 4, 5, 6])
+assert.deepEqual(r3ByRule('QS-COPY-005').map((item) => item.line), [7, 8])
+assert.deepEqual(r3ByRule('QS-PROTOTYPE-001').map((item) => item.line), [9, 10])
+assert.deepEqual(r3ByRule('QS-SLOP-003').map((item) => item.line), [11, 12])
+assert.deepEqual(r3ByRule('QS-COPY-004').map((item) => item.line), [13])
+assert(!r3Report.findings.some((item) => item.file.endsWith('Round3.tsx') && item.line >= 14))
+fs.rmSync(round3Dir, { recursive: true, force: true })
 fs.rmSync(antiPatternsDir, { recursive: true, force: true })
 
 process.stdout.write('quiet-systems-review self-test passed\n')

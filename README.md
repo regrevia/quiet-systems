@@ -28,7 +28,7 @@ node scripts/ui-guard-review.mjs path/to/ui
 examples/bad-sample/RoomPicker.tsx:9 P1 QS-INTERACTION-001 破坏性或不可逆动作只有图标，没有可见文字标签。…
   <button aria-label="删除房间"><TrashIcon /></button>
 QS-INTERACTION-001 → 补上可见的动作名与作用对象；图标可以保留，但不能是唯一的识别方式。
-ui-guard review: 33 finding(s) (1 P0, 21 P1, 11 P2) in 4 file(s)
+ui-guard review: 34 finding(s) (1 P0, 22 P1, 11 P2) in 4 file(s)
 ```
 
 干净时末行是 `ui-guard review: no static findings (N file(s) reviewed)`，N 是这棵树上真正读了多少个文件。文件数不是装饰：根路径写错、扩展名清单不匹配、整棵树被忽略时，扫描读到 0 个文件，再加一行 `reviewed no files` 说明这三个原因——否则「没发现问题」和「没看任何文件」是同一句话。
@@ -81,7 +81,7 @@ Claude Code 安装使用 `$HOME/.claude/skills/ui-guard`。脚本本身不读环
 - 从线框到 Token、组件和验收的设计顺序
 - 需求不明确时的多方向样板、参考素材和原型收敛流程
 - 真实数据、状态、权限和前后端接入的一致性闸门
-- 静态 UI 审阅脚本：30 条规则分十一族——`QS-A11Y` 3、`QS-COMPONENT` 1、`QS-COMPOSITION` 1、`QS-COPY` 12、`QS-HIERARCHY` 1、`QS-ICON` 2、`QS-INTERACTION` 2、`QS-MOTION` 2、`QS-PROTOTYPE` 1、`QS-SLOP` 3、`QS-VISUAL` 2。覆盖装饰性分隔符、绕过 Token 的原生控件、写死图标尺寸、缺失 reduced-motion、装饰性 AI Slop（含 Tailwind 渐变文字、粗左边框与无语义脉冲动画）、泛化营销文案与压缩能力词、防御性/报幕/讨好/免责声明文案、破折号拼接与机械三连修饰词、无来源社会证明与夸大指标、图片替代文本、图标控件可访问名称、隐藏交互元素、原型数据进生产源
+- 静态 UI 审阅脚本：31 条规则分十一族——`QS-A11Y` 3、`QS-COMPONENT` 1、`QS-COMPOSITION` 1、`QS-COPY` 13、`QS-HIERARCHY` 1、`QS-ICON` 2、`QS-INTERACTION` 2、`QS-MOTION` 2、`QS-PROTOTYPE` 1、`QS-SLOP` 3、`QS-VISUAL` 2。覆盖装饰性分隔符、绕过 Token 的原生控件、写死图标尺寸、缺失 reduced-motion、装饰性 AI Slop（含 Tailwind 渐变文字、粗左边框、无语义脉冲动画与装饰 Emoji 图标）、泛化营销文案与压缩能力词、防御性/报幕/讨好/免责声明文案、敷衍报错与拟人化加载废话、破折号拼接与机械三连修饰词、无来源社会证明与夸大指标、图片替代文本、图标控件可访问名称、隐藏交互元素、原型数据与硬编码占位文案进生产源
 - 方向样板说明、production-shaped fixture、UI 审阅报告模板、外部审阅器只读输出契约、CI 与配置模板
 
 ## 设计立场

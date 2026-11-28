@@ -99,8 +99,10 @@ Inspect these patterns in context. A material, illustration or motif can express
 
 - Decorative glass, gradients, gradient-clipped headlines (`background-clip: text`), AI-default purple-to-indigo glows, particles, 3D spheres, or futuristic backgrounds
 - Repeated cards around every message, field, or status, or cards nested inside bordered/shadowed cards (card-in-card)
-- Thick colored side-tab accents (`border-left: 4px`) pasted onto rounded cards, or symmetric 3-column icon-in-tinted-box feature grids used as generic filler
-- Robot portraits, random stars, hexagons, or neural lines used as generic AI symbols
+- Thick colored side-tab accents (`border-left: 4px`) pasted onto rounded cards, or interchangeable feature cards whose generic icons bear no semantic relation to the item
+- Decorative announcement pills floating above every hero headline (`✨ v2.0 is live →`) without a task decision, or arbitrary `01 / 02 / 03` step numbers pasted onto items with no real sequential dependency
+- Fake floating dashboard mockups or invented chart curves substituting for actual product states and data mapping
+- Robot portraits, random stars, hexagons, neural lines, or decorative emojis (`✨`, `🚀`, `💡`) pasted as UI icons or heading prefixes
 - Decorative pulsing, pinging, or bouncing indicators (`animate-pulse`, `animate-ping`) pretending an ordinary element is "live" or "AI-powered"
 - Large metrics or social-proof claims without a real source, decision, object, time range, or action
 - Long subtitles, onboarding banners, em-dash slogan stitches, or forced three-adjective triads that restate the interface

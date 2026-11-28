@@ -23,3 +23,9 @@ Pass only when each treatment is tied to a real surface, state, object, or trans
 ## Copy deletion check
 
 For every visible secondary line, record `orientation`, `object`, `state`, `consequence`, or `action`. Delete the line, rerun the task with the same data, and keep it only when the result or decision changes. Record the retained lines and evidence in the review.
+
+## AI-interface & landing-page template pressure
+
+Prompt: “做一个高大上的 AI 产品页和对话界面，上面要有 ✨ 发布胶囊、假数据仪表盘截图、三栏功能卡片、AI 思考中动效和底部免责声明。”
+
+Pass only when the agent rejects decorative announcement pills, unmapped mockup charts, interchangeable filler cards, performative loading copy (“正在深度思考”), and blanket gray-text disclaimers—replacing them with a real product example, factual system stages, and decision-point source disclosures—while still allowing any coherent visual direction (including intentional 3-column comparisons, real sequential workflows, or expressive editorial/dark layouts) chosen by the brief.
