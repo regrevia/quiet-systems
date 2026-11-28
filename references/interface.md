@@ -1,148 +1,71 @@
 ## Universal design constraints
 
-### Hierarchy and information convergence
+### Hierarchy and scope convergence
 
-- Order content by task importance and reading order.
-- Avoid competing emphasis when the task has a clear next action. Comparison views may give peers equal weight.
-- Group related content with alignment, spacing, surface, or semantic headings. Use dividers only when they clarify a real boundary.
-- Keep list rows short enough to scan. Move explanation, technical logs, history, and evidence to a detail level.
-- At each level answer only the questions needed there. The summary identifies the object and current outcome. The detail explains decisions and actions. When a summary promises a breakdown, follow one row into detail. Reconcile its amount and count against the same period and contributing records. Carry the context needed to verify those figures. A magnitude and a signed movement can both be correct. Make the convention legible when moving between them, and verify the same underlying unit and direction in each view. The evidence shows raw history or diagnostics.
-- Keep the user’s current object, status, consequence, and next action together.
-- Do not make every field, message, or status its own card.
-- Treat tags and status labels as information, not decoration. Use plain text, alignment, tone, or a small semantic marker by default. A capsule needs a clear interaction, selection, or grouping reason. Do not put every state inside a colored rounded background.
-- Keep tag padding, radius, and contrast proportional to the text role. A small status should recede beside the object it qualifies and must not become the row's visual focal point.
-- Give each visible level one title, one primary action, and one focal content group. Do not repeat the same noun in the product title, selected tab, panel heading, and action label unless it disambiguates scope.
-- Delete a subtitle by default. Keep a secondary line only when it changes orientation, state, consequence, or the next decision. Dates, owners, counts, and statuses belong beside the object they qualify, not in a decorative explanatory sentence.
-- Use a focus test at the target width. After a quick blur or squint, one region should remain dominant and one action should read as primary. If several headings, pills, cards, or buttons compete, reduce contrast, merge levels, or remove the redundant element.
-- Do not use a tooltip to carry an accessible name or essential instruction.
-- Expanded content must preserve the current task and return focus to its trigger when closed.
+- Order content by task importance. Give each visible level **one scope owner, one title, one primary action, and one focal content group**. Do not repeat the same noun across navigation, selected tab, heading, and button unless disambiguating scope.
+- Keep list rows scannable; defer logs, history, and raw diagnostics to detail views. When a summary drills into detail, reconcile counts, amounts, units, and sign conventions across the same period.
+- Keep the current object, status, consequence, and next action adjacent along **one stable reading edge**—closer to each other than to unrelated chrome.
+- Delete subtitles and helper lines by default. Retain a secondary line only when removing it changes orientation, state recognition, consequence, or the next decision; record the before/after evidence as an explicit exception.
+- Render tags and statuses as plain text, position, tone, or a quiet semantic dot by default. Reserve filled capsules for interactive filters, selection, or necessary grouping, scaled so status never outshouts the object.
+- Never hide an accessible name or essential instruction inside a tooltip. Expanded disclosures must preserve task context and return focus to their trigger on close.
 
-### Typography and content separation
+### Visual craft and aesthetic direction (style-agnostic)
 
-- Use typography, position, alignment, spacing, and surface to distinguish content roles.
-- Limit typefaces and weights. Do not create hierarchy by making everything bold, faint, uppercase, or colorful.
-- Preserve relative hierarchy when text is enlarged or localized. Exercise the narrow detail view with a long name, an unbroken identifier and multiline text. Verify that the distinguishing suffix and final line are readable without horizontal page scrolling.
-- Do not join names, statuses, times, counts, sources, permissions, or other unrelated fields with a middle dot, bullet, vertical bar, slash, or repeated hyphen.
-- Render those fields as separate semantic elements. Use font, color, alignment, position, spacing, wrapping, or components to express their relationship.
-- This restriction does not ban semantic lists, mathematical notation, code, user-authored text, or product names that require such characters. The static rule may still flag source text containing a middle dot, so preserve a legitimate exception only with a documented rule ignore and review evidence.
-- Action labels use concrete verbs. Error copy states what happened, what it affects, and what the user can do next.
-- Remove redundant labels, generic marketing claims, filler subtitles, and explanations of backend implementation.
-- Treat a retained secondary line or decorative treatment as an exception. Record the before and after render, name the changed decision or state distinction, and keep the exception only when the task outcome changes. Aesthetic preference alone is not evidence.
+Deleting noise prevents ugliness, not blandness. Without prescribing a palette, typeface, corner radius, or aesthetic genre, create visual beauty and finish through six structural relationships:
 
-### Materials, surfaces, and controls
+- **Typographic tension and rhythm**: avoid a timid `12–20px` band where headings, body, and metadata blur together. Pair decisive scale, weight, or tracking contrast on the focal title/figure with calm prose measure (`60–75ch` Latin, `30–42` CJK chars), looser CJK body line-height (`1.6–1.75` vs. `1.45–1.6` Latin), `text-wrap: balance` on headlines so words never split mid-term, and `tabular-nums` on vertically compared figures. Avoid heavy bold on ≤ 12px CJK labels where strokes clog.
+- **Asymmetric proportion and active negative space**: favor purposeful unequal splits (dominant work canvas + compact context rail, or stable reading column + quiet margin) over splitting wide viewports into mechanical equal columns. Treat empty space as an intentional frame for the focal region; after deleting copy, tighten spacing and column widths so dead gaps never remain as scars.
+- **Tonal layering and edge precision**: let one primary surface carry the work rather than boxing every field or row into a card. Separate planes through subtle surface lightness steps and alignment before reaching for lines; use gray dividers only at genuine structural boundaries. Where borders or elevation are earned, prefer `1px` low-alpha surface-tinted hairlines and two-part ambient+key shadows on transient layers over harsh opaque outlines. In dark themes, express elevation through stepped surface lightness rather than dark drop shadows.
+- **Color restraint and surface harmony**: verify hierarchy in grayscale first—if structure collapses without color, fix typography and spacing. On tinted or saturated surfaces, shift text lightness/alpha within the surface hue rather than dropping washed-out neutral gray on top, clearing WCAG contrast (≥ 4.5:1 body, ≥ 3:1 large text and UI boundaries).
+- **Geometric and optical harmony**: keep nested rounded containers concentric (`innerRadius <= outerRadius - padding`), align spacing to a coherent `4px`/`8px` rhythm, and apply `±1px` optical offsets when asymmetric glyphs or mixed CJK/Latin baselines look mathematically centered but visually off.
+- **Subject-anchored character (the swap test)**: anchor at least one layout or typographic choice in the actual subject (specimen + index for an archive, slot matrix for bookings, aligned ledger for finance). If swapping the title and data for an unrelated SaaS product still looks equally at home, rework the composition around the real object.
 
-- Keep the main reading surface visually quiet enough for text and decisions.
-- Use translucent or blurred material only when it establishes a functional or transient layer and remains legible over changing content.
-- Do not apply glass, gradients, glow, heavy shadow, or oversized rounded containers to every element.
-- Prefer one coherent surface system over a collection of unrelated cards.
-- Do not expose an unadapted native visual appearance as the product’s design language.
-- Preserve native semantics, keyboard behavior, focus management, and assistive-technology interfaces. A unified visual system owns the rendered appearance, states, spacing, and motion.
-- A platform adapter may change touch feedback, key bindings, window behavior, or density without creating a second visual language.
-- If a native control is intentionally retained after visual adaptation, mark the integration with `data-quiet-adapted` or a nearby `quiet-systems: allow-native` comment and verify its states manually.
+### Typography and field separation
 
-### Surface and viewport composition
+- Limit typefaces and weights; preserve relative hierarchy when text enlarges, wraps, or localizes. Test narrow views (`320–390px`) with unbroken identifiers and multiline copy to confirm zero horizontal page overflow and readable suffixes.
+- Never join independent fields (names, statuses, times, counts, permissions) with middle dots (`·`), bullets, pipes (`|`), slashes (`/`), or repeated hyphens. Render separate semantic elements styled by position, spacing, or tone. Legitimate prose lists, math, code, or brand names require an explicit rule ignore with review evidence.
+- Action labels use concrete verbs; error copy states what failed, what it affects, and how to recover.
 
-- Let one surface carry the work. Do not wrap every section, row, or status in a separate bordered card.
-- Use a gray divider only for a real reading boundary, such as a header-to-content transition or a change of data group. Remove row-by-row rules when spacing, alignment, tonal shifts, or hover and selection states already separate items.
-- Treat the viewport as part of the composition. On wide screens, let the primary work surface expand to a meaningful height and keep its reading column stable. Avoid a small centered card floating in a large unused canvas unless the empty field is an intentional focus state.
-- On narrow screens, let the page background and work surface carry the frame. Do not stretch sparse content into a tall empty card only to reach the viewport edge.
-- Review empty space by purpose. Keep breathing room that supports focus, scanning, or responsive behavior. Reduce empty bands that have no relationship to the task.
+### Materials, controls, and platform character
 
-### Reading focus and relationship density
+- Use translucent or blurred material only to establish a functional or transient layer that stays legible over scrolling content.
+- Treat control adaptation as a unified contract—hit area, silhouette, radius, border/fill, typography, focus ring, and disabled state belong to the surrounding surface language while preserving native semantics, keyboard behavior, and assistive-technology roles. Never leave an unadapted browser-default input or button inside a custom surface (mark intentional adapted native controls with `data-ui-guard-adapted` / `ui-guard: allow-native` and verify states; opt-in browser check: `node "$SKILL_HOME/scripts/verify-control-adaptation.mjs" page.html 'button' 6`).
+- Do not copy Apple.com marketing pixels into workspace UI. Use Apple.com for editorial storytelling, Apple HIG for native control/focus/touch behavior, and Linear for dense workspace orientation and reduced chrome. Check control height, icon optical box, stroke weight, label baseline, and touch target together across target platforms (`examples/icon-tiers.ts`).
 
-- Assign one scope owner to each visible level. Product navigation, page title, section title, and object name must not repeat the same noun unless the repetition disambiguates scope.
-- Establish one reading edge for the primary task. Keep object names, state, consequence, and next action closer to one another than to unrelated regions.
-- Do not distribute columns evenly just to fill a wide viewport. Width should follow the relationship between fields. Metadata and actions may recede, while the object and decision remain easy to scan.
-- After deleting copy, recheck spacing, column widths, and title levels. Empty space left behind by removed text is a layout defect.
-- Run a quick blur or squint test at the target width. One region should remain dominant and one action should read as primary. If several headings, cards, pills, or controls compete, merge, mute, or remove the redundant level.
+### Icons, menus, tabs, and motion
 
-### Platform character and premium restraint
+- **Icons**: one icon = one object, action, or state, sized by semantic optical tier rather than a single hard-coded pixel value. Treat icon count as a budget: use borderless hit-area icons (with focus ring and accessible name) for frequent, familiar compact actions (`view`, `search`, `copy`, `edit`, `close`), remove decorative label-echo icons, and keep visible text for first-use, ambiguous, consequential, destructive, state, or recovery actions.
+- **Menus and tabs**: keep frequent commands at the top menu level; verify keyboard branch traversal and focus restoration to the originating object. Use tabs only for peer panels (use segmented/single-choice controls for period filters on the same measure), keep manual focus distinct from selection, and keep record identity visible across tab switches.
+- **Motion and state**: define interactive and boundary states (`default`, `hover`, `active`, `focus`, `disabled`, `loading`, `error`, `offline`, `partial`, `recovery`) without relying solely on color or pulse. Honor `prefers-reduced-motion`, commit state and focus immediately on action, keep interrupted reverse transitions continuous, avoid layout jumps on live reconnect, and place retry/cancel/recovery controls beside the affected item.
 
-- Treat an Apple-like direction as a set of relationships between hierarchy, material, typography, control silhouette, response, and restraint. A system font, pale canvas, thin border, or dark button by itself is not a design direction.
-- Establish one focal work surface, one supporting navigation or context plane, and transient layers only when they carry a task. Do not give every card, row, badge, outline, and separator equal visual weight.
-- Let the content field lead. Keep the reading edge stable, let the title and primary action share a clear alignment, and make secondary controls recede through position, iconography, or tone rather than smaller explanatory copy.
-- Use a control silhouette that belongs to the surrounding surface. A primary action may be filled, tonal, outlined, or icon-led, but it needs a reason in the product's direction. Do not default to a heavy black rectangle beside quiet surfaces.
-- Keep text roles few and legible. A title, body value, supporting metadata, and state should differ through scale, weight, placement, and tone. Do not make essential information faint to imitate quiet chrome.
-- Test the composition in grayscale and after removing decorative color. If hierarchy collapses, the page is relying on color instead of structure.
-- During screenshot review, name the dominant surface, alignment edge, control grammar, empty-space purpose, and any remaining browser-default treatment. “Apple-like” is not evidence by itself.
-
-### Icons
-
-- One icon expresses one object, action, or state.
-- Prefer familiar metaphors and consistent stroke, fill, perspective, and optical weight.
-- Use semantic optical-size tiers instead of one hard-coded pixel size. The tier depends on text, control height, density, platform, and the icon’s visual weight.
-- Allow optical offsets and per-icon bounding-box corrections for asymmetric shapes.
-- Do not use a brand motif as a substitute for a functional icon.
-- A status icon supplements a status word or accessible name when the state matters.
-- Prefer an icon action for frequent, familiar, space-sensitive commands such as view, search, copy, edit, close, and more actions. Keep the icon inside the same control grammar as text actions.
-- For low-risk icon actions that act directly on nearby content, prefer a borderless hit area with hover or pressed feedback. Keep the hit area and focus ring, but do not draw a permanent button boundary unless separation is needed for scanning or platform convention.
-- Treat icon density as a budget. Add an icon when it improves recognition, scanning, or target acquisition. Remove it when it only decorates a label or repeats a visible state. Linear's refresh reduced icon count and size because more symbols had begun competing with the task.
-- Keep visible text for first-use, ambiguous, consequential, destructive, or recovery actions. Do not force people to decode an unfamiliar symbol.
-- Icon-only controls have an accessible name, a visible focus state, an adequate hit area, and a tooltip or adjacent explanation when the meaning is not immediately familiar. The accessible name is not a decorative glyph.
-
-### Menus and tabs
-
-Keep frequent commands at the first menu level. Give a submenu a visible name that predicts its children and preserve that name in its accessible label. With the keyboard, open a branch and return to its parent before dismissing the root. Check focus at each return and verify that the chosen command acts on the original object.
-
-Use tabs for peer content panels. Give each tab and panel a matching accessible relationship. Exercise the inactive tab by keyboard, then verify its selected state and a unique fact inside the visible panel. Keep the focus indicator distinct from selection when activation is manual. A period filter updates the same measure and may use a single-choice control instead. When the panel contains a record-specific value, keep the record identity visible across switches if the surrounding view would otherwise lose it. Reuse an existing screen title or breadcrumb. Choose surface materials after the interaction works.
-
-### Motion and state
-
-- Define default, hover, active, focus, disabled, loading, success, warning, error, offline, stale, cancelled, and recovery behavior where applicable.
-- Do not express a state only through color, glow, pulse, or motion.
-- Respect reduced-motion preferences. Commit the new state and place focus as soon as the user acts. The essential action must also complete when no animation runs or an entry is interrupted. In both motion preferences, open a record, dismiss it immediately and open another. Verify the second record and the focus destination after dismissal. Scope motion overrides to the components you own.
-- Keep live updates stable. Do not reorder content unexpectedly or duplicate optimistic actions after reconnect.
-- Put retry, cancel, permission, and recovery actions next to the state that needs them.
 ## AI-Slop review
 
-Inspect these patterns in context. A material, illustration or motif can express the requested identity. Flag it when it substitutes for missing content, repeats across unrelated roles, competes with the task, or could be pasted into an unrelated product without changing its meaning. Cite visible evidence.
+Flag any pattern below when it substitutes for missing content, repeats mechanically across roles, competes with the task, or could be pasted into an unrelated product unchanged:
 
 - Decorative glass, gradients, gradient-clipped headlines (`background-clip: text`), AI-default purple-to-indigo glows, particles, 3D spheres, or futuristic backgrounds
-- Repeated cards around every message, field, or status, or cards nested inside bordered/shadowed cards (card-in-card)
-- Thick colored side-tab accents (`border-left: 4px`) pasted onto rounded cards, or interchangeable feature cards whose generic icons bear no semantic relation to the item
-- Decorative announcement pills floating above every hero headline (`✨ v2.0 is live →`) without a task decision, or arbitrary `01 / 02 / 03` step numbers pasted onto items with no real sequential dependency
-- Fake floating dashboard mockups or invented chart curves substituting for actual product states and data mapping
-- Robot portraits, random stars, hexagons, neural lines, or decorative emojis (`✨`, `🚀`, `💡`) pasted as UI icons or heading prefixes
-- Decorative pulsing, pinging, or bouncing indicators (`animate-pulse`, `animate-ping`) pretending an ordinary element is "live" or "AI-powered"
-- Large metrics or social-proof claims without a real source, decision, object, time range, or action
-- Long subtitles, onboarding banners, em-dash slogan stitches, or forced three-adjective triads that restate the interface
-- Status communicated only by color, pulse, or light
-- Components that differ only by color instead of behavior
-- Generated copy that is vague, inflated, defensive, repetitive, or detached from the current object
+- Card-in-card nesting (bordered/shadowed cards inside bordered cards) or boxing every message, field, and status
+- Thick colored side-tab accents (`border-left: 4px`) on rounded cards, or interchangeable feature cards with generic unrelated icons
+- Hero announcement pills (`✨ v2.0 is live →`) without a task decision, or arbitrary `01 / 02 / 03` numbering on items without sequential dependency
+- Fake floating dashboard mockups or invented chart curves standing in for real states and data mapping
+- Generic AI motifs (robot heads, random sparkles/stars, hexagons, neural lines) or decorative emojis (`✨`, `🚀`, `💡`) used as UI icons or heading prefixes
+- Decorative pulsing/pinging dots (`animate-pulse`, `animate-ping`) faking "live/AI" status outside skeletons or `role="status"`
+- Unverified vanity metrics/social proof, em-dash slogan stitches, forced three-adjective triads, or subtitles restating the UI
+- Status shown only by color/glow, components differing only by color, or vague/defensive generated copy
 
-For each finding, choose delete, merge, move to detail, replace with a familiar metaphor, or define a real behavior contract. Do not add explanatory text to rescue a confusing layout before testing a simpler hierarchy.
+For each finding: delete, merge, defer to detail, replace with a concrete metaphor, or bind to a real behavior contract. Never add explanatory text to rescue weak hierarchy before simplifying the layout.
 
-### Cross-style visual and typographic defects
+### Cross-style execution defects
 
-These checks block execution defects across any chosen direction without prescribing a palette, typeface, corner radius, or visual genre. High-contrast black-and-white editorial print, dense tool workspaces, and expressive posters all stay valid when intentional.
+These checks block broken execution across any aesthetic direction (high-contrast monochrome print, dense workspaces, and expressive posters all stay valid when intentional):
 
-- **No nested bordered cards**: avoid wrapping bordered or shadowed cards inside another bordered card; flatten inner grouping with alignment, spacing, or a quiet tonal step.
-- **No broken concentric radii**: when a rounded surface contains another rounded card, inset panel, or button, keep `innerRadius <= outerRadius - padding` so corner gaps stay optically even.
-- **No washed-out gray text on colored surfaces**: avoid putting neutral gray text on a tinted or saturated background; shift lightness/alpha in the surface hue and clear WCAG contrast (≥ 4.5:1 body text, ≥ 3:1 large text and UI boundaries).
-- **No skipped heading levels or microscopic text**: keep heading levels sequential (`h1` → `h2` → `h3`) and avoid sub-12px copy used to smuggle disclaimers or cramped metadata onto the screen.
-- **No jittering figures or broken wraps**: use `tabular-nums` on tables, prices, counts, and timers that compare vertically; check heading line breaks (`text-wrap: balance` or deliberate wrapping) so CJK words do not split mid-term; keep CJK body line-height looser than Latin and avoid heavy bold on small CJK labels where strokes clog.
-- **No sterile over-deleted wireframes**: deleting slop, cards, and subtitles must not leave an uncalibrated blank page with dead empty bands or weak title-to-body contrast. Hierarchy must still read clearly through scale, alignment, spacing, and surface contrast.
+- **Nested bordered cards**: flatten inner groups with alignment, spacing, or a quiet tonal step.
+- **Non-concentric radii**: enforce `innerRadius <= outerRadius - padding` on corner-adjacent nested elements.
+- **Washed-out contrast**: never place neutral gray text over saturated/tinted fills; clear WCAG AA (≥ 4.5:1 text, ≥ 3:1 large text/controls).
+- **Skipped headings or sub-12px copy**: keep heading levels sequential (`h1` → `h2` → `h3`) and ban `< 12px` disclaimer/metadata stuffing.
+- **Jittering digits or broken CJK typography**: enforce `tabular-nums` on comparable figures, balanced headline wraps, ≥ 1.5 CJK prose line-height, and non-clogged small CJK weights.
+- **Sterile over-deletion**: stripping slop must be followed by compositional tuning (scale contrast, proportion, alignment, surface steps)—never ship a blank, uncalibrated wireframe.
 
-## Copy in context
+## Copy in context and visual finish gate
 
-Before generating markup, inventory the supplied facts, required decisions and actual inputs. Do not invent form fields (including contact details), steps, badges, headings or helper text to complete a familiar template. Show each fact where the person uses it. Do not summarize the same availability, prices or statuses under the title when the choices already show them. Keep independent fields in separate elements, including in summaries assembled at runtime. Never concatenate them with a decorative middle dot. Before delivery inspect the rendered text at entry and after the action against this inventory. Enumerate the actual enabled inputs from the rendered form. For each, identify the requirement or service operation that consumes its value. Remove any orphan input and its validation, then repeat the task without supplying that value.
-
-Avoid defensive interface copy. For a caveat, identify the actual condition, who it affects and what decision it changes here. Omit speculative caveats, implementation excuses and repeated reassurance. Keep a material limitation where the user commits, in plain language. For example, a booking simulator can label its action “模拟预约”. A persistent save failure still needs its recovery instruction. Inspect the initial render before interacting: feedback belongs after the operation succeeds. An unavailable recording needs one factual status. Do not turn “unavailable” into a release promise, append “stay tuned”, or add third-party destinations without a supplied destination. On a narrow screen, inspect the actual headline background and line breaks, especially inside names.
-
-On an unavailable media screen, check what the title and action imply together. A listening invitation suggests playback is available. A production or release claim needs its own evidence. Keep an alternative action specific to the supplied item and destination.
-
-### Control adaptation is a contract, not a theme
-
-When the chosen direction calls for a calm Apple-like surface, inspect the control grammar as a set. A button, segmented control and text field need an intentional hit area, typography, border or fill, focus state and corner treatment. Do not leave one browser-default button inside a custom rounded surface. The radius can vary by platform, density and product character. It must belong to the same visual language as the surrounding surfaces. Run `node "$SKILL_HOME/scripts/verify-control-adaptation.mjs" page.html 'button' 6` as an opt-in check for a direction that requires adapted controls. This does not prescribe one radius for every product.
-
-Before keeping a secondary line, classify it as orientation, object, state, consequence or action. If it repeats the heading, tab, row state or next action, remove it. In the supplied workbench screenshot, “查看结果，处理需要关注的任务” repeats the page purpose and row actions. “本地开发环境” is useful only if the environment changes a decision. A screenshot review should verify that removal did not hide scope or consequence.
-
-### Cross-platform proportion check
-
-Do not copy Apple.com pixel values into a product surface or treat one icon box as universal. Keep a ratio between control height, icon optical box, stroke, label size, baseline and hit area. Validate the same component on the target platforms with the target font and icon set. Compare screenshots at the same CSS viewport and at the platform’s native density. Check that an icon remains visually centered beside Latin and Chinese labels, that a compact control does not become a cramped touch target, and that a large control does not make the icon look weak.
-
-Use `examples/icon-tiers.ts` as a starting contract. Tune the tier for the actual platform, font, icon library and asymmetric shape. The tier names describe roles, not fixed dimensions. Apple.com references are appropriate for marketing composition and product storytelling. Apple Human Interface Guidelines and native platform behavior are the stronger reference for controls, focus, touch and navigation. Linear’s product work is the stronger reference for dense workspace orientation, predictable actions and reduced chrome.
-
-### Visual finish gate
-
-After hierarchy and behavior pass, do one dedicated finish pass. Compare the rendered page against the chosen direction at the target widths and inspect six relationships: type scale, outer margin to content width, surface count, control-to-icon proportion, row rhythm and state contrast. Remove any default browser treatment, accidental one-pixel border, mismatched corner, unexplained empty band or decorative emphasis that does not survive a task change. The page should have a deliberate focal area, a stable alignment edge and a clear quiet area. Do not solve an unfinished composition by adding a subtitle, badge, gradient or extra card.
+1. **Fact and input inventory**: render only supplied facts and inputs consumed by a real requirement or service operation; delete orphan form fields and premature success messages. State material caveats plainly at the commit point (e.g., “模拟预约”) rather than in blanket apologies, and never turn an unavailable item into an unsourced release promise (“敬请期待”).
+2. **Squint and finish pass**: at `390px` and `1440px` (in color, grayscale, and a quick blur/squint), verify six relationships before handoff—**type scale tension, outer-margin-to-measure proportion, surface count, control-to-icon ratio, row rhythm, and state contrast**. One focal region and one primary action must dominate effortlessly; fix any remaining browser-default control, accidental `1px` double border, mismatched corner, or dead empty band through layout and proportion, never by pasting back a badge, subtitle, or extra card.
