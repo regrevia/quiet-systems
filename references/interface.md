@@ -97,16 +97,29 @@ Use tabs for peer content panels. Give each tab and panel a matching accessible 
 
 Inspect these patterns in context. A material, illustration or motif can express the requested identity. Flag it when it substitutes for missing content, repeats across unrelated roles, competes with the task, or could be pasted into an unrelated product without changing its meaning. Cite visible evidence.
 
-- Decorative glass, gradients, glow, particles, 3D spheres, or futuristic backgrounds
-- Repeated cards around every message, field, or status
+- Decorative glass, gradients, gradient-clipped headlines (`background-clip: text`), AI-default purple-to-indigo glows, particles, 3D spheres, or futuristic backgrounds
+- Repeated cards around every message, field, or status, or cards nested inside bordered/shadowed cards (card-in-card)
+- Thick colored side-tab accents (`border-left: 4px`) pasted onto rounded cards, or symmetric 3-column icon-in-tinted-box feature grids used as generic filler
 - Robot portraits, random stars, hexagons, or neural lines used as generic AI symbols
-- Large metrics without a decision, object, time range, or action
-- Long subtitles and onboarding banners that restate the interface
+- Decorative pulsing, pinging, or bouncing indicators (`animate-pulse`, `animate-ping`) pretending an ordinary element is "live" or "AI-powered"
+- Large metrics or social-proof claims without a real source, decision, object, time range, or action
+- Long subtitles, onboarding banners, em-dash slogan stitches, or forced three-adjective triads that restate the interface
 - Status communicated only by color, pulse, or light
 - Components that differ only by color instead of behavior
-- Generated copy that is vague, inflated, repetitive, or detached from the current object
+- Generated copy that is vague, inflated, defensive, repetitive, or detached from the current object
 
 For each finding, choose delete, merge, move to detail, replace with a familiar metaphor, or define a real behavior contract. Do not add explanatory text to rescue a confusing layout before testing a simpler hierarchy.
+
+### Cross-style visual and typographic defects
+
+These checks block execution defects across any chosen direction without prescribing a palette, typeface, corner radius, or visual genre. High-contrast black-and-white editorial print, dense tool workspaces, and expressive posters all stay valid when intentional.
+
+- **No nested bordered cards**: avoid wrapping bordered or shadowed cards inside another bordered card; flatten inner grouping with alignment, spacing, or a quiet tonal step.
+- **No broken concentric radii**: when a rounded surface contains another rounded card, inset panel, or button, keep `innerRadius <= outerRadius - padding` so corner gaps stay optically even.
+- **No washed-out gray text on colored surfaces**: avoid putting neutral gray text on a tinted or saturated background; shift lightness/alpha in the surface hue and clear WCAG contrast (≥ 4.5:1 body text, ≥ 3:1 large text and UI boundaries).
+- **No skipped heading levels or microscopic text**: keep heading levels sequential (`h1` → `h2` → `h3`) and avoid sub-12px copy used to smuggle disclaimers or cramped metadata onto the screen.
+- **No jittering figures or broken wraps**: use `tabular-nums` on tables, prices, counts, and timers that compare vertically; check heading line breaks (`text-wrap: balance` or deliberate wrapping) so CJK words do not split mid-term; keep CJK body line-height looser than Latin and avoid heavy bold on small CJK labels where strokes clog.
+- **No sterile over-deleted wireframes**: deleting slop, cards, and subtitles must not leave an uncalibrated blank page with dead empty bands or weak title-to-body contrast. Hierarchy must still read clearly through scale, alignment, spacing, and surface contrast.
 
 ## Copy in context
 

@@ -43,6 +43,8 @@ const fixtures = {
   'QS-COPY-008': { file: 'Abbrev.tsx', code: '<p>QBR 结论已同步</p>\n' },
   'QS-COPY-009': { file: 'Aphorism.tsx', code: '<p>\n  不止于工具\n</p>\n' },
   'QS-COPY-010': { file: 'Compressed.tsx', code: '<p>一键洞察，智能治理全链路</p>\n' },
+  'QS-COPY-011': { file: 'EmDash.tsx', code: '<p>极速同步——让协作更进一步</p>\n' },
+  'QS-COPY-012': { file: 'Vanity.tsx', code: '<p>已被 50,000+ 团队信赖，效率提升 300%</p>\n' },
   'QS-COMPOSITION-001': { file: 'TwoHeadings.tsx', code: '<h1>收藏</h1>\n<h2>最近</h2>\n' },
   'QS-HIERARCHY-001': { file: 'Caption.tsx', code: '<small>说明</small>\n' },
   'QS-ICON-001': { file: 'Icon.tsx', code: '<svg icon width="24" height="24"></svg>\n' },

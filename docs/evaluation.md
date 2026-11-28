@@ -19,7 +19,7 @@
 
 扫描器只发候选线索，不判定设计好坏。当前行为可复现的部分写成契约，随代码一起被测试守着：
 
-- 规则共 28 条，id 形如 `QS-FAMILY-001`。每条规则在 `scripts/ui-guard-review.mjs` 的 severity 和 remediation 注册表里各有一条记录，`scripts/review-rules.test.mjs` 会为每条规则跑一个能触发它的夹具，并反查 `references/review.md` 是否登记了该 id。缺 severity 会被静默降级成 P2，缺 remediation 只在 stderr 提示，所以这两份注册表必须双向对齐。README 与本文里出现的「N 条规则」也由 `scripts/review-rules.test.mjs` 对注册表校验，写死的旧数字会直接让测试失败——一个过期计数是读者第一个会去核对的数字。
+- 规则共 30 条，id 形如 `QS-FAMILY-001`。每条规则在 `scripts/ui-guard-review.mjs` 的 severity 和 remediation 注册表里各有一条记录，`scripts/review-rules.test.mjs` 会为每条规则跑一个能触发它的夹具，并反查 `references/review.md` 是否登记了该 id。缺 severity 会被静默降级成 P2，缺 remediation 只在 stderr 提示，所以这两份注册表必须双向对齐。README 与本文里出现的「N 条规则」也由 `scripts/review-rules.test.mjs` 对注册表校验，写死的旧数字会直接让测试失败——一个过期计数是读者第一个会去核对的数字。
 - 发现按 severity → 文件 → 行 → 规则排序，同一棵树的两次运行输出逐字节一致，方便做 diff。
 - 文本输出每行是 `file:line SEVERITY RULE message`，随后跟 evidence；修复建议按规则在末尾汇总一次（`RULE (N finding(s)) → remediation`），因为同一条建议在每条发现下重复会把文件清单挤出第一屏。`--json` 输出 `version: 2`，`findings` 每条带 `rule`、`severity`、`file`、`line`、`message`、`evidence`、`remediation`，`summary` 带 `total`、`skipped`、`baselined`、`bySeverity`、`byRule`；两种格式都报实际读了多少文件（`reviewed` / `N file(s) reviewed`），读到 0 个文件时额外提示根路径、扩展名清单和 `--include-markdown`——0 个文件的"干净"和真正干净不是同一个答案。
 - 退出码只有三种含义：`0` 无发现、`1` 有发现、`2` 扫描未完成（根目录读不到、文件读失败、配置或 baseline 无效）。`2` 优先于 `1`。`maxFileBytes` 跳过是声明的边界，会列在 `skipped` 里但不改退出码。

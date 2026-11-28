@@ -406,4 +406,51 @@ for (const ordered of [projects, projects.slice().reverse()]) {
   assert.deepEqual(copies.map(item => path.basename(path.dirname(path.dirname(item.file)))), ['project-b'])
 }
 
+// Expanded anti-pattern coverage: defensive hedging/sycophancy, negative parallelism,
+// em-dash/triad rhythm, unverified vanity claims, Tailwind visual slop, and multiline JSX.
+const antiPatternsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-antipatterns-'))
+fs.mkdirSync(path.join(antiPatternsDir, 'src'), { recursive: true })
+fs.mkdirSync(path.join(antiPatternsDir, 'examples'), { recursive: true })
+fs.writeFileSync(path.join(antiPatternsDir, 'src', 'AntiCopy.tsx'), [
+  '<p>值得注意的是，我们很抱歉，oops</p>',
+  '<p>懂你所想，告别繁琐，开启创作之旅</p>',
+  '<p>并非简单的看板，而是日常工单列表</p>',
+  '<p>不仅仅是编辑器，更是工作流</p>',
+  '<p>极速同步——让协作更进一步</p>',
+  '<p>高效、安全、稳定</p>',
+  '<p>已被 50,000+ 团队信赖，效率提升 300%</p>',
+  '<p>Trusted by 10,000+ teams for 3x faster shipping</p>',
+  '<p>AI-powered workspace to elevate your workflow</p>',
+  '<p>\n  这条流程需要打穿闭环\n</p>',
+  '<p>\n  一键洞察全部工单\n</p>',
+  '<p>共 12 条记录，已上传 80%</p>'
+].join('\n'))
+fs.writeFileSync(path.join(antiPatternsDir, 'src', 'AntiVisual.tsx'), [
+  '<h1 className="bg-gradient-to-r from-purple-500 to-indigo-600 bg-clip-text text-transparent">标题</h1>',
+  '<div className="border-l-4 rounded-xl p-4">提示</div>',
+  '<span className="animate-pulse">在线</span>',
+  '<div className="skeleton animate-pulse">加载占位</div>',
+  '<span className="rounded-full text-xs px-2 py-0.5">A</span>',
+  '<span className="rounded-full text-xs px-2 py-0.5">B</span>',
+  '<span className="rounded-full text-xs px-2 py-0.5">C</span>',
+  '<span className="rounded-full text-xs px-2 py-0.5">D</span>'
+].join('\n'))
+fs.writeFileSync(path.join(antiPatternsDir, 'examples', 'DemoSlop.tsx'), '<p>全新体验，无缝协作</p>\n')
+const apRun = spawnSync(process.execPath, [script, '--json', antiPatternsDir], { encoding: 'utf8' })
+assert.equal(apRun.status, 1)
+const apReport = JSON.parse(apRun.stdout)
+const byFileRule = (name, rule) => apReport.findings.filter((item) => item.file.endsWith(name) && item.rule === rule)
+assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-004').length, 2)
+assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-009').length, 2)
+assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-011').length, 2)
+assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-012').length, 2)
+assert.equal(byFileRule('AntiCopy.tsx', 'QS-SLOP-003').length, 1)
+assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-007').length, 1)
+assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-010').length, 1)
+assert(!apReport.findings.some((item) => item.file.endsWith('AntiCopy.tsx') && item.line === 15))
+assert.deepEqual(byFileRule('AntiVisual.tsx', 'QS-SLOP-001').map((item) => item.line), [1, 2, 3])
+assert.equal(byFileRule('AntiVisual.tsx', 'QS-COMPOSITION-001').length, 1)
+assert.equal(byFileRule('DemoSlop.tsx', 'QS-SLOP-003').length, 0)
+fs.rmSync(antiPatternsDir, { recursive: true, force: true })
+
 process.stdout.write('quiet-systems-review self-test passed\n')
