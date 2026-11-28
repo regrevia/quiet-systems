@@ -187,4 +187,88 @@ assert.deepEqual(
   'the doc and the validator disagree about which pressure labels exist'
 )
 
+// Ten evidence items, one list, and no per-item proof: dropping any one of the
+// middle six from the validator would have gone unnoticed, because the strict
+// fixture always carried all ten and the missing-contract fixture only ever
+// removed the first two.
+const evidenceLines = {
+  'design contract': '设计合同：已冻结。',
+  'interaction inventory': '交互清单：已完成。',
+  'field mapping': '字段映射：已核对。',
+  'state matrix': '状态矩阵：已覆盖。',
+  'viewport evidence': '视口：390 / 1440。',
+  'composition metrics': '指标：title=1 secondary=0 text-action=0 surface=1 pill=0 separator=0。',
+  'empty-space pressure': pressureLines['empty-space pressure'],
+  'text-button pressure': pressureLines['text-button pressure'],
+  'decoration pressure': pressureLines['decoration pressure'],
+  'copy deletion check': pressureLines['copy deletion check']
+}
+function evidenceReport(dropped) {
+  const body = Object.entries(evidenceLines)
+    .filter(([name]) => name !== dropped)
+    .map(([, line]) => line)
+    .join('\n')
+  return `# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n\n## 已验证的约束\n静态检查通过。\n\n## 尚未验证的项目\n需要真机验证。\n\n${body}\n`
+}
+for (const name of Object.keys(evidenceLines)) {
+  const file = path.join(root, `strict-without-${name.replaceAll(' ', '-')}.md`)
+  fs.writeFileSync(file, evidenceReport(name))
+  const result = spawnSync(process.execPath, [script, '--strict', file], { encoding: 'utf8' })
+  assert.equal(result.status, 1, `${name} is required, so a report without it must fail`)
+  assert.match(result.stderr, new RegExp(`missing ${name}\\b`), `${name} was not reported missing`)
+  const blamed = [...result.stderr.matchAll(/missing (.+)/g)].map((match) => match[1].trim())
+  assert.deepEqual(blamed, [name], `only ${name} was removed, so only ${name} may be reported missing`)
+}
+
+// Naming the check is not passing it: copy deletion is the one item whose
+// pattern has two halves, so a report that says the check exists without saying
+// what came of it must still be rejected.
+const copyNameOnly = path.join(root, 'strict-copy-name-only.md')
+fs.writeFileSync(copyNameOnly, evidenceReport('copy deletion check').replace(
+  /\n$/,
+  '\ncopy deletion check：文案删除这一项已经讨论过了。\n'
+))
+const copyNameOnlyResult = spawnSync(process.execPath, [script, '--strict', copyNameOnly], { encoding: 'utf8' })
+assert.equal(copyNameOnlyResult.status, 1, 'naming a copy deletion check is not an outcome for it')
+assert.match(copyNameOnlyResult.stderr, /copy deletion check needs file, line, or evidence/)
+
+// A pointer at a file satisfies the pressure-block rule while saying nothing
+// about what came of deleting the copy, so the evidence item has to reject it on
+// its own. This is the only fixture where the two checks disagree.
+const copyPointerOnly = path.join(root, 'strict-copy-pointer-only.md')
+fs.writeFileSync(copyPointerOnly, evidenceReport('copy deletion check').replace(
+  /\n$/,
+  '\ncopy deletion check：证据 src/Copy.tsx:9。\n'
+))
+const copyPointerOnlyResult = spawnSync(process.execPath, [script, '--strict', copyPointerOnly], { encoding: 'utf8' })
+assert.equal(copyPointerOnlyResult.status, 1, 'a file pointer is not the outcome of a copy deletion check')
+assert.match(copyPointerOnlyResult.stderr, /missing copy deletion check/)
+assert.doesNotMatch(copyPointerOnlyResult.stderr, /copy deletion check needs file, line, or evidence/, 'the pointer does carry a file and a line')
+
+// The doc's new sentence is the only place a reviewer learns that a pointer is
+// not an outcome, so it has to keep naming the item it applies to.
+const pointNamingLine = reportDoc.split('\n').find((line) => line.includes('逐项点名'))
+assert.ok(pointNamingLine, 'references/report-validation.md no longer says the missing list names one item at a time')
+assert.match(pointNamingLine, /missing copy deletion check/, 'the doc no longer names the item that a bare pointer fails')
+
+// The table in the doc is the only place a reviewer learns what the ten items
+// are, so its rows and the validator's list must be the same ten names.
+const validatorEvidence = fs.readFileSync(path.resolve('scripts/validate-review-report.mjs'), 'utf8')
+  .match(/const requiredEvidence = \[([\s\S]*?)\n  \]/)
+assert.ok(validatorEvidence, 'validator no longer declares requiredEvidence in one literal')
+assert.deepEqual(
+  [...validatorEvidence[1].matchAll(/name: '([a-z- ]+)'/g)].map((match) => match[1]),
+  Object.keys(evidenceLines),
+  'the validator checks a different set of evidence items than the fixtures assume'
+)
+const evidenceMarker = reportDoc.indexOf('| 证据项 |')
+assert.ok(evidenceMarker > 0, 'references/report-validation.md no longer carries the evidence table')
+const docRows = reportDoc.slice(evidenceMarker).split('\n\n')[0].split('\n')
+  .filter((line) => line.startsWith('| ') && !line.startsWith('| 证据项') && !line.startsWith('| ---'))
+assert.deepEqual(
+  docRows.map((row) => row.split('|')[1].trim()),
+  Object.keys(evidenceLines),
+  'references/report-validation.md no longer lists the same ten evidence items, in the same order'
+)
+
 process.stdout.write('validate-review-report self-test passed\n')
