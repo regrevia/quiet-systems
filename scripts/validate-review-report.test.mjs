@@ -271,4 +271,39 @@ assert.deepEqual(
   'references/report-validation.md no longer lists the same ten evidence items, in the same order'
 )
 
+// The doc promises two distinct early exits, so each has to be reachable on its
+// own: a missing argument and an unreadable file both report 2, and a missing
+// section reports 1 with the section named.
+const requiredSectionNames = [...fs.readFileSync(path.resolve('scripts/validate-review-report.mjs'), 'utf8')
+  .matchAll(/\{ name: '([A-Za-z0-9]+)', pattern/g)].map((match) => match[1])
+assert.deepEqual(requiredSectionNames, ['P0', 'P1', 'P2', 'verified', 'unverified'], 'the validator must keep the five sections the doc promises')
+
+const usageResult = spawnSync(process.execPath, [script], { encoding: 'utf8' })
+assert.equal(usageResult.status, 2, 'a report validation run with no path must exit 2')
+assert.match(usageResult.stderr, /usage: node scripts\/validate-review-report\.mjs \[--strict\] path\/to\/review\.md/)
+
+const usageStrictOnlyResult = spawnSync(process.execPath, [script, '--strict'], { encoding: 'utf8' })
+assert.equal(usageStrictOnlyResult.status, 2, 'a flag without a path is still a missing path')
+
+const unreadableResult = spawnSync(process.execPath, [script, path.join(root, 'no-such-report.md')], { encoding: 'utf8' })
+assert.equal(unreadableResult.status, 2, 'an unreadable report must exit 2, not 1')
+assert.match(unreadableResult.stderr, /quiet-systems report validation: cannot read /)
+
+const missingSections = path.join(root, 'missing-sections.md')
+fs.writeFileSync(missingSections, '# Review\n\n## P0\n无 P0。\n\n## P1\n无 P1。\n\n## P2\n无 P2。\n')
+const missingSectionsResult = spawnSync(process.execPath, [script, missingSections], { encoding: 'utf8' })
+assert.equal(missingSectionsResult.status, 1, 'a report missing sections must exit 1')
+assert.match(missingSectionsResult.stderr, /quiet-systems report validation: missing verified, unverified/)
+assert.doesNotMatch(missingSectionsResult.stderr, /missing P0/, 'P0 is present, so it must not be listed as missing')
+
+// The doc names the two words a reviewer will see when a section is missing, so
+// those words have to be the ones the validator prints.
+const exitCodeDoc = reportDoc.split('\n').find((line) => line.includes('返回 1 覆盖三种情况'))
+assert.ok(exitCodeDoc, 'references/report-validation.md no longer explains what exit code 1 covers')
+const namedMissing = exitCodeDoc.match(/`missing ([A-Za-z0-9]+)` \/ `missing ([A-Za-z0-9]+)`/)
+assert.ok(namedMissing, 'the doc no longer gives an example of the per-section missing message')
+for (const name of namedMissing.slice(1)) {
+  assert.ok(requiredSectionNames.includes(name), `the doc names ${name} as a section the validator reports, but it is not one`)
+}
+
 process.stdout.write('validate-review-report self-test passed\n')
