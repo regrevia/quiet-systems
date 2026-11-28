@@ -426,33 +426,38 @@ fs.writeFileSync(path.join(antiPatternsDir, 'src', 'AntiCopy.tsx'), [
   '<p>\n  一键洞察全部工单\n</p>',
   '<p>共 12 条记录，已上传 80%</p>',
   '<p>我们将在 3 个工作日内退款</p>',
+  '<p>我们将在稍后通知您</p>',
   '<button>Unlock account</button>',
   '<p>营业时间 9:00—18:00，2024—2025</p>',
   '<p>Saved — 3 files</p>',
-  '<p>99.95% 可用</p> // ui-guard: metric-sourced',
-  'const title = "https://example.com 极速同步——更快"'
+  '<p>\n  99.95% 可用\n  {/* ui-guard: metric-sourced */}\n</p>',
+  'const title = "https://example.com 极速同步——更快"// 注释'
 ].join('\n'))
 fs.writeFileSync(path.join(antiPatternsDir, 'src', 'AntiVisual.tsx'), [
-  '<h1 className="bg-gradient-to-r from-purple-500 to-indigo-600 bg-clip-text text-transparent">标题</h1>',
-  '<div className="bg-linear-to-r from-indigo-500 border-s-4 rounded-xl p-4">提示</div>',
+  '<h1 className="bg-linear-45 from-purple-500 to-indigo-600 bg-clip-text text-transparent">标题</h1>',
+  '<div className="bg-radial border-l-6 rounded-xl p-4">提示</div>',
   '<span className="animate-pulse">在线</span>',
   '<div className="skeleton\n  animate-pulse">加载占位</div>',
   '<blockquote className="border-l-4 pl-3">引文</blockquote>',
-  '<a aria-current="page" className="border-l-4 pl-2">当前页</a>',
-  '<div className="border-l-[6px] pl-3">强调</div> // ui-guard: accent-reviewed',
+  '<li aria-current="page">\n  {active && <span className="border-l-4">子元素</span>}\n</li>',
+  '<a aria-current="false" className="border-l-4 pl-2">非当前页</a>',
+  '<div\n  className="border-l-[6px] pl-3"\n  // ui-guard: accent-reviewed\n>强调</div>',
   '<span role="status" className="animate-ping">录制中</span>',
   '<span className="rounded-full text-[11px] px-2">A</span>',
   '<span className="rounded-full text-xs px-2 py-0.5">B</span>',
   '<span className="rounded-full text-xs px-2 py-0.5">C</span>',
-  '<span className="rounded-full text-xs px-2 py-0.5">D</span>',
-  '<span className="w-8 h-8 rounded-full text-xs">林</span>'
+  '<span className="min-w-8 rounded-full text-xs px-2">D</span>',
+  '<span className="w-8 h-8 rounded-full text-xs">林</span>',
+  '<span className="w-[32px] h-[32px] rounded-full text-xs">A</span>',
+  '<span className="size-8.5 rounded-full text-xs">B</span>',
+  '<span className="size-[32px] rounded-full text-xs">C</span>'
 ].join('\n'))
 fs.writeFileSync(path.join(antiPatternsDir, 'examples', 'DemoSlop.tsx'), '<p>全新体验，无缝协作</p>\n')
 const apRun = spawnSync(process.execPath, [script, '--json', antiPatternsDir], { encoding: 'utf8' })
 assert.equal(apRun.status, 1)
 const apReport = JSON.parse(apRun.stdout)
 const byFileRule = (name, rule) => apReport.findings.filter((item) => item.file.endsWith(name) && item.rule === rule)
-assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-004').length, 2)
+assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-004').length, 3)
 assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-009').length, 2)
 assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-011').length, 3)
 assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-012').length, 3)
@@ -460,7 +465,7 @@ assert.equal(byFileRule('AntiCopy.tsx', 'QS-SLOP-003').length, 1)
 assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-007').length, 1)
 assert.equal(byFileRule('AntiCopy.tsx', 'QS-COPY-010').length, 1)
 assert(!apReport.findings.some((item) => item.file.endsWith('AntiCopy.tsx') && (item.evidence.includes('共 12 条记录') || item.evidence.includes('3 个工作日内退款') || item.evidence.includes('Unlock account') || item.evidence.includes('9:00—18:00') || item.evidence.includes('Saved — 3 files') || item.evidence.includes('99.95% 可用'))))
-assert.deepEqual(byFileRule('AntiVisual.tsx', 'QS-SLOP-001').map((item) => item.line), [1, 2, 3])
+assert.deepEqual(byFileRule('AntiVisual.tsx', 'QS-SLOP-001').map((item) => item.line), [1, 2, 3, 8, 10])
 assert.equal(byFileRule('AntiVisual.tsx', 'QS-COMPOSITION-001').length, 1)
 const antiVisualMetric = apReport.metrics.find((metric) => metric.file.endsWith('AntiVisual.tsx'))
 assert.equal(antiVisualMetric.pillCount, 4)
